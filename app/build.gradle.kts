@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import io.gitlab.arturbosch.detekt.Detekt
+import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -11,6 +12,7 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.kover)
 }
 
 android {
@@ -77,6 +79,92 @@ tasks.withType<Detekt>().configureEach {
 
 ktlint {
     version.set(libs.versions.ktlint)
+}
+
+// Coverage policy (CLAUDE.md): >= 85% over domain/data/sync, 100% on the sync
+// queue and the conflict resolver. Generated code and pure Compose UI are excluded.
+val coveredPackages = listOf(
+    "com.qtekfun.ultimatedeck.domain",
+    "com.qtekfun.ultimatedeck.data",
+    "com.qtekfun.ultimatedeck.sync"
+)
+val criticalPackages = listOf(
+    "com.qtekfun.ultimatedeck.sync.queue",
+    "com.qtekfun.ultimatedeck.sync.conflict"
+)
+
+kover {
+    currentProject {
+        createVariant("critical") {
+            add("debug")
+        }
+    }
+
+    reports {
+        filters {
+            excludes {
+                packages(
+                    "com.qtekfun.ultimatedeck.ui",
+                    "dagger.hilt.internal",
+                    "hilt_aggregated_deps"
+                )
+                classes(
+                    "*.R",
+                    "*.R$*",
+                    "*.BuildConfig",
+                    "*Hilt_*",
+                    "*_HiltModules*",
+                    "*_Factory",
+                    "*_Factory$*",
+                    "*_MembersInjector",
+                    "*_Impl",
+                    "*_Impl$*",
+                    "*ComposableSingletons*"
+                )
+                annotatedBy(
+                    "androidx.compose.ui.tooling.preview.Preview",
+                    "dagger.Module",
+                    "dagger.hilt.android.HiltAndroidApp",
+                    "*Generated*"
+                )
+            }
+        }
+
+        total {
+            filters {
+                includes {
+                    packages(coveredPackages)
+                }
+            }
+            verify {
+                rule("domain, data and sync") {
+                    minBound(85)
+                }
+            }
+        }
+
+        variant("critical") {
+            filters {
+                includes {
+                    packages(criticalPackages)
+                }
+            }
+            verify {
+                rule("sync queue and conflict resolver") {
+                    minBound(100, CoverageUnit.LINE)
+                    minBound(100, CoverageUnit.BRANCH)
+                }
+            }
+        }
+    }
+}
+
+tasks.named("koverVerify") {
+    dependsOn("koverVerifyCritical")
+}
+
+tasks.named("check") {
+    dependsOn("koverVerify")
 }
 
 dependencies {
