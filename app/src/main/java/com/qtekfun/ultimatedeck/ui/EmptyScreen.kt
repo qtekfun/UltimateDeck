@@ -27,12 +27,12 @@ fun EmptyScreen(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(24.dp),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 text = stringResource(R.string.empty_screen_message),
                 style = MaterialTheme.typography.titleMedium,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Center
             )
         }
     }

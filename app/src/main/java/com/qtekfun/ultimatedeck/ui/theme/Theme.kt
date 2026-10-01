@@ -16,32 +16,34 @@ import androidx.compose.ui.platform.LocalContext
 private val LightColors = lightColorScheme(
     primary = Blue40,
     secondary = Teal40,
-    tertiary = Amber40,
+    tertiary = Amber40
 )
 
 private val DarkColors = darkColorScheme(
     primary = Blue80,
     secondary = Teal80,
-    tertiary = Amber80,
+    tertiary = Amber80
 )
 
 @Composable
 fun UltimateDeckTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
-    content: @Composable () -> Unit,
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColors
+
         else -> LightColors
     }
     MaterialTheme(
         colorScheme = colorScheme,
         typography = UltimateDeckTypography,
-        content = content,
+        content = content
     )
 }
