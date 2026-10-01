@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M33,34h12a2,2 0,0 1,2 2v34a2,2 0,0 1,-2 2h-12a2,2 0,0 1,-2 -2v-34a2,2 0,0 1,2 -2z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M51,34h12a2,2 0,0 1,2 2v22a2,2 0,0 1,-2 2h-12a2,2 0,0 1,-2 -2v-22a2,2 0,0 1,2 -2z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M69,34h6a2,2 0,0 1,2 2v14a2,2 0,0 1,-2 2h-6a2,2 0,0 1,-2 -2v-14a2,2 0,0 1,2 -2z" />
+</vector>
