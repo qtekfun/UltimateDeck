@@ -45,6 +45,12 @@ android {
         compose = true
     }
 
+    lint {
+        warningsAsErrors = true
+        abortOnError = true
+        checkReleaseBuilds = true
+    }
+
     androidResources {
         generateLocaleConfig = true
     }
