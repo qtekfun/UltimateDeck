@@ -236,6 +236,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    implementation("com.google.android.gms:play-services-base:18.7.2")
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 }
