@@ -3,6 +3,9 @@
 
 import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -13,6 +16,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kover)
+    alias(libs.plugins.licensee)
 }
 
 android {
@@ -165,6 +169,59 @@ tasks.named("koverVerify") {
 
 tasks.named("check") {
     dependsOn("koverVerify")
+}
+
+// Only GPL-3.0-compatible free licenses may ship in the APK. Anything else,
+// including dependencies without a declared license, fails the build.
+// Add other GPL-3.0-compatible SPDX ids (MIT, BSD-2-Clause, BSD-3-Clause,
+// ISC...) only when a dependency needs them; licensee warns about unused ones.
+licensee {
+    allow("Apache-2.0")
+}
+
+// Google Play Services, Firebase and Crashlytics are banned outright (F-Droid
+// rules in CLAUDE.md), regardless of what license they declare.
+val checkForbiddenDependencies = tasks.register("checkForbiddenDependencies") {
+    group = "verification"
+    description =
+        "Fails if a runtime classpath contains Google Play Services, Firebase or Crashlytics."
+    val forbiddenGroupPrefixes = listOf(
+        "com.google.android.gms",
+        "com.google.firebase",
+        "com.crashlytics",
+        "io.fabric"
+    )
+    val runtimeModules = listOf("debugRuntimeClasspath", "releaseRuntimeClasspath").map { name ->
+        configurations.named(name).flatMap { it.incoming.resolutionResult.rootComponent }
+    }
+    doLast {
+        val modules = mutableSetOf<String>()
+        val seen = mutableSetOf<ResolvedComponentResult>()
+        val pending = ArrayDeque(runtimeModules.map { it.get() })
+        while (pending.isNotEmpty()) {
+            val component = pending.removeFirst()
+            if (seen.add(component)) {
+                (component.id as? ModuleComponentIdentifier)?.let {
+                    modules.add(it.moduleIdentifier.toString())
+                }
+                component.dependencies
+                    .filterIsInstance<ResolvedDependencyResult>()
+                    .forEach { pending.add(it.selected) }
+            }
+        }
+        val offenders = modules
+            .filter { module -> forbiddenGroupPrefixes.any { module.startsWith(it) } }
+            .sorted()
+        if (offenders.isNotEmpty()) {
+            throw GradleException(
+                "Forbidden non-free dependencies found: ${offenders.joinToString()}"
+            )
+        }
+    }
+}
+
+tasks.named("check") {
+    dependsOn(checkForbiddenDependencies)
 }
 
 dependencies {
