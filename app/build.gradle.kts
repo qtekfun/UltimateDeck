@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 UltimateDeck contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import io.gitlab.arturbosch.detekt.Detekt
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -8,6 +9,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -28,7 +31,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
         }
     }
@@ -52,6 +55,22 @@ kotlin {
         jvmTarget.set(JvmTarget.JVM_17)
         allWarningsAsErrors.set(true)
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    allRules = false
+    config.setFrom(rootProject.file("config/detekt/detekt.yml"))
+    source.setFrom("src/main/java", "src/test/java", "src/androidTest/java")
+}
+
+tasks.withType<Detekt>().configureEach {
+    // Match the project bytecode level; detekt defaults to the JDK running Gradle.
+    jvmTarget = "17"
+}
+
+ktlint {
+    version.set(libs.versions.ktlint)
 }
 
 dependencies {
