@@ -245,6 +245,7 @@ private fun cardDescription(card: CardUi, today: LocalDate): String {
         if (card.assignees.isNotEmpty()) {
             add(stringResource(R.string.board_card_assignees, card.assignees.joinToString()))
         }
+        if (card.pendingSync) add(stringResource(R.string.card_pending_sync))
     }
     return parts.joinToString(". ")
 }

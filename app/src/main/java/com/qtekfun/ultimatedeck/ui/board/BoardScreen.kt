@@ -26,6 +26,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,6 +66,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -151,15 +155,28 @@ fun BoardScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BoardTopBar(title: String, onMenu: () -> Unit, onShowArchived: () -> Unit) {
+    var menu by remember { mutableStateOf(false) }
     TopAppBar(
-        title = { Text(title) },
+        // One line: with a large font a long title would otherwise wrap letter by letter.
+        title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
             IconButton(onClick = onMenu) {
                 Icon(Icons.Filled.Menu, stringResource(R.string.drawer_menu))
             }
         },
         actions = {
-            TextButton(onClick = onShowArchived) { Text(stringResource(R.string.archived_title)) }
+            IconButton(onClick = { menu = true }) {
+                Icon(Icons.Filled.MoreVert, stringResource(R.string.board_more))
+            }
+            DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.archived_title)) },
+                    onClick = {
+                        menu = false
+                        onShowArchived()
+                    }
+                )
+            }
         }
     )
 }

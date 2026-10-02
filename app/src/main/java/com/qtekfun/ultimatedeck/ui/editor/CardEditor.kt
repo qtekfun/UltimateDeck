@@ -8,6 +8,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,6 +44,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
@@ -123,7 +127,8 @@ private fun DescriptionFrame(editing: Boolean, content: @Composable () -> Unit) 
         Text(
             stringResource(R.string.editor_description_label),
             style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.semantics { heading() }
         )
         Box(
             Modifier
@@ -191,6 +196,7 @@ private fun withTable(source: String, table: String): String {
     return source + separator + table
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun StoredMarkdown(
     stored: String,
@@ -201,17 +207,18 @@ private fun StoredMarkdown(
     val identical = stored == original
     Column(Modifier.navigationBarsPadding()) {
         HorizontalDivider()
-        Row(
+        // Side by side when they fit, one under the other with large fonts.
+        FlowRow(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceBetween,
+            itemVerticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(
                     if (identical) R.string.editor_identical else R.string.editor_changed
                 ),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f)
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             TextButton(onClick = onToggle) { Text(stringResource(R.string.editor_show_markdown)) }
         }

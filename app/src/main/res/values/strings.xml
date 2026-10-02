@@ -176,4 +176,5 @@
     <string name="attachments_delete">Delete %1$s</string>
     <string name="attachments_delete_title">Delete this attachment?</string>
     <string name="attachments_delete_text">%1$s will be deleted on the server too.</string>
+    <string name="board_more">More options</string>
 </resources>

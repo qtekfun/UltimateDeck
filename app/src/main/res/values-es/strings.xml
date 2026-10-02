@@ -168,4 +168,5 @@
     <string name="attachments_delete">Eliminar %1$s</string>
     <string name="attachments_delete_title">¿Eliminar este adjunto?</string>
     <string name="attachments_delete_text">%1$s también se eliminará en el servidor.</string>
+    <string name="board_more">Más opciones</string>
 </resources>
