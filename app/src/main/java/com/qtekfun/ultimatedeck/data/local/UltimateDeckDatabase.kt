@@ -10,6 +10,8 @@ import com.qtekfun.ultimatedeck.data.local.dao.AccountDao
 import com.qtekfun.ultimatedeck.data.local.dao.AttachmentDao
 import com.qtekfun.ultimatedeck.data.local.dao.BoardDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardDao
+import com.qtekfun.ultimatedeck.data.local.dao.CardLocalEditDao
+import com.qtekfun.ultimatedeck.data.local.dao.CardSnapshotDao
 import com.qtekfun.ultimatedeck.data.local.dao.LabelDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
 import com.qtekfun.ultimatedeck.data.local.dao.UserDao
@@ -19,6 +21,7 @@ import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
 import com.qtekfun.ultimatedeck.data.local.entity.CardAssigneeCrossRef
 import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
 import com.qtekfun.ultimatedeck.data.local.entity.CardLabelCrossRef
+import com.qtekfun.ultimatedeck.data.local.entity.CardServerSnapshotEntity
 import com.qtekfun.ultimatedeck.data.local.entity.DeckUserEntity
 import com.qtekfun.ultimatedeck.data.local.entity.LabelEntity
 import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
@@ -34,7 +37,8 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         CardLabelCrossRef::class,
         DeckUserEntity::class,
         CardAssigneeCrossRef::class,
-        AttachmentEntity::class
+        AttachmentEntity::class,
+        CardServerSnapshotEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -54,4 +58,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     abstract fun attachmentDao(): AttachmentDao
+
+    abstract fun cardLocalEditDao(): CardLocalEditDao
+
+    abstract fun cardSnapshotDao(): CardSnapshotDao
 }

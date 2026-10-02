@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "46cefb42bc5cc890d5bbad81f005fe37",
+    "identityHash": "f38fcf11d9e244f486d05ea04f683b3b",
     "entities": [
       {
         "tableName": "account",
@@ -214,7 +214,7 @@
       },
       {
         "tableName": "card",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `id` INTEGER NOT NULL, `boardId` INTEGER NOT NULL, `stackId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `order` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `dueDate` INTEGER, `done` INTEGER, `ownerUid` TEXT, `lastModified` INTEGER, `etag` TEXT, `deletedAt` INTEGER, PRIMARY KEY(`accountId`, `id`), FOREIGN KEY(`accountId`, `stackId`) REFERENCES `stack`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `id` INTEGER NOT NULL, `boardId` INTEGER NOT NULL, `stackId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `order` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `dueDate` INTEGER, `done` INTEGER, `ownerUid` TEXT, `lastModified` INTEGER, `etag` TEXT, `deletedAt` INTEGER, `dirtyFields` INTEGER NOT NULL, PRIMARY KEY(`accountId`, `id`), FOREIGN KEY(`accountId`, `stackId`) REFERENCES `stack`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "accountId",
@@ -293,6 +293,12 @@
             "fieldPath": "deletedAt",
             "columnName": "deletedAt",
             "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dirtyFields",
+            "columnName": "dirtyFields",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -688,11 +694,113 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "card_server_snapshot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `stackId` INTEGER NOT NULL, `order` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `dueDate` INTEGER, `done` INTEGER, `labelIds` TEXT NOT NULL, `assigneeUids` TEXT NOT NULL, `lastModified` INTEGER, `etag` TEXT, PRIMARY KEY(`accountId`, `cardId`), FOREIGN KEY(`accountId`, `cardId`) REFERENCES `card`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardId",
+            "columnName": "cardId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stackId",
+            "columnName": "stackId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archived",
+            "columnName": "archived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dueDate",
+            "columnName": "dueDate",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "done",
+            "columnName": "done",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "labelIds",
+            "columnName": "labelIds",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "assigneeUids",
+            "columnName": "assigneeUids",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastModified",
+            "columnName": "lastModified",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "etag",
+            "columnName": "etag",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "cardId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "card",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "cardId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '46cefb42bc5cc890d5bbad81f005fe37')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f38fcf11d9e244f486d05ea04f683b3b')"
     ]
   }
 }

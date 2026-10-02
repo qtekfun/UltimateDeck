@@ -40,5 +40,7 @@ data class CardEntity(
     val ownerUid: String? = null,
     val lastModified: Instant? = null,
     val etag: String? = null,
-    val deletedAt: Instant? = null
+    val deletedAt: Instant? = null,
+    /** Bit mask of [com.qtekfun.ultimatedeck.data.local.model.CardField]s changed locally. */
+    val dirtyFields: Int = 0
 )
