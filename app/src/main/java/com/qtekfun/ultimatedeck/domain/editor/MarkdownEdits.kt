@@ -9,14 +9,13 @@ data class EditResult(val text: String, val selection: SourceRange)
 /**
  * Formatting commands as minimal changes on the markdown source: only the syntax characters
  * involved are inserted or removed, the rest of the text is left byte for byte as it was.
+ * List commands live in [MarkdownListEdits].
  */
 object MarkdownEdits {
     private const val BOLD = "**"
     private const val ITALIC = "_"
-    private const val BULLET = "- "
-    private const val CHECKBOX = "[ ] "
-    private val listItem =
-        Regex("""^(?<indent>\s*)(?<bullet>[-*+])(?<space>\s+)(?<checkbox>\[[ xX]]\s+)?""")
+    private const val HEADING = "## "
+    private val heading = Regex("""^#{1,6}[ \t]+""")
 
     /** Ticks or unticks [task], changing exactly one character. */
     fun toggleTask(source: String, task: TaskMarker): String {
@@ -63,68 +62,32 @@ object MarkdownEdits {
         }
     }
 
-    /** Turns the selected lines into a bullet list, or back into plain lines if they all are one. */
-    fun toggleBulletList(source: String, selection: SourceRange): EditResult =
+    /** Turns the selected lines into headings, or back into plain text if they are ones. */
+    fun toggleHeading(source: String, selection: SourceRange): EditResult =
         editLines(source, selection) { lines ->
-            val allBullets = lines.filter { it.isNotBlank() }.all { listItem.containsMatchIn(it) }
             lines.map { line ->
-                val match = listItem.find(line)
+                val match = heading.find(line)
                 when {
+                    match != null -> line.substring(match.range.last + 1)
                     line.isBlank() -> line
-
-                    allBullets && match != null -> match.groupValues[1] +
-                        line.substring(match.range.last + 1)
-
-                    match != null -> line
-
-                    else -> insertAfterIndent(line, BULLET)
+                    else -> HEADING + line
                 }
             }
         }
+}
 
-    /** Turns the selected lines into a task list, or removes their checkboxes if they all have one. */
-    fun toggleTaskList(source: String, selection: SourceRange): EditResult =
-        editLines(source, selection) { lines ->
-            val allTasks = lines.filter { it.isNotBlank() }
-                .all { listItem.find(it)?.groups?.get("checkbox") != null }
-            lines.map { line ->
-                val match = listItem.find(line)
-                when {
-                    line.isBlank() -> line
-
-                    allTasks && match != null -> line.removeRange(match.groups["checkbox"]!!.range)
-
-                    match != null && match.groups["checkbox"] == null -> {
-                        val afterBullet = match.groups["space"]!!.range.last + 1
-                        line.substring(0, afterBullet) + CHECKBOX + line.substring(afterBullet)
-                    }
-
-                    match != null -> line
-
-                    else -> insertAfterIndent(line, BULLET + CHECKBOX)
-                }
-            }
-        }
-
-    private fun insertAfterIndent(line: String, prefix: String): String {
-        val indent = line.length - line.trimStart().length
-        return line.substring(0, indent) + prefix + line.substring(indent)
-    }
-
-    /** Applies [transform] to the whole lines touched by [selection] and selects the result. */
-    private fun editLines(
-        source: String,
-        selection: SourceRange,
-        transform: (List<String>) -> List<String>
-    ): EditResult {
-        val first = source.lastIndexOf('\n', selection.start - 1) + 1
-        val lastBreak = source.indexOf('\n', maxOf(selection.end - 1, selection.start))
-        val last = if (lastBreak < 0) source.length else lastBreak
-        val block = source.substring(first, last)
-        val edited = transform(block.split('\n')).joinToString("\n")
-        return EditResult(
-            source.substring(0, first) + edited + source.substring(last),
-            SourceRange(first, first + edited.length)
-        )
-    }
+/** Applies [transform] to the whole lines touched by [selection] and selects the result. */
+internal fun editLines(
+    source: String,
+    selection: SourceRange,
+    transform: (List<String>) -> List<String>
+): EditResult {
+    val first = source.lastIndexOf('\n', selection.start - 1) + 1
+    val lastBreak = source.indexOf('\n', maxOf(selection.end - 1, selection.start))
+    val last = if (lastBreak < 0) source.length else lastBreak
+    val edited = transform(source.substring(first, last).split('\n')).joinToString("\n")
+    return EditResult(
+        source.substring(0, first) + edited + source.substring(last),
+        SourceRange(first, first + edited.length)
+    )
 }

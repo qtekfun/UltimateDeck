@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
+import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
 
 /**
  * Editor prototype (T03): a sample description in the live markdown editor, with the stored
@@ -95,8 +96,8 @@ private fun liveEditorActions(value: TextFieldValue, onChange: (TextFieldValue) 
     EditorActions(
         bold = { onChange(value.edit(MarkdownEdits::toggleBold)) },
         italic = { onChange(value.edit(MarkdownEdits::toggleItalic)) },
-        bulletList = { onChange(value.edit(MarkdownEdits::toggleBulletList)) },
-        taskList = { onChange(value.edit(MarkdownEdits::toggleTaskList)) }
+        bulletList = { onChange(value.edit(MarkdownListEdits::toggleBulletList)) },
+        taskList = { onChange(value.edit(MarkdownListEdits::toggleTaskList)) }
     )
 
 @Composable

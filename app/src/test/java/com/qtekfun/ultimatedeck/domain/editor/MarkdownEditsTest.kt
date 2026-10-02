@@ -97,28 +97,28 @@ class MarkdownEditsTest {
     inner class ToggleBulletList {
         @Test
         fun `adds bullets to plain lines keeping their indentation`() {
-            val result = MarkdownEdits.toggleBulletList("one\n  two\nthree", SourceRange(0, 9))
+            val result = MarkdownListEdits.toggleBulletList("one\n  two\nthree", SourceRange(0, 9))
 
             assertEquals("- one\n  - two\nthree", result.text)
         }
 
         @Test
         fun `removes bullets when every selected line has one`() {
-            val result = MarkdownEdits.toggleBulletList("- one\n* two\n", SourceRange(0, 10))
+            val result = MarkdownListEdits.toggleBulletList("- one\n* two\n", SourceRange(0, 10))
 
             assertEquals("one\ntwo\n", result.text)
         }
 
         @Test
         fun `only adds bullets to the lines that miss one`() {
-            val result = MarkdownEdits.toggleBulletList("- one\ntwo", SourceRange(0, 9))
+            val result = MarkdownListEdits.toggleBulletList("- one\ntwo", SourceRange(0, 9))
 
             assertEquals("- one\n- two", result.text)
         }
 
         @Test
         fun `skips blank lines and keeps Windows line endings`() {
-            val result = MarkdownEdits.toggleBulletList("a\r\n\r\nb\r\n", SourceRange(0, 6))
+            val result = MarkdownListEdits.toggleBulletList("a\r\n\r\nb\r\n", SourceRange(0, 6))
 
             assertEquals("- a\r\n\r\n- b\r\n", result.text)
         }
@@ -126,7 +126,7 @@ class MarkdownEditsTest {
         @Test
         fun `selects the edited lines`() {
             val source = "intro\none\ntwo\noutro"
-            val result = MarkdownEdits.toggleBulletList(source, SourceRange(7, 11))
+            val result = MarkdownListEdits.toggleBulletList(source, SourceRange(7, 11))
 
             assertEquals("intro\n- one\n- two\noutro", result.text)
             assertEquals(SourceRange(6, 17), result.selection)
@@ -137,28 +137,31 @@ class MarkdownEditsTest {
     inner class ToggleTaskList {
         @Test
         fun `turns plain lines into unchecked tasks`() {
-            val result = MarkdownEdits.toggleTaskList("buy milk", SourceRange(0, 0))
+            val result = MarkdownListEdits.toggleTaskList("buy milk", SourceRange(0, 0))
 
             assertEquals("- [ ] buy milk", result.text)
         }
 
         @Test
         fun `adds checkboxes to existing bullets`() {
-            val result = MarkdownEdits.toggleTaskList("* first\n- second", SourceRange(0, 15))
+            val result = MarkdownListEdits.toggleTaskList("* first\n- second", SourceRange(0, 15))
 
             assertEquals("* [ ] first\n- [ ] second", result.text)
         }
 
         @Test
         fun `removes checkboxes when every line is a task, keeping the bullets`() {
-            val result = MarkdownEdits.toggleTaskList("- [x] done\n- [ ] todo", SourceRange(0, 20))
+            val result = MarkdownListEdits.toggleTaskList(
+                "- [x] done\n- [ ] todo",
+                SourceRange(0, 20)
+            )
 
             assertEquals("- done\n- todo", result.text)
         }
 
         @Test
         fun `keeps existing tasks when converting a mixed selection`() {
-            val result = MarkdownEdits.toggleTaskList("- [x] done\n- todo", SourceRange(0, 17))
+            val result = MarkdownListEdits.toggleTaskList("- [x] done\n- todo", SourceRange(0, 17))
 
             assertEquals("- [x] done\n- [ ] todo", result.text)
         }
