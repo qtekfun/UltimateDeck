@@ -125,7 +125,10 @@ class OperationQueue @Inject constructor(
         operation: PendingOperationEntity,
         executor: OperationExecutor
     ): ExecutionResult = try {
-        executor.execute(operation.entityId, QueuedOperation.decode(operation.payload))
+        val maybeSent = operation.startedAt != null
+        val decoded = QueuedOperation.decode(operation.payload)
+        retryDao.markStarted(operation.id, clock.instant())
+        executor.execute(operation.entityId, decoded, maybeSent)
     } catch (cancelled: CancellationException) {
         throw cancelled
     } catch (_: SerializationException) {

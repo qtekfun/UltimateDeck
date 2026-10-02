@@ -33,6 +33,10 @@ class DeckOperationExecutorTest {
     @AfterEach
     fun close() = db.close()
 
+    /** A first attempt: nothing was sent before. */
+    private suspend fun DeckOperationExecutor.execute(entityId: Long, operation: QueuedOperation) =
+        execute(entityId, operation, maybeSent = false)
+
     private fun request() = server.takeRequest().let {
         "${it.method} ${it.target} ${it.body?.utf8().orEmpty()}".trim()
     }
@@ -91,9 +95,11 @@ class DeckOperationExecutorTest {
     }
 
     @Test
-    fun `updates a card with its whole local state`() = runTest {
+    fun `an update sends what changed here and keeps the server's other fields`() = runTest {
         db.seedBoard()
-        db.cardDao().upsert(listOf(card(5, title = "Now", stackId = STACK)))
+        val edited = card(5, title = "Now", dirty = CardField.TITLE.bit)
+        db.cardDao().upsert(listOf(edited.copy(description = "Stale", order = 3)))
+        db.cardSnapshotDao().put(snapshot(5, title = "Test"))
         repeat(2) { server.enqueue(json(ApiFixtures.read("card_created.json"))) }
 
         val result = executor.execute(5, QueuedOperation.UpdateCard(BOARD, stackId = 99))
@@ -101,8 +107,8 @@ class DeckOperationExecutorTest {
         assertEquals(ExecutionResult.Done(), result)
         assertEquals("GET $cardPath/5", request())
         assertEquals(
-            """PUT $cardPath/5 {"title":"Now","owner":"ana","order":0,"description":"",""" +
-                """"type":"plain","archived":false}""",
+            """PUT $cardPath/5 {"title":"Now","owner":"ana","order":999,"description":"",""" +
+                """"type":"plain","duedate":"2019-12-24T19:29:30+00:00","archived":false}""",
             request()
         )
     }
@@ -281,4 +287,62 @@ class DeckOperationExecutorTest {
             assertEquals("Ab", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
             assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
         }
+
+    @Test
+    fun `a create that may have reached the server takes the card it created`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New"), card(9, title = "New")))
+        server.enqueue(
+            json(
+                """[{"id":10,"title":"To do","boardId":1,"cards":[
+                {"id":9,"title":"New","stackId":10},{"id":12,"title":"New","stackId":10}]}]"""
+            )
+        )
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Done(serverId = 12), result)
+        assertEquals("GET ${API_PATH}boards/1/stacks", request())
+        assertEquals(1, server.requestCount)
+        assertEquals("New", db.cardDao().get(ACCOUNT, 12)?.title)
+    }
+
+    @Test
+    fun `a create that may have been sent but is not on the server is sent again`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New")))
+        server.enqueue(json("""[{"id":10,"title":"To do","boardId":1,"cards":[]}]"""))
+        server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Done(serverId = 10), result)
+        request()
+        assertEquals("POST $cardPath", request().substringBefore(" {"))
+    }
+
+    @Test
+    fun `a create waits when the server cannot be checked first`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New")))
+        server.enqueue(MockResponse(503))
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Retry("HTTP 503"), result)
+        assertEquals(1, server.requestCount)
+        assertEquals("New", db.cardDao().get(ACCOUNT, -1)?.title)
+    }
 }

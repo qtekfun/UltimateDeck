@@ -61,7 +61,7 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 @ColumnTypeConverters(Converters::class)
 abstract class UltimateDeckDatabase : RoomDatabase() {
     companion object {
-        const val VERSION = 7
+        const val VERSION = 8
 
         /**
          * Migrations from each released version to the next. There is no destructive fallback:
@@ -74,7 +74,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
                 Migration3To4,
                 Migration4To5,
                 Migration5To6,
-                Migration6To7
+                Migration6To7,
+                Migration7To8
             )
     }
 

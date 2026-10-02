@@ -273,6 +273,24 @@ class OperationQueueTest {
         }
 
         @Test
+        fun `tells the executor when an earlier run may have reached the server`() = runTest {
+            val accountId = account()
+            queue.enqueue(accountId, 100, move(1))
+            queue.enqueue(accountId, 101, move(2))
+            queue.enqueue(accountId, 102, move(3))
+            executor.on(100, { throw CancellationException("app closed") })
+            executor.on(101, { ExecutionResult.Retry("timeout") })
+
+            assertThrows<CancellationException> { queue.process(accountId, executor) }
+            assertEquals(clock.now, queued(accountId).first().startedAt)
+            queue.process(accountId, executor)
+            clock.advance(Duration.ofHours(2))
+            queue.process(accountId, executor)
+
+            assertEquals(listOf(false, true, false, false, true), executor.maybeSent)
+        }
+
+        @Test
         fun `repeats an operation sent before a crash, which is safe because it is idempotent`() =
             runTest {
                 val accountId = account()

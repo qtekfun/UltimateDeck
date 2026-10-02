@@ -24,6 +24,10 @@ interface PendingOperationRetryDao {
     )
     suspend fun markFailed(id: Long, error: String?)
 
+    /** Recorded before each run: if the app dies mid-request, the next run knows it may have arrived. */
+    @Query("UPDATE pending_operation SET startedAt = :at WHERE id = :id")
+    suspend fun markStarted(id: Long, at: Instant)
+
     /** Makes a failed or postponed operation run at [now]. */
     @Query("UPDATE pending_operation SET failed = 0, nextAttemptAt = :now WHERE id = :id")
     suspend fun resetForRetry(id: Long, now: Instant)
