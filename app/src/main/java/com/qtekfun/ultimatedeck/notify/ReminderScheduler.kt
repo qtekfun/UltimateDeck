@@ -10,6 +10,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.content.edit
 import com.qtekfun.ultimatedeck.domain.reminders.Reminder
+import com.qtekfun.ultimatedeck.ui.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,8 +19,9 @@ private const val PREFERENCES = "reminders"
 private const val KEY_SCHEDULED = "scheduled"
 
 /**
- * Turns planned reminders into alarms (RF-10): exact when the system allows it, otherwise as
- * close as it lets. Alarms of a previous plan that are no longer wanted are cancelled.
+ * Turns planned reminders into alarms (RF-10): alarm clocks when exact alarms are allowed, so
+ * they ring on time with the screen off; otherwise as close as the system lets. Alarms of a
+ * previous plan that are no longer wanted are cancelled.
  */
 @Singleton
 class ReminderScheduler @Inject constructor(@ApplicationContext private val context: Context) {
@@ -30,7 +32,8 @@ class ReminderScheduler @Inject constructor(@ApplicationContext private val cont
     fun canScheduleExact(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarms.canScheduleExactAlarms()
 
-    fun schedule(reminders: List<Reminder>) {
+    /** [alarmClock]: the aggressive mode, set like an alarm clock so nothing delays it. */
+    fun schedule(reminders: List<Reminder>, alarmClock: Boolean) {
         val wanted = reminders.associateBy { it.cardId }
         val previous = preferences.getStringSet(KEY_SCHEDULED, emptySet()).orEmpty().mapNotNull {
             it.toLongOrNull()
@@ -40,14 +43,33 @@ class ReminderScheduler @Inject constructor(@ApplicationContext private val cont
         wanted.values.forEach { reminder ->
             val intent = pendingIntent(reminder.cardId, reminder)
             val at = reminder.at.toEpochMilli()
-            if (exact) {
-                alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
-            } else {
-                alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
+            when {
+                // An alarm clock is never deferred, not even by battery savers that delay other
+                // exact alarms with the screen off (seen on ColorOS); it shows the alarm icon.
+                exact && alarmClock ->
+                    alarms.setAlarmClock(
+                        AlarmManager.AlarmClockInfo(at, openCard(reminder)),
+                        intent
+                    )
+
+                exact -> alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
+
+                else ->
+                    alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
             }
         }
         preferences.edit { putStringSet(KEY_SCHEDULED, wanted.keys.map(Long::toString).toSet()) }
     }
+
+    /** What the system opens from its "next alarm" display: the card. */
+    private fun openCard(reminder: Reminder): PendingIntent = PendingIntent.getActivity(
+        context,
+        reminder.cardId.hashCode(),
+        CardLink(reminder.boardId, reminder.boardTitle, reminder.cardId)
+            .putInto(Intent(context, MainActivity::class.java))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
 
     private fun pendingIntent(cardId: Long, reminder: Reminder?): PendingIntent {
         val intent = Intent(context, ReminderReceiver::class.java).setAction("reminder:$cardId")

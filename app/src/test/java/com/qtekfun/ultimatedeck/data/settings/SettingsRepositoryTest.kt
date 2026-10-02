@@ -131,4 +131,13 @@ class SettingsRepositoryTest {
             )
         }
     }
+
+    @Test
+    fun `the aggressive reminder mode is kept`() = runTest {
+        repository.settings.test {
+            assertEquals(false, awaitItem().reminderAlarmClock)
+            repository.setReminderAlarmClock(true)
+            assertEquals(true, awaitItem().reminderAlarmClock)
+        }
+    }
 }

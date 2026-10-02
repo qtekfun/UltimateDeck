@@ -23,5 +23,7 @@ data class AppSettings(
     val favoriteBoardId: Long? = null,
     val reminders: Boolean = false,
     val reminderLead: ReminderLead = ReminderLead.AT_DUE,
-    val reminderScope: ReminderScope = ReminderScope.ASSIGNED_TO_ME
+    val reminderScope: ReminderScope = ReminderScope.ASSIGNED_TO_ME,
+    /** Aggressive mode: reminders are set like an alarm clock, which no battery saver delays. */
+    val reminderAlarmClock: Boolean = false
 )

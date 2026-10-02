@@ -4,8 +4,11 @@
 package com.qtekfun.ultimatedeck.ui.settings
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.PowerManager
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -63,8 +66,25 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
             viewModel.setReminderScope(scope)
         }
     }
+    Choice(stringResource(R.string.settings_reminders_normal), !settings.reminderAlarmClock) {
+        viewModel.setReminderAlarmClock(false)
+    }
+    Choice(stringResource(R.string.settings_reminders_aggressive), settings.reminderAlarmClock) {
+        viewModel.setReminderAlarmClock(true)
+    }
+    SystemPermissions(viewModel)
+}
+
+/** Exact alarms and no battery restrictions, so reminders arrive on time. */
+@Composable
+private fun SystemPermissions(viewModel: SettingsViewModel) {
+    val context = LocalContext.current
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        ExactAlarmNotice(viewModel) {
+        PermissionNotice(
+            granted = viewModel::canScheduleExact,
+            message = R.string.settings_reminders_inexact,
+            action = R.string.settings_reminders_allow_exact
+        ) {
             context.startActivity(
                 Intent(
                     Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
@@ -73,28 +93,38 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
             )
         }
     }
+    val power = context.getSystemService(PowerManager::class.java)
+    PermissionNotice(
+        granted = { power.isIgnoringBatteryOptimizations(context.packageName) },
+        message = R.string.settings_reminders_battery,
+        action = R.string.settings_reminders_allow_battery
+    ) { requestBatteryExemption(context) }
 }
 
-/** Shown while exact alarms are not allowed; checked again when coming back from the system. */
+/**
+ * A system permission reminders need, while it is missing: why, and a button to the system
+ * screen. Checked again when coming back to the app.
+ */
 @Composable
-private fun ExactAlarmNotice(viewModel: SettingsViewModel, onAllow: () -> Unit) {
-    var exact by remember { mutableStateOf(viewModel.canScheduleExact()) }
+private fun PermissionNotice(
+    granted: () -> Boolean,
+    message: Int,
+    action: Int,
+    onAllow: () -> Unit
+) {
+    var allowed by remember { mutableStateOf(granted()) }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle) {
-        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            exact = viewModel.canScheduleExact()
-        }
+        lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) { allowed = granted() }
     }
-    if (exact) return
+    if (allowed) return
     Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
         Text(
-            stringResource(R.string.settings_reminders_inexact),
+            stringResource(message),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error
         )
-        TextButton(onClick = onAllow) {
-            Text(stringResource(R.string.settings_reminders_allow_exact))
-        }
+        TextButton(onClick = onAllow) { Text(stringResource(action)) }
     }
 }
 
@@ -107,4 +137,20 @@ private fun leadLabel(lead: ReminderLead) = when (lead) {
 private fun scopeLabel(scope: ReminderScope) = when (scope) {
     ReminderScope.ASSIGNED_TO_ME -> R.string.settings_reminders_mine
     ReminderScope.ALL -> R.string.settings_reminders_all
+}
+
+/**
+ * Opens the system dialog to exempt the app from battery optimization, so reminders are not
+ * delayed or dropped. Lint flags this as against a Google Play Store policy that limits which
+ * apps may ask; UltimateDeck is distributed on F-Droid, where that store rule does not apply,
+ * and reminders are exactly the use case the exemption exists for. The user decides.
+ */
+@SuppressLint("BatteryLife")
+private fun requestBatteryExemption(context: Context) {
+    context.startActivity(
+        Intent(
+            Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+            "package:${context.packageName}".toUri()
+        )
+    )
 }
