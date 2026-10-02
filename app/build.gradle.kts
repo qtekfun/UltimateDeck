@@ -255,6 +255,7 @@ dependencies {
     implementation(libs.jetbrains.markdown)
 
     implementation(libs.room.runtime)
+    implementation(libs.androidx.work.runtime)
     ksp(libs.room.compiler)
 
     implementation(libs.okhttp)
