@@ -14,7 +14,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 
 ## Fase 1 — Datos y red
 - [x] **T04 Modelo Room**: entidades con clave `(accountId, id)` para cuenta, tablero, columna, tarjeta, etiqueta, asignado, adjunto y cola de operaciones; migraciones y tests.
-- [ ] **T05 Cliente API de Deck**: Retrofit + serialización, endpoints de tableros/columnas/tarjetas/etiquetas/asignados/adjuntos; tests con MockWebServer (incluye errores 4xx/5xx y timeouts).
+- [x] **T05 Cliente API de Deck**: Retrofit + serialización, endpoints de tableros/columnas/tarjetas/etiquetas/asignados/adjuntos; tests con MockWebServer (incluye errores 4xx/5xx y timeouts).
 - [ ] **T06 Login Flow v2**: flujo de autenticación, almacenamiento cifrado en Keystore, cierre de sesión que limpia datos.
 
 ## Fase 2 — Sincronización (lo más crítico)
