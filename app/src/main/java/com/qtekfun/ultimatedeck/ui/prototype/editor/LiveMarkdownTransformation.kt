@@ -40,34 +40,11 @@ internal class LiveMarkdownTransformation(
         val styled = buildAnnotatedString {
             append(doc.source)
             doc.monospaceBlocks.forEach { addStyle(styles.monospaceBlock, it.start, it.end) }
-            doc.headings.forEach { heading ->
-                addStyle(styles.heading(heading.level), heading.range.start, heading.range.end)
-                addStyle(styles.marker, heading.marker.start, heading.marker.end)
-                if (!touchesSelection(heading.range)) hidden += heading.marker
-            }
-            doc.inlineSpans.forEach { span ->
-                addStyle(styles.inline(span.kind), span.range.start, span.range.end)
-                span.markers.forEach { addStyle(styles.marker, it.start, it.end) }
-                if (!touchesSelection(span.range)) hidden += span.markers
-            }
-            doc.tasks.forEach { task ->
-                val inner = task.range.start + 1
-                if (!touchesSelection(task.range)) {
-                    hidden += SourceRange(task.range.start, inner)
-                    hidden += SourceRange(task.range.end - 1, task.range.end)
-                    replacements[inner] = if (task.checked) CHECKED_BOX else UNCHECKED_BOX
-                }
-                addStyle(styles.checkbox, inner, inner + 1)
-            }
-            doc.bullets.forEach { bullet ->
-                val index = (bullet.start until bullet.end).firstOrNull {
-                    !doc.source[it].isWhitespace()
-                }
-                if (index != null) {
-                    replacements[index] = BULLET
-                    addStyle(styles.marker, index, index + 1)
-                }
-            }
+            doc.quotes.forEach { addStyle(styles.quote, it.start, it.end) }
+            hidden += doc.quoteMarkers
+            styleHeadingsAndSpans(doc, hidden)
+            styleTasks(doc, hidden, replacements)
+            styleBullets(doc, hidden, replacements)
         }
         val merged = mergeRanges(hidden)
         mapping = HiddenRangesOffsetMapping(merged, doc.source.length)
@@ -75,6 +52,63 @@ internal class LiveMarkdownTransformation(
             withoutHidden(withReplacements(styled, replacements), merged),
             mapping
         )
+    }
+
+    private fun AnnotatedString.Builder.styleHeadingsAndSpans(
+        doc: MarkdownDocument,
+        hidden: MutableList<SourceRange>
+    ) {
+        doc.headings.forEach { heading ->
+            addStyle(styles.heading(heading.level), heading.range.start, heading.range.end)
+            addStyle(styles.marker, heading.marker.start, heading.marker.end)
+            if (!touchesSelection(heading.range)) hidden += heading.marker
+        }
+        doc.inlineSpans.forEach { span ->
+            addStyle(styles.inline(span.kind), span.range.start, span.range.end)
+            span.markers.forEach { addStyle(styles.marker, it.start, it.end) }
+            if (!touchesSelection(span.range)) hidden += span.markers
+        }
+    }
+
+    /** Draws checkboxes as ballot boxes, hiding their brackets. */
+    private fun AnnotatedString.Builder.styleTasks(
+        doc: MarkdownDocument,
+        hidden: MutableList<SourceRange>,
+        replacements: MutableMap<Int, Char>
+    ) {
+        doc.tasks.forEach { task ->
+            val inner = task.range.start + 1
+            if (!touchesSelection(task.range)) {
+                hidden += SourceRange(task.range.start, inner)
+                hidden += SourceRange(task.range.end - 1, task.range.end)
+                replacements[inner] = if (task.checked) CHECKED_BOX else UNCHECKED_BOX
+            }
+            addStyle(styles.checkbox, inner, inner + 1)
+        }
+    }
+
+    /** Draws bullets as dots; a task shows only its checkbox, like Jira, so its bullet is hidden. */
+    private fun AnnotatedString.Builder.styleBullets(
+        doc: MarkdownDocument,
+        hidden: MutableList<SourceRange>,
+        replacements: MutableMap<Int, Char>
+    ) {
+        val taskStarts = doc.tasks.map { it.range.start }.toSet()
+        doc.bullets.forEach { bullet ->
+            val index = (bullet.start until bullet.end).firstOrNull {
+                !doc.source[it].isWhitespace()
+            }
+            when {
+                index == null -> Unit
+
+                bullet.end in taskStarts -> hidden += SourceRange(index, bullet.end)
+
+                else -> {
+                    replacements[index] = BULLET
+                    addStyle(styles.marker, index, index + 1)
+                }
+            }
+        }
     }
 
     private fun touchesSelection(range: SourceRange): Boolean =

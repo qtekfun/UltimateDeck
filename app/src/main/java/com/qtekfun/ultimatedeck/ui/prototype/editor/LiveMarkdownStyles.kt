@@ -24,6 +24,7 @@ internal data class LiveMarkdownStyles(
     val link: SpanStyle,
     val monospaceBlock: SpanStyle,
     val checkbox: SpanStyle,
+    val quote: SpanStyle,
     val headingSizes: List<TextUnit>
 ) {
     fun inline(kind: InlineKind): SpanStyle = when (kind) {
@@ -61,6 +62,7 @@ internal fun rememberLiveMarkdownStyles(): LiveMarkdownStyles {
                 background = colors.surfaceContainerHigh
             ),
             checkbox = SpanStyle(color = colors.primary, fontWeight = FontWeight.Bold),
+            quote = SpanStyle(color = colors.onSurfaceVariant, fontStyle = FontStyle.Italic),
             headingSizes = listOf(
                 typography.headlineSmall.fontSize,
                 typography.titleLarge.fontSize,

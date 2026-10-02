@@ -25,6 +25,7 @@ class LiveMarkdownTransformationTest {
         link = SpanStyle(),
         monospaceBlock = SpanStyle(),
         checkbox = SpanStyle(),
+        quote = SpanStyle(),
         headingSizes = listOf(24.sp, 20.sp, 16.sp)
     )
 
@@ -52,8 +53,13 @@ class LiveMarkdownTransformationTest {
     }
 
     @Test
-    fun `draws tasks as ballot boxes and bullets as dots`() {
-        assertEquals("• ☐ todo\n• ☑ done\n", display("- [ ] todo\n- [x] done\n", cursor = 0))
+    fun `draws tasks as ballot boxes without their bullet`() {
+        assertEquals("\u2610 todo\n\u2611 done\n", display("- [ ] todo\n- [x] done\n", cursor = 0))
+    }
+
+    @Test
+    fun `draws plain bullets as dots and hides quote markers`() {
+        assertEquals("\u2022 item\n\nquoted\n", display("- item\n\n> quoted\n", cursor = 0))
     }
 
     @Test
@@ -66,7 +72,7 @@ class LiveMarkdownTransformationTest {
         val source = "## Title\n\nShip **bold** and _italic_ ~~old~~\n- [ ] task\n"
 
         assertEquals(
-            "Title\n\nShip bold and italic old\n\u2022 \u2610 task\n",
+            "Title\n\nShip bold and italic old\n\u2610 task\n",
             display(source, cursor = source.indexOf("bold") + 1, reveal = false)
         )
     }

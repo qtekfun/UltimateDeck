@@ -40,5 +40,7 @@ data class MarkdownSyntaxIndex(
     val headings: List<HeadingLine>,
     val tasks: List<TaskMarker>,
     val bullets: List<SourceRange>,
-    val monospaceBlocks: List<SourceRange>
+    val monospaceBlocks: List<SourceRange>,
+    val quotes: List<SourceRange> = emptyList(),
+    val quoteMarkers: List<SourceRange> = emptyList()
 )

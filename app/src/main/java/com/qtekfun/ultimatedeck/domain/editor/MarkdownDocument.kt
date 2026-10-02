@@ -28,6 +28,10 @@ class MarkdownDocument private constructor(
     val tasks: List<TaskMarker> get() = syntax.tasks
     val bullets: List<SourceRange> get() = syntax.bullets
     val monospaceBlocks: List<SourceRange> get() = syntax.monospaceBlocks
+    val quotes: List<SourceRange> get() = syntax.quotes
+
+    /** The `>` of block quotes, with the space that follows them. */
+    val quoteMarkers: List<SourceRange> get() = syntax.quoteMarkers
 
     /** Rebuilds the markdown from the blocks; equal to [source] by construction. */
     fun toMarkdown(): String = blocks.joinToString("") {
@@ -107,7 +111,18 @@ private class SyntaxCollector(private val source: String) {
     val bullets = mutableListOf<SourceRange>()
     val monospaceBlocks = mutableListOf<SourceRange>()
 
-    fun index() = MarkdownSyntaxIndex(inlineSpans, headings, tasks, bullets, monospaceBlocks)
+    val quotes = mutableListOf<SourceRange>()
+    val quoteMarkers = mutableListOf<SourceRange>()
+
+    fun index() = MarkdownSyntaxIndex(
+        inlineSpans,
+        headings,
+        tasks,
+        bullets,
+        monospaceBlocks,
+        quotes,
+        quoteMarkers
+    )
 
     fun visit(node: ASTNode) {
         collect(node)
@@ -116,39 +131,50 @@ private class SyntaxCollector(private val source: String) {
 
     private fun collect(node: ASTNode) {
         val range = SourceRange(node.startOffset, node.endOffset)
-        when (node.type) {
-            MarkdownElementTypes.STRONG, MarkdownElementTypes.EMPH -> {
-                val kind = if (node.type ==
-                    MarkdownElementTypes.STRONG
-                ) {
-                    InlineKind.STRONG
-                } else {
-                    InlineKind.EMPHASIS
-                }
-                inlineSpans += InlineSpan(kind, range, node.childRanges(MarkdownTokenTypes.EMPH))
-            }
+        if (!collectInline(node, range)) collectBlock(node, range)
+    }
+
+    /** Collects inline spans; returns false if [node] is not one. */
+    private fun collectInline(node: ASTNode, range: SourceRange): Boolean {
+        val span = when (node.type) {
+            MarkdownElementTypes.STRONG ->
+                InlineSpan(InlineKind.STRONG, range, node.childRanges(MarkdownTokenTypes.EMPH))
+
+            MarkdownElementTypes.EMPH ->
+                InlineSpan(InlineKind.EMPHASIS, range, node.childRanges(MarkdownTokenTypes.EMPH))
 
             GFMElementTypes.STRIKETHROUGH ->
-                inlineSpans +=
-                    InlineSpan(
-                        InlineKind.STRIKETHROUGH,
-                        range,
-                        node.childRanges(GFMTokenTypes.TILDE)
-                    )
+                InlineSpan(InlineKind.STRIKETHROUGH, range, node.childRanges(GFMTokenTypes.TILDE))
 
-            MarkdownElementTypes.CODE_SPAN -> inlineSpans += InlineSpan(
+            MarkdownElementTypes.CODE_SPAN -> InlineSpan(
                 InlineKind.CODE,
                 range,
                 node.childRanges(MarkdownTokenTypes.BACKTICK, MarkdownTokenTypes.ESCAPED_BACKTICKS)
             )
 
-            MarkdownElementTypes.INLINE_LINK -> linkSpan(node, range)?.let { inlineSpans += it }
+            MarkdownElementTypes.INLINE_LINK -> linkSpan(node, range)
 
+            else -> return false
+        }
+        span?.let { inlineSpans += it }
+        return true
+    }
+
+    private fun collectBlock(node: ASTNode, range: SourceRange) {
+        when (node.type) {
             in MarkdownDocument.HEADING_LEVELS -> headingLine(node, range)?.let { headings += it }
 
             GFMTokenTypes.CHECK_BOX -> taskMarker(range)?.let { tasks += it }
 
             MarkdownTokenTypes.LIST_BULLET -> bullets += range
+
+            MarkdownElementTypes.BLOCK_QUOTE -> quotes += range
+
+            MarkdownTokenTypes.BLOCK_QUOTE -> {
+                // Hide the space after the `>` together with it.
+                val end = if (source.getOrNull(range.end) == ' ') range.end + 1 else range.end
+                quoteMarkers += SourceRange(range.start, end)
+            }
 
             in OPAQUE -> monospaceBlocks += range
         }
