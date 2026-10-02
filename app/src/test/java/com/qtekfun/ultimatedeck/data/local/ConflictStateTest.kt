@@ -119,23 +119,7 @@ class ConflictStateTest {
     @Test
     fun `deleting the card deletes its snapshot`() = runTest {
         val accountId = Fixtures.boardWithCards(db, 100)
-        snapshots.put(
-            CardServerSnapshotEntity(
-                accountId = accountId,
-                cardId = 100,
-                title = "t",
-                description = "",
-                stackId = 10,
-                order = 0,
-                archived = false,
-                dueDate = null,
-                done = null,
-                labelIds = emptyList(),
-                assigneeUids = emptyList(),
-                lastModified = null,
-                etag = null
-            )
-        )
+        snapshots.put(Fixtures.snapshot(accountId))
 
         db.cardDao().delete(accountId, 100)
 

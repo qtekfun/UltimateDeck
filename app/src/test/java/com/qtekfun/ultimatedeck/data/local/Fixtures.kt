@@ -6,6 +6,7 @@ package com.qtekfun.ultimatedeck.data.local
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
 import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
+import com.qtekfun.ultimatedeck.data.local.entity.CardServerSnapshotEntity
 import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 
 /** Small builders for test rows. */
@@ -39,6 +40,22 @@ object Fixtures {
         stackId = stackId,
         title = "Card $id",
         order = order
+    )
+
+    fun snapshot(accountId: Long, cardId: Long = 100) = CardServerSnapshotEntity(
+        accountId = accountId,
+        cardId = cardId,
+        title = "Server title",
+        description = "",
+        stackId = 10,
+        order = 0,
+        archived = false,
+        dueDate = null,
+        done = null,
+        labelIds = emptyList(),
+        assigneeUids = emptyList(),
+        lastModified = null,
+        etag = null
     )
 
     /** Inserts an account with one board, one stack and the given cards; returns the account id. */

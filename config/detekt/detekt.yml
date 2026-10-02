@@ -18,6 +18,13 @@ naming:
       - Composable
 
 complexity:
+  TooManyFunctions:
+    # detekt's default test exclusions (an excludes list replaces them), plus the Room
+    # database, which exposes one accessor per DAO.
+    excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/data/local/UltimateDeckDatabase.kt'
   LongParameterList:
     # Composables expose many optional parameters with defaults.
     ignoreDefaultParameters: true

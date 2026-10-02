@@ -43,4 +43,11 @@ interface CardDao {
     /** Deletes a card and, through foreign keys, its labels, assignees and attachments. */
     @Query("DELETE FROM card WHERE accountId = :accountId AND id = :id")
     suspend fun delete(accountId: Long, id: Long)
+
+    /**
+     * Replaces a local (negative) id with the server one. Labels, assignees, attachments and
+     * the server snapshot follow through ON UPDATE CASCADE.
+     */
+    @Query("UPDATE card SET id = :newId WHERE accountId = :accountId AND id = :oldId")
+    suspend fun updateId(accountId: Long, oldId: Long, newId: Long)
 }

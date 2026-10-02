@@ -39,4 +39,21 @@ interface BoardDao {
 
     @Query("SELECT * FROM board WHERE accountId = :accountId AND id = :id")
     suspend fun get(accountId: Long, id: Long): BoardEntity?
+
+    @Query("UPDATE board SET id = :newId WHERE accountId = :accountId AND id = :oldId")
+    suspend fun updateBoardRowId(accountId: Long, oldId: Long, newId: Long)
+
+    @Query("UPDATE card SET boardId = :newId WHERE accountId = :accountId AND boardId = :oldId")
+    suspend fun updateCardsBoardId(accountId: Long, oldId: Long, newId: Long)
+
+    /**
+     * Replaces a local (negative) board id with the server one. Columns and labels follow
+     * through ON UPDATE CASCADE; cards only reference the board for queries, so they are
+     * updated here.
+     */
+    @Transaction
+    suspend fun updateId(accountId: Long, oldId: Long, newId: Long) {
+        updateBoardRowId(accountId, oldId, newId)
+        updateCardsBoardId(accountId, oldId, newId)
+    }
 }
