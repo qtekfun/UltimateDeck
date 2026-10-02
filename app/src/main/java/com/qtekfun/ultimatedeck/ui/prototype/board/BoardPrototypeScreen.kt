@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -71,6 +72,7 @@ private val AutoScrollMinEdge = 48.dp
 fun BoardPrototypeScreen(
     onOpenCard: (cardId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    topBarActions: @Composable RowScope.() -> Unit = {},
     viewModel: BoardPrototypeViewModel = viewModel()
 ) {
     val columns by viewModel.columns.collectAsStateWithLifecycle()
@@ -87,7 +89,8 @@ fun BoardPrototypeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                }
+                },
+                actions = topBarActions
             )
         }
     ) { padding ->
