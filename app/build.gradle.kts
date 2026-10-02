@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.detekt)
@@ -256,6 +257,11 @@ dependencies {
     implementation(libs.room.runtime)
     ksp(libs.room.compiler)
 
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -267,4 +273,6 @@ dependencies {
     testImplementation(libs.mockk)
     // Host JVM build of the bundled SQLite, so Room runs in local unit tests.
     testImplementation(libs.sqlite.bundled.jvm)
+    testImplementation(libs.okhttp.mockwebserver)
+    testImplementation(libs.okhttp.mockwebserver.junit5)
 }
