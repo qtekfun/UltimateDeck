@@ -53,7 +53,7 @@ fun BoardColumn(
     columnIndex: Int,
     columnTitles: List<String>,
     dragState: BoardDragState,
-    onMoveToColumn: (cardId: Long, column: Int) -> Unit,
+    callbacks: CardCallbacks,
     modifier: Modifier = Modifier
 ) {
     val listState = rememberLazyListState()
@@ -83,7 +83,13 @@ fun BoardColumn(
                     BoardCard(
                         card = card,
                         isPlaceholder = dragState.dragged?.card?.id == card.id,
-                        actions = moveActions(card.id, columnIndex, columnTitles, onMoveToColumn),
+                        actions = moveActions(
+                            card.id,
+                            columnIndex,
+                            columnTitles,
+                            callbacks.onMoveToColumn
+                        ),
+                        onOpen = { callbacks.onOpen(card.id) },
                         dragState = dragState,
                         modifier = Modifier.animateItem()
                     )
@@ -128,6 +134,7 @@ private fun BoardCard(
     card: PrototypeCard,
     isPlaceholder: Boolean,
     actions: List<CustomAccessibilityAction>,
+    onOpen: () -> Unit,
     dragState: BoardDragState,
     modifier: Modifier = Modifier
 ) {
@@ -146,7 +153,7 @@ private fun BoardCard(
                 .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CardShape)
         )
     } else {
-        PrototypeCardItem(card = card, actions = actions, modifier = tracked)
+        PrototypeCardItem(card = card, actions = actions, onClick = onOpen, modifier = tracked)
     }
 }
 

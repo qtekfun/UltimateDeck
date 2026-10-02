@@ -49,4 +49,23 @@
         <item quantity="one">%1$s, %2$d card</item>
         <item quantity="other">%1$s, %2$d cards</item>
     </plurals>
+    <!-- Editor evaluation prototype (T03). -->
+    <string name="prototype_card_open">Edit description</string>
+    <string name="editor_title">Description editor (prototype)</string>
+    <string name="editor_back">Back</string>
+    <string name="editor_option_live">Live Markdown</string>
+    <string name="editor_option_rich">Rich text library</string>
+    <string name="editor_bold">Bold</string>
+    <string name="editor_bold_short">B</string>
+    <string name="editor_italic">Italic</string>
+    <string name="editor_italic_short">I</string>
+    <string name="editor_bullet_list">Bullet list</string>
+    <string name="editor_bullet_list_short" translatable="false">•</string>
+    <string name="editor_task_list">Checklist</string>
+    <string name="editor_task_list_short" translatable="false">☑</string>
+    <string name="editor_not_supported">Not supported by this editor</string>
+    <string name="editor_identical">Stored Markdown is identical to the original</string>
+    <string name="editor_changed">Stored Markdown differs from the original</string>
+    <string name="editor_show_markdown">Show stored Markdown</string>
+    <string name="editor_hide_markdown">Hide stored Markdown</string>
 </resources>

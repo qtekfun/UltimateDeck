@@ -69,6 +69,7 @@ private val AutoScrollMinEdge = 48.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardPrototypeScreen(
+    onOpenCard: (cardId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BoardPrototypeViewModel = viewModel()
 ) {
@@ -93,7 +94,7 @@ fun BoardPrototypeScreen(
         Board(
             columns = columns,
             onMove = viewModel::moveCard,
-            onMoveToColumn = viewModel::moveCardToColumn,
+            callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard),
             modifier = Modifier.padding(padding)
         )
     }
@@ -103,7 +104,7 @@ fun BoardPrototypeScreen(
 private fun Board(
     columns: List<PrototypeColumn>,
     onMove: (from: CardPosition, to: CardPosition) -> Unit,
-    onMoveToColumn: (cardId: Long, column: Int) -> Unit,
+    callbacks: CardCallbacks,
     modifier: Modifier = Modifier
 ) {
     val dragState = remember { BoardDragState() }
@@ -152,7 +153,7 @@ private fun Board(
                     columnIndex = index,
                     columnTitles = columnTitles,
                     dragState = dragState,
-                    onMoveToColumn = onMoveToColumn,
+                    callbacks = callbacks,
                     modifier = Modifier.width(columnWidth)
                 )
             }
