@@ -6,6 +6,7 @@ package com.qtekfun.ultimatedeck.data.local
 import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
+import androidx.room3.migration.Migration
 import com.qtekfun.ultimatedeck.data.local.dao.AccountDao
 import com.qtekfun.ultimatedeck.data.local.dao.AttachmentDao
 import com.qtekfun.ultimatedeck.data.local.dao.BoardDao
@@ -46,11 +47,21 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         PendingOperationEntity::class,
         LocalIdSequenceEntity::class
     ],
-    version = 1,
+    version = UltimateDeckDatabase.VERSION,
     exportSchema = true
 )
 @ColumnTypeConverters(Converters::class)
 abstract class UltimateDeckDatabase : RoomDatabase() {
+    companion object {
+        const val VERSION = 1
+
+        /**
+         * Migrations from each released version to the next. There is no destructive fallback:
+         * raising [VERSION] requires adding its migration here (checked by DatabaseSchemaTest).
+         */
+        val MIGRATIONS: Array<Migration> = emptyArray()
+    }
+
     abstract fun accountDao(): AccountDao
 
     abstract fun boardDao(): BoardDao
