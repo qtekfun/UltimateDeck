@@ -42,6 +42,7 @@ class PullSync @Inject constructor(
     private val cards = database.cardDao()
     private val labels = database.labelDao()
     private val users = database.userDao()
+    private val members = database.boardMemberDao()
     private val merger = CardMerger(database, queue)
 
     suspend fun pull(api: DeckApi, accountId: Long): PullResult {
@@ -86,6 +87,8 @@ class PullSync @Inject constructor(
         )
         list.forEach { board ->
             labels.upsert(board.labels.map { it.toEntity(accountId, board.id) })
+            val members = (board.users + listOfNotNull(board.owner)).map { it.uid }.distinct()
+            this.members.setMembers(accountId, board.id, members)
         }
         val onServer = list.map { it.id }.toSet()
         known.keys

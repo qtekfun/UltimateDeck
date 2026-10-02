@@ -10,6 +10,7 @@ import androidx.room3.migration.Migration
 import com.qtekfun.ultimatedeck.data.local.dao.AccountDao
 import com.qtekfun.ultimatedeck.data.local.dao.AttachmentDao
 import com.qtekfun.ultimatedeck.data.local.dao.BoardDao
+import com.qtekfun.ultimatedeck.data.local.dao.BoardMemberDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardDetailDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardLocalEditDao
@@ -25,6 +26,7 @@ import com.qtekfun.ultimatedeck.data.local.entity.AccountCredentialsEntity
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.data.local.entity.AttachmentEntity
 import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
+import com.qtekfun.ultimatedeck.data.local.entity.BoardMemberCrossRef
 import com.qtekfun.ultimatedeck.data.local.entity.CardAssigneeCrossRef
 import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
 import com.qtekfun.ultimatedeck.data.local.entity.CardLabelCrossRef
@@ -50,7 +52,8 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         CardServerSnapshotEntity::class,
         PendingOperationEntity::class,
         LocalIdSequenceEntity::class,
-        AccountCredentialsEntity::class
+        AccountCredentialsEntity::class,
+        BoardMemberCrossRef::class
     ],
     version = UltimateDeckDatabase.VERSION,
     exportSchema = true
@@ -58,14 +61,21 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 @ColumnTypeConverters(Converters::class)
 abstract class UltimateDeckDatabase : RoomDatabase() {
     companion object {
-        const val VERSION = 6
+        const val VERSION = 7
 
         /**
          * Migrations from each released version to the next. There is no destructive fallback:
          * raising [VERSION] requires adding its migration here (checked by DatabaseSchemaTest).
          */
         val MIGRATIONS: Array<Migration> =
-            arrayOf(Migration1To2, Migration2To3, Migration3To4, Migration4To5, Migration5To6)
+            arrayOf(
+                Migration1To2,
+                Migration2To3,
+                Migration3To4,
+                Migration4To5,
+                Migration5To6,
+                Migration6To7
+            )
     }
 
     abstract fun accountDao(): AccountDao
@@ -87,6 +97,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun cardSnapshotDao(): CardSnapshotDao
 
     abstract fun cardDetailDao(): CardDetailDao
+
+    abstract fun boardMemberDao(): BoardMemberDao
 
     abstract fun pendingOperationDao(): PendingOperationDao
 
