@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.ui.card.ArchivedCardsScreen
 import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
@@ -49,6 +50,7 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
     var boardId by rememberSaveable { mutableStateOf<Long?>(null) }
     var boardTitle by rememberSaveable { mutableStateOf("") }
     var cardId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var showArchived by rememberSaveable { mutableStateOf(false) }
     val boardViewModel: BoardPrototypeViewModel = viewModel()
     val board = boardId
     val card = cardId
@@ -61,6 +63,11 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
             topBarActions = { LogoutAction(accountName, onLogOut) }
         )
 
+        showArchived -> {
+            BackHandler { showArchived = false }
+            ArchivedCardsScreen(boardId = board, onBack = { showArchived = false })
+        }
+
         card == null -> {
             BackHandler { boardId = null }
             LaunchedEffect(board) { boardViewModel.open(board) }
@@ -68,7 +75,8 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
                 title = boardTitle,
                 viewModel = boardViewModel,
                 onBack = { boardId = null },
-                onOpenCard = { cardId = it }
+                onOpenCard = { cardId = it },
+                onShowArchived = { showArchived = true }
             )
         }
 

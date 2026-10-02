@@ -112,4 +112,9 @@
     <string name="conflict_copy_mine">Copy mine</string>
     <string name="conflict_keep_mine">Keep mine</string>
     <string name="conflict_use_server">Use the server\'s</string>
+    <string name="archived_title">Archived cards</string>
+    <string name="archived_empty">No archived cards.</string>
+    <string name="archived_failed">Something went wrong with the server. Pull to try again.</string>
+    <string name="archived_restore">Restore</string>
+    <string name="archived_restore_card">Restore %1$s</string>
 </resources>

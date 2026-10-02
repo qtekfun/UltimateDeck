@@ -104,4 +104,9 @@
     <string name="conflict_copy_mine">Copiar la mía</string>
     <string name="conflict_keep_mine">Quedarme con la mía</string>
     <string name="conflict_use_server">Usar la del servidor</string>
+    <string name="archived_title">Tarjetas archivadas</string>
+    <string name="archived_empty">No hay tarjetas archivadas.</string>
+    <string name="archived_failed">Algo falló con el servidor. Desliza hacia abajo para reintentar.</string>
+    <string name="archived_restore">Restaurar</string>
+    <string name="archived_restore_card">Restaurar %1$s</string>
 </resources>

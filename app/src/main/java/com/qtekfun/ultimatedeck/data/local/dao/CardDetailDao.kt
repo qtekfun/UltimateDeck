@@ -17,4 +17,11 @@ interface CardDetailDao {
 
     @Query("SELECT * FROM card_server_snapshot WHERE accountId = :accountId AND cardId = :id")
     fun observeSnapshot(accountId: Long, id: Long): Flow<CardServerSnapshotEntity?>
+
+    /** Cards of a board archived here, synced or not yet (T15b). */
+    @Query(
+        "SELECT * FROM card WHERE accountId = :accountId AND boardId = :boardId " +
+            "AND archived = 1 AND deletedAt IS NULL"
+    )
+    suspend fun archivedForBoard(accountId: Long, boardId: Long): List<CardEntity>
 }

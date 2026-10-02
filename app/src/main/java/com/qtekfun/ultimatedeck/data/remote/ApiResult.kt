@@ -27,3 +27,14 @@ sealed interface ApiResult<out T> {
     /** The server answered something that is not the expected JSON. */
     data object ParseError : ApiResult<Nothing>
 }
+
+/** Transforms a successful value; failures pass through unchanged. */
+inline fun <T, R> ApiResult<T>.map(transform: (T) -> R): ApiResult<R> = when (this) {
+    is ApiResult.Success -> ApiResult.Success(transform(value), etag)
+    ApiResult.NotModified -> ApiResult.NotModified
+    ApiResult.Unauthorized -> ApiResult.Unauthorized
+    ApiResult.NotFound -> ApiResult.NotFound
+    is ApiResult.HttpError -> this
+    is ApiResult.NetworkError -> this
+    ApiResult.ParseError -> ApiResult.ParseError
+}

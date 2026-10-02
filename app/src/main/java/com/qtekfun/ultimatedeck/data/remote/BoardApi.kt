@@ -34,4 +34,8 @@ interface BoardApi {
         @Header("If-None-Match") etag: String? = null,
         @Header("If-Modified-Since") modifiedSince: String? = null
     ): Response<List<StackDto>>
+
+    /** The columns of a board with only their archived cards. */
+    @GET("boards/{boardId}/stacks/archived")
+    suspend fun getArchivedStacks(@Path("boardId") boardId: Long): Response<List<StackDto>>
 }
