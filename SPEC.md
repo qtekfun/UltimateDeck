@@ -43,6 +43,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - Una columna ocupa casi toda la pantalla y **la siguiente asoma por el borde** (~columna y media).
 - Swipe lateral con ajuste (snap) a la columna.
 - Tarjeta visible de un vistazo: título, etiquetas de color, avatares de asignados, fecha de vencimiento, indicador de adjuntos y progreso de checklist.
+  - La fecha de vencimiento se muestra **siempre con el año** (formato de fecha media del idioma, p. ej. "4 oct 2026" / "Oct 4, 2026"), también cuando es del año en curso.
 - **Criterios:**
   - Desplazamiento fluido (sin saltos perceptibles) con el volumen de referencia.
   - El estado de columna y scroll se conserva al rotar o volver atrás.
