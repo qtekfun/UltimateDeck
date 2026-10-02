@@ -144,3 +144,12 @@ Cada tarjeta guarda, por campo editable, el valor local, el último valor conoci
 - Versión mínima de Deck soportada.
 - Si crear/renombrar columnas entra en el MVP.
 - Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).
+
+### Decisiones tomadas
+- **Drag & drop del tablero (T02, prototipo validado en dispositivo):** implementación propia sobre Compose Foundation, sin librerías externas.
+  - Columnas en un `LazyRow` con *snap fling*. Cada columna ocupa el 82 % del ancho (máximo 400 dp), así que la siguiente asoma por el borde.
+  - La gesture de pulsación larga + arrastre se detecta en el tablero, no en la tarjeta. Así el arrastre sobrevive a que la tarjeta cambie de columna y su composable original desaparezca. Tras la pulsación larga, los eventos se consumen en la fase `Initial` y el scroll de las listas se desactiva.
+  - La tarjeta arrastrada se dibuja flotando por encima. El destino se calcula con la geometría de las tarjetas visibles y se muestra un hueco en vivo.
+  - Autoscroll horizontal (y vertical en la columna destino) proporcional a la cercanía al borde.
+  - Acciones de accesibilidad "Mover a <columna>" para mover tarjetas sin arrastrar (TalkBack).
+  - La lógica de movimiento es pura y está en `domain/board` (`moveItem`), con tests; T13 la reutiliza con datos reales.
