@@ -1,0 +1,1 @@
+{"ocs":{"meta":{"status":"ok","statuscode":200,"message":"OK"},"data":{"version":{"major":35,"minor":0,"micro":1,"string":"35.0.1"},"capabilities":{"core":{"pollinterval":60,"webdav-root":"remote.php/webdav"},"deck":{"version":"1.16.0","canCreateBoards":true,"apiVersions":["1.0","1.1"]}}}}}
