@@ -250,8 +250,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.jetbrains.markdown)
-    // Only for the T03 editor evaluation; removed if the live markdown editor wins.
-    implementation(libs.richeditor.compose)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)

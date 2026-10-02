@@ -51,8 +51,6 @@
     <string name="prototype_card_open">Editar descripción</string>
     <string name="editor_title">Editor de descripción (prototipo)</string>
     <string name="editor_back">Atrás</string>
-    <string name="editor_option_live">Markdown vivo</string>
-    <string name="editor_option_rich">Librería de texto enriquecido</string>
     <string name="editor_bold">Negrita</string>
     <string name="editor_bold_short">N</string>
     <string name="editor_italic">Cursiva</string>

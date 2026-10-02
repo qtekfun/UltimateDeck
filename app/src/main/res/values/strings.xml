@@ -53,8 +53,6 @@
     <string name="prototype_card_open">Edit description</string>
     <string name="editor_title">Description editor (prototype)</string>
     <string name="editor_back">Back</string>
-    <string name="editor_option_live">Live Markdown</string>
-    <string name="editor_option_rich">Rich text library</string>
     <string name="editor_bold">Bold</string>
     <string name="editor_bold_short">B</string>
     <string name="editor_italic">Italic</string>
