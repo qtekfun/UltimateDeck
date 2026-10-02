@@ -29,14 +29,16 @@ import com.qtekfun.ultimatedeck.domain.editor.SourceRange
 import com.qtekfun.ultimatedeck.domain.editor.TaskMarker
 
 /**
- * Option A of the editor evaluation (T03): one text field whose content is the markdown source,
- * displayed live by [LiveMarkdownTransformation]. Tapping a checkbox ticks it in the source.
+ * A text field whose content is the markdown source, displayed rendered by
+ * [LiveMarkdownTransformation]. Tapping a checkbox ticks it in the source, and Enter continues
+ * or ends lists.
  */
 @Composable
 fun LiveMarkdownEditor(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = false
 ) {
     val document = remember(value.text) { MarkdownDocument.parse(value.text) }
     val styles = rememberLiveMarkdownStyles()
@@ -60,8 +62,9 @@ fun LiveMarkdownEditor(
 
     BasicTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { onValueChange(applySmartEnter(currentValue, it)) },
         visualTransformation = transformation,
+        singleLine = singleLine,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             color = MaterialTheme.colorScheme.onSurface
         ),

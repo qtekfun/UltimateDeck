@@ -3,10 +3,12 @@
 
 package com.qtekfun.ultimatedeck.ui.prototype.editor
 
-/** Formatting actions; a null action is shown disabled because the editor does not support it. */
+/** Formatting actions of the editor toolbar. */
 data class EditorActions(
     val bold: () -> Unit,
     val italic: () -> Unit,
+    val heading: () -> Unit,
     val bulletList: () -> Unit,
-    val taskList: (() -> Unit)?
+    val taskList: () -> Unit,
+    val addTable: () -> Unit
 )

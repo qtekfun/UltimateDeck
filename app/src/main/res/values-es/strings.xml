@@ -57,9 +57,20 @@
     <string name="editor_italic_short">C</string>
     <string name="editor_bullet_list">Lista con viñetas</string>
     <string name="editor_task_list">Lista de tareas</string>
-    <string name="editor_not_supported">No disponible en este editor</string>
     <string name="editor_identical">El Markdown guardado es idéntico al original</string>
     <string name="editor_changed">El Markdown guardado es distinto del original</string>
     <string name="editor_show_markdown">Ver Markdown guardado</string>
     <string name="editor_hide_markdown">Ocultar Markdown guardado</string>
+    <string name="editor_edit">Editar descripción</string>
+    <string name="editor_done">Listo</string>
+    <string name="editor_heading">Título</string>
+    <string name="editor_heading_short">T</string>
+    <string name="editor_add_table">Añadir tabla</string>
+    <string name="editor_code">Código</string>
+    <string name="editor_raw">HTML</string>
+    <string name="editor_table_template">| Columna 1 | Columna 2 |\n| --- | --- |\n|  |  |\n</string>
+    <string name="table_add_row">Añadir fila</string>
+    <string name="table_add_column">Añadir columna</string>
+    <string name="table_remove_row">Quitar última fila</string>
+    <string name="table_remove_column">Quitar última columna</string>
 </resources>

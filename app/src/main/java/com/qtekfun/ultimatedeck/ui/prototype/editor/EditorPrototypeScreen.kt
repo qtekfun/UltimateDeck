@@ -14,6 +14,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,32 +35,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
 
 /**
- * Editor prototype (T03): a sample description in the live markdown editor, with the stored
- * markdown shown to check that nothing but the edited text changes.
+ * Editor prototype (T03): a sample description shown rendered, Jira style. Tapping it (or the
+ * edit button) switches to the block editor; the stored markdown can be checked at the bottom.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorPrototypeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
-    BackHandler(onBack = onBack)
     val resources = LocalResources.current
     val original = remember(resources) {
         resources.openRawResource(R.raw.sample_description).use { it.readBytes().decodeToString() }
     }
+    var source by rememberSaveable { mutableStateOf(original) }
+    var editing by rememberSaveable { mutableStateOf(false) }
     var showMarkdown by rememberSaveable { mutableStateOf(false) }
-    var liveValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(original))
-    }
+    var activeText by remember { mutableStateOf<TextCommandTarget?>(null) }
+    val tableTemplate = stringResource(R.string.editor_table_template)
+    BackHandler { if (editing) editing = false else onBack() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { EditorTopBar(onBack) }
+        topBar = { EditorTopBar(editing, onBack, onToggleEditing = { editing = !editing }) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -68,37 +69,68 @@ fun EditorPrototypeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            EditorToolbar(liveEditorActions(liveValue) { liveValue = it })
-            LiveMarkdownEditor(
-                value = liveValue,
-                onValueChange = { liveValue = it },
+            if (editing) {
+                EditorToolbar(
+                    editorActions(activeText) {
+                        source = withTable(source, tableTemplate)
+                    }
+                )
+            }
+            MarkdownBlocks(
+                source = source,
+                editable = editing,
+                callbacks = MarkdownBlocksCallbacks(
+                    onSourceChange = { source = it },
+                    onActiveText = { activeText = it },
+                    onTap = { editing = true }
+                ),
                 modifier = Modifier.fillMaxWidth()
             )
-            StoredMarkdown(liveValue.text, original, showMarkdown) { showMarkdown = !showMarkdown }
+            StoredMarkdown(source, original, showMarkdown) { showMarkdown = !showMarkdown }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditorTopBar(onBack: () -> Unit) {
+private fun EditorTopBar(editing: Boolean, onBack: () -> Unit, onToggleEditing: () -> Unit) {
     TopAppBar(
         title = { Text(stringResource(R.string.editor_title)) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.editor_back))
             }
+        },
+        actions = {
+            IconButton(onClick = onToggleEditing) {
+                if (editing) {
+                    Icon(Icons.Filled.Check, stringResource(R.string.editor_done))
+                } else {
+                    Icon(Icons.Filled.Edit, stringResource(R.string.editor_edit))
+                }
+            }
         }
     )
 }
 
-private fun liveEditorActions(value: TextFieldValue, onChange: (TextFieldValue) -> Unit) =
-    EditorActions(
-        bold = { onChange(value.edit(MarkdownEdits::toggleBold)) },
-        italic = { onChange(value.edit(MarkdownEdits::toggleItalic)) },
-        bulletList = { onChange(value.edit(MarkdownListEdits::toggleBulletList)) },
-        taskList = { onChange(value.edit(MarkdownListEdits::toggleTaskList)) }
-    )
+private fun editorActions(target: TextCommandTarget?, addTable: () -> Unit) = EditorActions(
+    bold = { target?.apply(MarkdownEdits::toggleBold) },
+    italic = { target?.apply(MarkdownEdits::toggleItalic) },
+    heading = { target?.apply(MarkdownEdits::toggleHeading) },
+    bulletList = { target?.apply(MarkdownListEdits::toggleBulletList) },
+    taskList = { target?.apply(MarkdownListEdits::toggleTaskList) },
+    addTable = addTable
+)
+
+/** Appends [table] as a new block, separated from the previous one by a blank line. */
+private fun withTable(source: String, table: String): String {
+    val separator = when {
+        source.isEmpty() || source.endsWith("\n\n") -> ""
+        source.endsWith("\n") -> "\n"
+        else -> "\n\n"
+    }
+    return source + separator + table
+}
 
 @Composable
 private fun StoredMarkdown(
