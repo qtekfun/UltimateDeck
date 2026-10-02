@@ -152,4 +152,17 @@
     <string name="settings_reminders_aggressive">Agresivo: suena a su hora como un despertador (muestra el icono de alarma)</string>
     <string name="settings_reminders_battery">La optimización de batería puede retrasar o bloquear los avisos.</string>
     <string name="settings_reminders_allow_battery">Permitir en segundo plano</string>
+    <string name="attachments_title">Adjuntos</string>
+    <string name="attachments_camera">Cámara</string>
+    <string name="attachments_gallery">Galería</string>
+    <string name="attachments_file">Archivo</string>
+    <string name="attachments_empty">Sin adjuntos.</string>
+    <string name="attachments_pending">pendiente de subir</string>
+    <string name="attachments_uploading">subiendo…</string>
+    <string name="attachments_failed">no se pudo subir</string>
+    <string name="attachments_done">subido</string>
+    <string name="attachments_retry">Reintentar</string>
+    <string name="attachments_discard">Descartar</string>
+    <string name="attachments_open_failed">No se pudo descargar el adjunto.</string>
+    <string name="attachments_no_app">Ninguna app puede abrir este archivo.</string>
 </resources>

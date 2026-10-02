@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+  SPDX-License-Identifier: GPL-3.0-or-later
+
+  Files shared through the FileProvider: attachments (to open them in other apps) and
+  camera photos (for the camera app to write into).
+-->
+<paths>
+    <files-path name="attachments" path="attachments/" />
+    <cache-path name="camera" path="camera/" />
+</paths>
