@@ -41,14 +41,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.ui.theme.UltimateDeckTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-private val AvatarSize = 28.dp
-private val AvatarOverlap = 4.dp
 private val PreviewDate: LocalDate = LocalDate.parse("2026-10-01")
 
 /** A board card as seen at a glance: labels, title, due date, attachments, checklist, people. */
@@ -116,35 +115,48 @@ private fun LabelRow(labels: List<PrototypeLabel>) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CardFooter(card: PrototypeCard, today: LocalDate) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        card.dueDate?.let { due ->
-            val color = if (due.isBefore(today)) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
+        // Metadata wraps to a new line instead of squeezing the avatars.
+        FlowRow(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            card.dueDate?.let { due ->
+                val color = if (due.isBefore(today)) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
+                FooterItem(
+                    rememberVectorPainter(Icons.Outlined.DateRange),
+                    formatDate(due),
+                    color
+                )
             }
-            FooterItem(rememberVectorPainter(Icons.Outlined.DateRange), formatDate(due), color)
+            if (card.attachments > 0) {
+                FooterItem(painterResource(R.drawable.ic_attachment), card.attachments.toString())
+            }
+            if (card.checklistTotal > 0) {
+                val colors = MaterialTheme.colorScheme
+                val complete = card.checklistDone == card.checklistTotal
+                FooterItem(
+                    rememberVectorPainter(Icons.Outlined.CheckCircle),
+                    "${card.checklistDone}/${card.checklistTotal}",
+                    if (complete) colors.primary else colors.onSurfaceVariant
+                )
+            }
         }
-        if (card.attachments > 0) {
-            FooterItem(painterResource(R.drawable.ic_attachment), card.attachments.toString())
+        if (card.assignees.isNotEmpty()) {
+            Spacer(Modifier.width(8.dp))
+            CardAvatars(card.assignees)
         }
-        if (card.checklistTotal > 0) {
-            val colors = MaterialTheme.colorScheme
-            val complete = card.checklistDone == card.checklistTotal
-            FooterItem(
-                rememberVectorPainter(Icons.Outlined.CheckCircle),
-                "${card.checklistDone}/${card.checklistTotal}",
-                if (complete) colors.primary else colors.onSurfaceVariant
-            )
-        }
-        Spacer(Modifier.weight(1f))
-        if (card.assignees.isNotEmpty()) Avatars(card.assignees)
     }
 }
 
@@ -166,42 +178,9 @@ private fun FooterItem(
     }
 }
 
-@Composable
-private fun Avatars(names: List<String>) {
-    val colors = MaterialTheme.colorScheme
-    val containers = listOf(
-        colors.primaryContainer to colors.onPrimaryContainer,
-        colors.tertiaryContainer to colors.onTertiaryContainer,
-        colors.secondaryContainer to colors.onSecondaryContainer
-    )
-    Row(horizontalArrangement = Arrangement.spacedBy(-AvatarOverlap)) {
-        names.forEachIndexed { index, name ->
-            val (container, content) = containers[index % containers.size]
-            Box(
-                modifier = Modifier
-                    .size(AvatarSize)
-                    .border(2.dp, MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
-                    .padding(2.dp)
-                    .background(container, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = initials(name),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = content
-                )
-            }
-        }
-    }
-}
-
+/** Due dates always show the year (SPEC.md, RF-03). */
 private fun formatDate(date: LocalDate): String =
     date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-
-private fun initials(name: String): String = name.split(" ")
-    .filter { it.isNotBlank() }
-    .take(2)
-    .joinToString("") { it.first().uppercase() }
 
 @Composable
 private fun cardDescription(card: PrototypeCard, today: LocalDate): String {
