@@ -3,6 +3,7 @@
 
 import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.KoverReportFilter
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
@@ -17,6 +18,7 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.kover)
     alias(libs.plugins.licensee)
+    alias(libs.plugins.room)
 }
 
 android {
@@ -73,6 +75,10 @@ kotlin {
     }
 }
 
+room3 {
+    schemaDirectory("$projectDir/schemas")
+}
+
 detekt {
     buildUponDefaultConfig = true
     allRules = false
@@ -101,6 +107,36 @@ val criticalPackages = listOf(
     "com.qtekfun.ultimatedeck.sync.conflict"
 )
 
+/**
+ * Generated code and pure Compose UI, excluded from coverage (CLAUDE.md). Applied to each report
+ * variant: variant filters replace the global ones instead of adding to them.
+ */
+fun KoverReportFilter.generatedAndUiCode() {
+    packages("com.qtekfun.ultimatedeck.ui", "dagger.hilt.internal", "hilt_aggregated_deps")
+    classes(
+        "*.R",
+        "*.R$*",
+        "*.BuildConfig",
+        "*Hilt_*",
+        "*_HiltModules*",
+        "*_Factory",
+        "*_Factory$*",
+        "*_MembersInjector",
+        // Room
+        "*_Impl",
+        "*_Impl$*",
+        // Kotlin compatibility bridges for interface default methods
+        "*\$DefaultImpls",
+        "*ComposableSingletons*"
+    )
+    annotatedBy(
+        "androidx.compose.ui.tooling.preview.Preview",
+        "dagger.Module",
+        "dagger.hilt.android.HiltAndroidApp",
+        "*Generated*"
+    )
+}
+
 kover {
     currentProject {
         createVariant("critical") {
@@ -109,37 +145,9 @@ kover {
     }
 
     reports {
-        filters {
-            excludes {
-                packages(
-                    "com.qtekfun.ultimatedeck.ui",
-                    "dagger.hilt.internal",
-                    "hilt_aggregated_deps"
-                )
-                classes(
-                    "*.R",
-                    "*.R$*",
-                    "*.BuildConfig",
-                    "*Hilt_*",
-                    "*_HiltModules*",
-                    "*_Factory",
-                    "*_Factory$*",
-                    "*_MembersInjector",
-                    "*_Impl",
-                    "*_Impl$*",
-                    "*ComposableSingletons*"
-                )
-                annotatedBy(
-                    "androidx.compose.ui.tooling.preview.Preview",
-                    "dagger.Module",
-                    "dagger.hilt.android.HiltAndroidApp",
-                    "*Generated*"
-                )
-            }
-        }
-
         total {
             filters {
+                excludes { generatedAndUiCode() }
                 includes {
                     packages(coveredPackages)
                 }
@@ -153,6 +161,7 @@ kover {
 
         variant("critical") {
             filters {
+                excludes { generatedAndUiCode() }
                 includes {
                     packages(criticalPackages)
                 }
@@ -244,10 +253,18 @@ dependencies {
 
     implementation(libs.jetbrains.markdown)
 
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
     testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
+    testImplementation(libs.mockk)
+    // Host JVM build of the bundled SQLite, so Room runs in local unit tests.
+    testImplementation(libs.sqlite.bundled.jvm)
 }
