@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.ui.theme.LabelBlue
 import com.qtekfun.ultimatedeck.ui.theme.UltimateDeckTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -87,7 +88,7 @@ fun PrototypeCardItem(
         ) {
             if (card.labels.isNotEmpty()) LabelRow(card.labels)
             Text(
-                text = stringResource(card.title),
+                text = card.title,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
@@ -119,7 +120,7 @@ private fun LabelRow(labels: List<PrototypeLabel>) {
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = stringResource(label.name),
+                        text = label.name,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -199,9 +200,9 @@ private fun formatDate(date: LocalDate): String =
 @Composable
 private fun cardDescription(card: PrototypeCard, today: LocalDate): String {
     val parts = buildList {
-        add(stringResource(card.title))
+        add(card.title)
         if (card.labels.isNotEmpty()) {
-            val names = card.labels.map { stringResource(it.name) }.joinToString()
+            val names = card.labels.joinToString { it.name }
             add(stringResource(R.string.prototype_card_labels, names))
         }
         card.dueDate?.let {
@@ -247,7 +248,16 @@ private fun PrototypeCardItemPreview() {
     val today = PreviewDate
     UltimateDeckTheme {
         PrototypeCardItem(
-            card = FakeBoard.columns(today)[1].cards.first(),
+            card = PrototypeCard(
+                id = 1,
+                title = "Drag cards between columns",
+                labels = listOf(PrototypeLabel("Feature", LabelBlue)),
+                assignees = listOf("Ana García", "Luis Pérez"),
+                dueDate = today.plusDays(2),
+                attachments = 1,
+                checklistDone = 3,
+                checklistTotal = 5
+            ),
             today = today,
             modifier = Modifier.padding(16.dp)
         )

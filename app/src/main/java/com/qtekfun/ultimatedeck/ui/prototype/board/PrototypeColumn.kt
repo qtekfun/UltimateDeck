@@ -3,16 +3,11 @@
 
 package com.qtekfun.ultimatedeck.ui.prototype.board
 
-import androidx.annotation.StringRes
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
 import com.qtekfun.ultimatedeck.domain.board.moveItem
 
-/** Fake board column for the drag and drop prototype (T02). */
-data class PrototypeColumn(
-    val id: Long,
-    @param:StringRes val title: Int,
-    val cards: List<PrototypeCard>
-)
+/** A board column as shown on the board prototype. */
+data class PrototypeColumn(val id: Long, val title: String, val cards: List<PrototypeCard>)
 
 /** Applies a card move to the columns, keeping column metadata untouched. */
 fun List<PrototypeColumn>.withCardMoved(

@@ -3,13 +3,13 @@
 
 package com.qtekfun.ultimatedeck.ui.prototype.board
 
-import androidx.annotation.StringRes
 import java.time.LocalDate
 
-/** Fake card for the drag and drop prototype (T02). */
+/** A card as shown on the board prototype; [description] is its markdown. */
 data class PrototypeCard(
     val id: Long,
-    @param:StringRes val title: Int,
+    val title: String,
+    val description: String = "",
     val labels: List<PrototypeLabel> = emptyList(),
     val assignees: List<String> = emptyList(),
     val dueDate: LocalDate? = null,
