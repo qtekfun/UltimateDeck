@@ -15,8 +15,8 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 
 | Tema | Decisión |
 |---|---|
-| Backend | Nextcloud Deck vía API REST (`/index.php/apps/deck/api/v1.0/`) y OCS donde haga falta |
-| Versión de referencia | Nextcloud 35. La versión mínima de Deck soportada se fija tras probar y se anota aquí |
+| Backend | Nextcloud Deck vía API REST **v1.1** (`/index.php/apps/deck/api/v1.1/`) y OCS donde haga falta. v1.1 es v1.0 más adjuntos con tipo (`deck_file` / `file`) |
+| Versión de referencia | Nextcloud 35. Versión mínima de Deck: **≥ 1.3** (primera con API v1.1), provisional hasta probar contra servidores reales |
 | Plataforma | Android, `minSdk` 26; móvil en vertical primero, layouts adaptables preparados para tablet/apaisado después |
 | Cuentas | Modelo de datos **indexado por cuenta** desde el inicio; la UI del MVP muestra una cuenta activa. Multicuenta completo en la UI, después |
 | Volumen de referencia | ~1 tablero y ≤15 tarjetas en curso, pero el diseño debe escalar (índices por cuenta/tablero, paginación, listas perezosas) |
@@ -142,7 +142,7 @@ Cada tarjeta guarda, por campo editable, el valor local, el último valor conoci
 
 ## 9. Decisiones abiertas (a confirmar durante la implementación)
 - ~~Librería/estrategia para el editor WYSIWYG (ver riesgo 1).~~ Decidido en T03; ver "Decisiones tomadas".
-- Versión mínima de Deck soportada.
+- ~~Versión mínima de Deck soportada.~~ Provisional: Deck ≥ 1.3 (API v1.1), fijada en T05; se confirma al probar contra servidores reales (T06).
 - Si crear/renombrar columnas entra en el MVP.
 - Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).
 

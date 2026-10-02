@@ -1,0 +1,28 @@
+[
+  {
+    "title": "Board title",
+    "owner": {"primaryKey": "admin", "uid": "admin", "displayname": "Administrator"},
+    "color": "ff0000",
+    "archived": false,
+    "labels": [
+      {"title": "Finished", "color": "31CC7C", "boardId": "10", "cardId": null, "id": 37},
+      {"title": "To review", "color": "317CCC", "boardId": "10", "cardId": null, "id": 38}
+    ],
+    "acl": [],
+    "permissions": {"PERMISSION_READ": true, "PERMISSION_EDIT": true, "PERMISSION_MANAGE": true, "PERMISSION_SHARE": true},
+    "users": [{"primaryKey": "admin", "uid": "admin", "displayname": "Administrator"}],
+    "deletedAt": 0,
+    "lastModified": 1541426139,
+    "id": 10,
+    "ETag": "a1b2c3"
+  },
+  {
+    "title": "Old board",
+    "owner": "admin",
+    "color": "0082c9",
+    "archived": true,
+    "deletedAt": 1541426200,
+    "id": 11,
+    "someFutureField": {"nested": true}
+  }
+]
