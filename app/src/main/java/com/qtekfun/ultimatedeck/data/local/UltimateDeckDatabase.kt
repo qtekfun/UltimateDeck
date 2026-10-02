@@ -17,6 +17,7 @@ import com.qtekfun.ultimatedeck.data.local.dao.CredentialsDao
 import com.qtekfun.ultimatedeck.data.local.dao.LabelDao
 import com.qtekfun.ultimatedeck.data.local.dao.LocalIdDao
 import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationDao
+import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationRetryDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
 import com.qtekfun.ultimatedeck.data.local.dao.UserDao
 import com.qtekfun.ultimatedeck.data.local.entity.AccountCredentialsEntity
@@ -56,13 +57,13 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 @ColumnTypeConverters(Converters::class)
 abstract class UltimateDeckDatabase : RoomDatabase() {
     companion object {
-        const val VERSION = 1
+        const val VERSION = 2
 
         /**
          * Migrations from each released version to the next. There is no destructive fallback:
          * raising [VERSION] requires adding its migration here (checked by DatabaseSchemaTest).
          */
-        val MIGRATIONS: Array<Migration> = emptyArray()
+        val MIGRATIONS: Array<Migration> = arrayOf(Migration1To2)
     }
 
     abstract fun accountDao(): AccountDao
@@ -84,6 +85,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun cardSnapshotDao(): CardSnapshotDao
 
     abstract fun pendingOperationDao(): PendingOperationDao
+
+    abstract fun pendingOperationRetryDao(): PendingOperationRetryDao
 
     abstract fun localIdDao(): LocalIdDao
 

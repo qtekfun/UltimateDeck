@@ -1,0 +1,83 @@
+// SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.qtekfun.ultimatedeck.data.local
+
+import android.content.Context
+import androidx.room3.Room
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.sqlite.execSQL
+import io.mockk.every
+import io.mockk.mockk
+import java.io.File
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+
+/** Opens a database created with each old exported schema and lets Room migrate and validate it. */
+class MigrationTest {
+    @TempDir
+    lateinit var dir: File
+
+    private val schemas = File("schemas/${UltimateDeckDatabase::class.qualifiedName}")
+
+    /** Creates [file] exactly as version [version] of the exported schema describes it. */
+    private fun createFromSchema(file: File, version: Int, extraSql: List<String> = emptyList()) {
+        val schema = Json.parseToJsonElement(
+            File(schemas, "$version.json").readText()
+        ).jsonObject["database"]!!.jsonObject
+        val statements = schema["entities"]!!.jsonArray.flatMap { entity ->
+            val table = entity.jsonObject["tableName"]!!.jsonPrimitive.content
+            val create = entity.jsonObject["createSql"]!!.jsonPrimitive.content.replace(
+                "\${TABLE_NAME}",
+                table
+            )
+            val indices = entity.jsonObject["indices"]?.jsonArray.orEmpty().map {
+                it.jsonObject["createSql"]!!.jsonPrimitive.content.replace("\${TABLE_NAME}", table)
+            }
+            listOf(create) + indices
+        } + schema["setupQueries"]!!.jsonArray.map { it.jsonPrimitive.content }
+        val connection = BundledSQLiteDriver().open(file.path)
+        (statements + extraSql + "PRAGMA user_version = $version").forEach(connection::execSQL)
+        connection.close()
+    }
+
+    private fun open(file: File): UltimateDeckDatabase {
+        val context = mockk<Context>(relaxed = true)
+        every { context.applicationContext } returns context
+        every { context.getDatabasePath(any()) } returns file
+        return Room.databaseBuilder<UltimateDeckDatabase>(context, file.name)
+            .setDriver(BundledSQLiteDriver())
+            .addMigrations(*UltimateDeckDatabase.MIGRATIONS)
+            .build()
+    }
+
+    @Test
+    fun `migrates version 1 to the latest and keeps queued operations`() = runTest {
+        val file = File(dir, "v1.db")
+        createFromSchema(
+            file,
+            version = 1,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO pending_operation (id, accountId, type, entityType, entityId, " +
+                    "payload, createdAt, attempts, nextAttemptAt, lastError) " +
+                    "VALUES (1, 1, 'MOVE', 'CARD', 100, '{}', 0, 0, 0, NULL)"
+            )
+        )
+
+        val db = open(file)
+        val operation = db.pendingOperationDao().all(1).single()
+        db.close()
+
+        assertEquals(100L, operation.entityId)
+        assertFalse(operation.failed)
+    }
+}

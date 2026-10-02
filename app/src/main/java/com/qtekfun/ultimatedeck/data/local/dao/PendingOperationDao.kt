@@ -8,29 +8,37 @@ import androidx.room3.Insert
 import androidx.room3.Query
 import com.qtekfun.ultimatedeck.data.local.entity.PendingOperationEntity
 import com.qtekfun.ultimatedeck.data.local.model.EntityType
-import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 
-/** Storage of the operation queue; retries and ordering rules live in the queue (T07). */
+/** Storage of the operation queue; ordering, merging and retries live in OperationQueue (T07). */
 @Dao
 interface PendingOperationDao {
     @Insert
     suspend fun enqueue(operation: PendingOperationEntity): Long
 
-    /** Operations of the account that may run at [now], in the order they were queued. */
-    @Query(
-        "SELECT * FROM pending_operation WHERE accountId = :accountId AND nextAttemptAt <= :now ORDER BY id"
-    )
-    suspend fun ready(accountId: Long, now: Instant): List<PendingOperationEntity>
+    /** Every operation of the account, failed ones included, in the order they were queued. */
+    @Query("SELECT * FROM pending_operation WHERE accountId = :accountId ORDER BY id")
+    suspend fun all(accountId: Long): List<PendingOperationEntity>
 
     @Query(
-        "UPDATE pending_operation SET attempts = attempts + 1, nextAttemptAt = :nextAttemptAt, " +
-            "lastError = :error WHERE id = :id"
+        "SELECT * FROM pending_operation WHERE accountId = :accountId " +
+            "AND entityType = :entityType AND entityId = :entityId ORDER BY id"
     )
-    suspend fun recordFailure(id: Long, nextAttemptAt: Instant, error: String?)
+    suspend fun forEntity(
+        accountId: Long,
+        entityType: EntityType,
+        entityId: Long
+    ): List<PendingOperationEntity>
+
+    /** Replaces the data of an operation that was never sent (merging repeated changes). */
+    @Query("UPDATE pending_operation SET payload = :payload WHERE id = :id")
+    suspend fun replacePayload(id: Long, payload: String)
 
     @Query("DELETE FROM pending_operation WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("DELETE FROM pending_operation WHERE id IN (:ids)")
+    suspend fun delete(ids: List<Long>)
 
     /** Points queued operations at the server id once a local entity was created remotely. */
     @Query(
