@@ -17,6 +17,8 @@ class ConflictStateTest {
     private val db = inMemoryDatabase()
     private val edits = db.cardLocalEditDao()
     private val snapshots = db.cardSnapshotDao()
+    private val t0 = Instant.parse("2026-10-01T10:00:00Z")
+    private val t1 = t0.plusSeconds(60)
 
     @AfterEach
     fun close() = db.close()
@@ -29,13 +31,13 @@ class ConflictStateTest {
         val accountId = Fixtures.boardWithCards(db, 100)
         db.stackDao().upsert(listOf(Fixtures.stack(accountId, 11)))
 
-        edits.updateTitle(accountId, 100, "New title")
+        edits.updateTitle(accountId, 100, "New title", t0)
         assertEquals(setOf(CardField.TITLE), dirtyFields(accountId))
 
-        edits.updateDescription(accountId, 100, "Text")
-        edits.updateDueDate(accountId, 100, Instant.EPOCH)
-        edits.updatePosition(accountId, 100, stackId = 11, order = 3)
-        edits.updateArchived(accountId, 100, true)
+        edits.updateDescription(accountId, 100, "Text", t0)
+        edits.updateDueDate(accountId, 100, Instant.EPOCH, t0)
+        edits.updatePosition(accountId, 100, stackId = 11, order = 3, modifiedAt = t0)
+        edits.updateArchived(accountId, 100, true, t1)
 
         val card = db.cardDao().get(accountId, 100)!!
         assertEquals("New title", card.title)
@@ -43,6 +45,7 @@ class ConflictStateTest {
         assertEquals(Instant.EPOCH, card.dueDate)
         assertEquals(11L to 3, card.stackId to card.order)
         assertEquals(true, card.archived)
+        assertEquals(t1, card.localModifiedAt)
         assertEquals(
             setOf(
                 CardField.TITLE,
@@ -61,7 +64,8 @@ class ConflictStateTest {
         edits.markDirty(
             accountId,
             100,
-            CardField.maskOf(listOf(CardField.LABELS, CardField.ASSIGNEES, CardField.TITLE))
+            CardField.maskOf(listOf(CardField.LABELS, CardField.ASSIGNEES, CardField.TITLE)),
+            t0
         )
 
         edits.clearDirty(
@@ -79,7 +83,7 @@ class ConflictStateTest {
 
         edits.observeDirtyCardIds(accountId, 1).test {
             assertEquals(emptyList<Long>(), awaitItem())
-            edits.updateTitle(accountId, 101, "Changed")
+            edits.updateTitle(accountId, 101, "Changed", t0)
             assertEquals(listOf(101L), awaitItem())
             edits.clearDirty(accountId, 101, CardField.TITLE.bit)
             assertEquals(emptyList<Long>(), awaitItem())

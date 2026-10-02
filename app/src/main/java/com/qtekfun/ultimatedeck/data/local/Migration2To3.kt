@@ -7,13 +7,11 @@ import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
-/** v2 (T07): queued operations can be marked as permanently failed. */
+/** v3 (T08): cards remember when they were last edited locally, for conflict resolution. */
 // Database version numbers are the migration itself, not magic numbers.
 @Suppress("MagicNumber")
-object Migration1To2 : Migration(1, 2) {
+object Migration2To3 : Migration(2, 3) {
     override suspend fun migrate(connection: SQLiteConnection) {
-        connection.execSQL(
-            "ALTER TABLE pending_operation ADD COLUMN failed INTEGER NOT NULL DEFAULT 0"
-        )
+        connection.execSQL("ALTER TABLE card ADD COLUMN localModifiedAt INTEGER")
     }
 }
