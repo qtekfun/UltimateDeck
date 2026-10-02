@@ -71,6 +71,11 @@ fun EditorPrototypeScreen(original: String, onBack: () -> Unit, modifier: Modifi
                     }
                 )
             }
+            if (!editing && source.isBlank()) {
+                TextButton(onClick = {
+                    editing = true
+                }) { Text(stringResource(R.string.editor_empty)) }
+            }
             MarkdownBlocks(
                 source = source,
                 editable = editing,

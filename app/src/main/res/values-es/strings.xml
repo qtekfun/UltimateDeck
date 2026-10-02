@@ -81,4 +81,6 @@
     <string name="remote_error_unauthorized">El servidor ha rechazado la contraseña de aplicación. Cierra sesión y vuelve a iniciarla.</string>
     <string name="remote_error_unreachable">No se puede contactar con el servidor. Revisa tu conexión.</string>
     <string name="remote_error_other">El servidor ha respondido con un error. Inténtalo más tarde.</string>
+    <string name="board_empty">Este tablero aún no tiene columnas. Añádelas en Nextcloud Deck.</string>
+    <string name="editor_empty">Sin descripción. Toca para añadir una.</string>
 </resources>

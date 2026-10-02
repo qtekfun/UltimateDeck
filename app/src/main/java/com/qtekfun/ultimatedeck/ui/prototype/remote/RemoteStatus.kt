@@ -52,7 +52,7 @@ fun <T> RemoteContent(
             Button(onClick = onRetry) { Text(stringResource(R.string.remote_retry)) }
         }
 
-        is RemoteLoad.Loaded -> content(load.value)
+        is RemoteLoad.Loaded -> Box(modifier.fillMaxSize()) { content(load.value) }
     }
 }
 
