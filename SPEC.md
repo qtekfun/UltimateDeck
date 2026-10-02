@@ -75,6 +75,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - Añadir desde cámara, galería y selector de archivos. Cualquier tipo; el límite lo impone el servidor.
 - **Subida mediante cola con reintentos** (WorkManager) que sobrevive a cierres de app.
 - **Descarga bajo demanda** al abrir el adjunto (no se descargan todos de golpe).
+- Eliminar adjuntos desde el móvil, también sin conexión (se borran en el servidor al sincronizar).
 - Indicador de estado: pendiente, subiendo, error, completado.
 - **Criterios:**
   - Un adjunto añadido sin conexión se sube automáticamente al volver la red.

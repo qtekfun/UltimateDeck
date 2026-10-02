@@ -137,4 +137,24 @@ class AttachmentUploaderTest {
     fun `an attachment already gone needs nothing`() = runTest {
         assertEquals(ExecutionResult.Done(), executor.execute(-9, upload, maybeSent = false))
     }
+
+    @Test
+    fun `deleting an attachment on the server is done even if it is already gone`() = runTest {
+        server.enqueue(MockResponse(200))
+        server.enqueue(MockResponse(404))
+        server.enqueue(MockResponse(500))
+        val delete = QueuedOperation.DeleteAttachment(BOARD, STACK, 5, "deck_file")
+
+        assertEquals(ExecutionResult.Done(), executor.execute(7, delete, maybeSent = false))
+        assertEquals(ExecutionResult.Done(), executor.execute(7, delete, maybeSent = false))
+        assertEquals(
+            ExecutionResult.Retry("HTTP 500"),
+            executor.execute(7, delete, maybeSent = false)
+        )
+        val request = server.takeRequest()
+        assertEquals(
+            "DELETE ${API_PATH}boards/1/stacks/10/cards/5/attachments/deck_file/7",
+            "${request.method} ${request.target}"
+        )
+    }
 }

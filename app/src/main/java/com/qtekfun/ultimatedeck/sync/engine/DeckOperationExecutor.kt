@@ -83,6 +83,19 @@ class DeckOperationExecutor(
         is QueuedOperation.SetAssignees -> setAssignees(entityId, operation)
 
         is QueuedOperation.UploadAttachment -> uploader.upload(entityId)
+
+        is QueuedOperation.DeleteAttachment -> {
+            val result = apiCall {
+                api.attachments.delete(
+                    operation.boardId,
+                    operation.stackId,
+                    operation.cardId,
+                    operation.attachmentType,
+                    entityId
+                )
+            }
+            if (result == ApiResult.NotFound) ExecutionResult.Done() else result.toExecutionResult()
+        }
     }
 
     /**

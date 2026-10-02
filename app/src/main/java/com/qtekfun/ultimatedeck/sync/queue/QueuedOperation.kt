@@ -88,6 +88,19 @@ sealed interface QueuedOperation {
         override val entityType get() = EntityType.ATTACHMENT
     }
 
+    /** Deletes an uploaded attachment; [attachmentType] is part of Deck's path ("file", "deck_file"). */
+    @Serializable
+    @SerialName("delete_attachment")
+    data class DeleteAttachment(
+        val boardId: Long,
+        val stackId: Long,
+        val cardId: Long,
+        val attachmentType: String
+    ) : QueuedOperation {
+        override val type get() = OperationType.DELETE
+        override val entityType get() = EntityType.ATTACHMENT
+    }
+
     companion object {
         /** Payload JSON; the class name goes in "op" to keep it apart from the fields. */
         val json: Json = Json {

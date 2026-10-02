@@ -209,4 +209,29 @@ class AttachmentRepositoryTest {
         assertFalse(db.pendingOperationDao().all(ACCOUNT).single().failed)
         assertFalse(copy.exists())
     }
+
+    @Test
+    fun `an uploaded attachment deleted here goes at once and is not brought back`() = runTest {
+        signedIn()
+        val copy = File(dir, "7.txt").apply { writeText("x") }
+        db.attachmentDao().upsert(
+            listOf(
+                attachment(7, localUri = copy.path).copy(type = "deck_file"),
+                attachment(-1, UploadState.PENDING)
+            )
+        )
+        server.enqueue(json("""[{"id":7,"cardId":5,"type":"deck_file","data":"f7.txt"}]"""))
+
+        repository.delete(db.attachmentDao().get(ACCOUNT, 7)!!)
+        repository.delete(db.attachmentDao().get(ACCOUNT, -1)!!)
+        repository.refresh(5)
+
+        assertEquals(emptyList<Any>(), stored())
+        assertFalse(copy.exists())
+        assertEquals(
+            listOf(7L to QueuedOperation.DeleteAttachment(BOARD, STACK, 5, "deck_file")),
+            queued()
+        )
+        verify { scheduler.requestSync() }
+    }
 }

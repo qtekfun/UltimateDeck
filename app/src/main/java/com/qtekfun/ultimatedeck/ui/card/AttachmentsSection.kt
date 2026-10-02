@@ -21,9 +21,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -189,8 +193,35 @@ private fun AttachmentRow(
                 }) { Text(stringResource(R.string.attachments_discard)) }
             }
 
-            else -> Unit
+            else -> DeleteAttachmentButton(attachment.fileName) { viewModel.delete(attachment) }
         }
+    }
+}
+
+/** Deleting an uploaded attachment removes it from the server too, so it is confirmed. */
+@Composable
+private fun DeleteAttachmentButton(name: String, onDelete: () -> Unit) {
+    var confirming by remember { mutableStateOf(false) }
+    IconButton(onClick = { confirming = true }) {
+        Icon(Icons.Filled.Delete, stringResource(R.string.attachments_delete, name))
+    }
+    if (confirming) {
+        AlertDialog(
+            onDismissRequest = { confirming = false },
+            title = { Text(stringResource(R.string.attachments_delete_title)) },
+            text = { Text(stringResource(R.string.attachments_delete_text, name)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirming = false
+                    onDelete()
+                }) { Text(stringResource(R.string.card_delete)) }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    confirming = false
+                }) { Text(stringResource(R.string.dialog_cancel)) }
+            }
+        )
     }
 }
 

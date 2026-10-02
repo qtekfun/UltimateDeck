@@ -89,6 +89,10 @@ class AttachmentsViewModel @Inject constructor(
         viewModelScope.launch { repository.retry(attachment) }
     }
 
+    fun delete(attachment: AttachmentEntity) {
+        viewModelScope.launch { repository.delete(attachment) }
+    }
+
     fun discard(attachment: AttachmentEntity) {
         viewModelScope.launch { repository.discard(attachment) }
     }

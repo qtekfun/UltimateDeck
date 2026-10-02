@@ -165,4 +165,7 @@
     <string name="attachments_discard">Descartar</string>
     <string name="attachments_open_failed">No se pudo descargar el adjunto.</string>
     <string name="attachments_no_app">Ninguna app puede abrir este archivo.</string>
+    <string name="attachments_delete">Eliminar %1$s</string>
+    <string name="attachments_delete_title">¿Eliminar este adjunto?</string>
+    <string name="attachments_delete_text">%1$s también se eliminará en el servidor.</string>
 </resources>

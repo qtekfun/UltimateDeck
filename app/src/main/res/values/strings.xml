@@ -173,4 +173,7 @@
     <string name="attachments_discard">Discard</string>
     <string name="attachments_open_failed">The attachment could not be downloaded.</string>
     <string name="attachments_no_app">No app can open this file.</string>
+    <string name="attachments_delete">Delete %1$s</string>
+    <string name="attachments_delete_title">Delete this attachment?</string>
+    <string name="attachments_delete_text">%1$s will be deleted on the server too.</string>
 </resources>

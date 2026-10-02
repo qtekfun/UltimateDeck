@@ -93,8 +93,13 @@ class AttachmentRepository @Inject constructor(
                     it.localUri
             }
             attachments.deleteSynced(accountId, cardId)
+            // Deleted here but not yet on the server: not brought back.
+            val deleting = operations.all(accountId)
+                .filter { it.entityType == EntityType.ATTACHMENT }
+                .map { it.entityId }
+                .toSet()
             attachments.upsert(
-                result.value.filter { it.deletedAt == 0L }
+                result.value.filter { it.deletedAt == 0L && it.id !in deleting }
                     .map { it.toEntity(accountId).copy(localUri = cached[it.id]) }
             )
         }
@@ -133,6 +138,23 @@ class AttachmentRepository @Inject constructor(
         operations.forEntity(attachment.accountId, EntityType.ATTACHMENT, attachment.id)
             .forEach { queue.retry(it.id) }
         attachments.setUploadState(attachment.accountId, attachment.id, UploadState.PENDING)
+        scheduler.requestSync()
+    }
+
+    /**
+     * Deletes an attachment. One never uploaded is just discarded; an uploaded one disappears
+     * here at once and its deletion is sent on the next sync, offline too.
+     */
+    suspend fun delete(attachment: AttachmentEntity) {
+        val card = cards.get(attachment.accountId, attachment.cardId)
+        if (attachment.id < 0 || card == null) return discard(attachment)
+        queue.enqueue(
+            attachment.accountId,
+            attachment.id,
+            QueuedOperation.DeleteAttachment(card.boardId, card.stackId, card.id, attachment.type)
+        )
+        attachments.delete(attachment.accountId, attachment.id)
+        attachment.localUri?.let { files.delete(it) }
         scheduler.requestSync()
     }
 
