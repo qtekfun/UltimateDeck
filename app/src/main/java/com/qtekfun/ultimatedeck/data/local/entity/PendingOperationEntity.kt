@@ -3,6 +3,7 @@
 
 package com.qtekfun.ultimatedeck.data.local.entity
 
+import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.ForeignKey
 import androidx.room3.Index
@@ -39,5 +40,6 @@ data class PendingOperationEntity(
     val nextAttemptAt: Instant = createdAt,
     val lastError: String? = null,
     /** Refused for good by the server: no automatic retries until the user retries or discards it. */
+    @ColumnInfo(defaultValue = "0")
     val failed: Boolean = false
 )
