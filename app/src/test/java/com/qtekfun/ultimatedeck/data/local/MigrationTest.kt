@@ -10,6 +10,7 @@ import androidx.sqlite.execSQL
 import io.mockk.every
 import io.mockk.mockk
 import java.io.File
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
@@ -182,5 +183,28 @@ class MigrationTest {
         db.close()
 
         assertEquals(0, card?.conflictFields)
+    }
+
+    @Test
+    fun `migrates version 6 to the latest with no board members yet`() = runTest {
+        val file = File(dir, "v6.db")
+        createFromSchema(
+            file,
+            version = 6,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO board (accountId, id, title, color, archived) " +
+                    "VALUES (1, 1, 'B', 'fff', 0)",
+                "INSERT INTO deck_user (accountId, uid, displayName) VALUES (1, 'ana', 'Ana')"
+            )
+        )
+
+        val db = open(file)
+        db.boardMemberDao().setMembers(1, 1, listOf("ana"))
+        val members = db.boardMemberDao().observeMembers(1, 1).first()
+        db.close()
+
+        assertEquals(listOf("ana"), members.map { it.uid })
     }
 }

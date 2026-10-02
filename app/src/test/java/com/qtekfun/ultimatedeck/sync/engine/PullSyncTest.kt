@@ -5,6 +5,7 @@ package com.qtekfun.ultimatedeck.sync.engine
 
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
+import com.qtekfun.ultimatedeck.data.local.entity.DeckUserEntity
 import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
 import com.qtekfun.ultimatedeck.data.local.model.CardField
@@ -17,6 +18,7 @@ import com.qtekfun.ultimatedeck.sync.queue.MutableClock
 import com.qtekfun.ultimatedeck.sync.queue.OperationQueue
 import com.qtekfun.ultimatedeck.sync.queue.QueuedOperation
 import java.time.Instant
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
@@ -101,6 +103,26 @@ class PullSyncTest {
         assertEquals(listOf(101L), db.labelDao().labelIdsOfCard(ACCOUNT, 5))
         assertEquals(listOf("carl"), db.userDao().assigneeUidsOfCard(ACCOUNT, 5))
         assertEquals("Card 5", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
+        assertEquals(
+            listOf("ana", "bob"),
+            db.boardMemberDao().observeMembers(ACCOUNT, 1).first().map { it.uid }
+        )
+    }
+
+    @Test
+    fun `users who leave a board are no longer members`() = runTest {
+        seedSynced()
+        db.userDao().upsert(listOf(DeckUserEntity(ACCOUNT, "carl", "Carl")))
+        db.boardMemberDao().setMembers(ACCOUNT, BOARD, listOf("carl"))
+        server.enqueue(json("[${boardJson(1)}]"))
+        server.enqueue(MockResponse(304))
+
+        pull.pull(api, ACCOUNT)
+
+        assertEquals(
+            listOf("ana", "bob"),
+            db.boardMemberDao().observeMembers(ACCOUNT, BOARD).first().map { it.uid }
+        )
     }
 
     @Test

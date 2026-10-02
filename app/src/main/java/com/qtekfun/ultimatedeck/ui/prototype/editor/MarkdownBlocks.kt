@@ -41,6 +41,15 @@ fun MarkdownBlocks(
                 }
             }
         }
+        // An empty description has no segments: offer a field to start writing.
+        if (editable && segments.isEmpty()) {
+            TextSegmentEditor(
+                source,
+                callbacks.onSourceChange,
+                callbacks.onActiveText,
+                Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
