@@ -146,4 +146,6 @@
     <string name="settings_reminders_all">Todas las tarjetas con fecha</string>
     <string name="settings_reminders_inexact">Las alarmas exactas no están permitidas: los avisos pueden llegar unos minutos tarde.</string>
     <string name="settings_reminders_allow_exact">Permitir alarmas exactas</string>
+    <string name="card_due_next">Siguiente</string>
+    <string name="card_due_time">Hora</string>
 </resources>

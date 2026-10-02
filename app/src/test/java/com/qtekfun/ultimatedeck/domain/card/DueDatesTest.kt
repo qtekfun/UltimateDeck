@@ -31,4 +31,11 @@ class DueDatesTest {
 
         assertEquals(october5, pickerMillisFor(lateNight, madrid))
     }
+
+    @Test
+    fun `the chosen time is set on the local day`() {
+        val day = Instant.parse("2026-10-05T10:00:00Z") // 12:00 in Madrid
+
+        assertEquals(Instant.parse("2026-10-05T07:45:00Z"), withTime(day, 9, 45, madrid))
+    }
 }

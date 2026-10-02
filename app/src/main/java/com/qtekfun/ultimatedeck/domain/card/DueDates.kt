@@ -25,3 +25,7 @@ fun dueDateFor(pickedUtcMillis: Long, previous: Instant?, zone: ZoneId): Instant
 /** The day of [dueDate] in [zone], as the UTC midnight millis a date picker expects. */
 fun pickerMillisFor(dueDate: Instant, zone: ZoneId): Long =
     dueDate.atZone(zone).toLocalDate().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+
+/** [day] with its time of day set to [hour]:[minute] in [zone]. */
+fun withTime(day: Instant, hour: Int, minute: Int, zone: ZoneId): Instant =
+    day.atZone(zone).toLocalDate().atTime(hour, minute).atZone(zone).toInstant()
