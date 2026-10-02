@@ -24,9 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
-import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
+import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 
 /** Side menu (T18b): the boards, each can be the one that opens at start, and the settings. */
 @Composable
@@ -48,7 +50,9 @@ fun AppDrawer(
                 stringResource(R.string.drawer_boards),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .semantics { heading() }
             )
             boards.forEach { board ->
                 BoardItem(

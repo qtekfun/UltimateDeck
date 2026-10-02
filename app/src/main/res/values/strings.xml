@@ -6,28 +6,28 @@
 <resources>
     <string name="app_name" translatable="false">UltimateDeck</string>
 
-    <!-- Board prototype (T02). -->
+    <!-- Board (T02, T12). -->
 
     <!-- Card accessibility description and actions. -->
-    <string name="prototype_card_labels">Labels: %1$s</string>
-    <string name="prototype_card_due">Due %1$s</string>
-    <string name="prototype_card_overdue">Overdue since %1$s</string>
-    <plurals name="prototype_card_attachments">
+    <string name="board_card_labels">Labels: %1$s</string>
+    <string name="board_card_due">Due %1$s</string>
+    <string name="board_card_overdue">Overdue since %1$s</string>
+    <plurals name="board_card_attachments">
         <item quantity="one">%d attachment</item>
         <item quantity="other">%d attachments</item>
     </plurals>
-    <plurals name="prototype_card_checklist">
+    <plurals name="board_card_checklist">
         <item quantity="one">%1$d of %2$d checklist item done</item>
         <item quantity="other">%1$d of %2$d checklist items done</item>
     </plurals>
-    <string name="prototype_card_assignees">Assigned to %1$s</string>
-    <string name="prototype_action_move_to">Move to %1$s</string>
-    <plurals name="prototype_column_description">
+    <string name="board_card_assignees">Assigned to %1$s</string>
+    <string name="board_action_move_to">Move to %1$s</string>
+    <plurals name="board_column_description">
         <item quantity="one">%1$s, %2$d card</item>
         <item quantity="other">%1$s, %2$d cards</item>
     </plurals>
-    <!-- Editor evaluation prototype (T03). -->
-    <string name="prototype_card_open">Edit description</string>
+    <!-- Card editor (T03, T14). -->
+    <string name="board_card_open">Edit description</string>
     <string name="editor_back">Back</string>
     <string name="editor_bold">Bold</string>
     <string name="editor_bold_short">B</string>
@@ -176,4 +176,5 @@
     <string name="attachments_delete">Delete %1$s</string>
     <string name="attachments_delete_title">Delete this attachment?</string>
     <string name="attachments_delete_text">%1$s will be deleted on the server too.</string>
+    <string name="board_more">More options</string>
 </resources>

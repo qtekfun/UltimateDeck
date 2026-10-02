@@ -3,7 +3,7 @@
 
 package com.qtekfun.ultimatedeck.ui.navigation
 
-import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
+import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 
 /** The board to open at start: the favorite, if it is still among the active boards. */
 fun startBoard(favorite: Long?, boards: List<BoardSummary>): BoardSummary? =

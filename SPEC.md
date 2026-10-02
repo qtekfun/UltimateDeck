@@ -131,6 +131,11 @@ Cada tarjeta guarda, por campo editable, el valor local, el último valor conoci
 - **Robustez:** ninguna pérdida de datos del usuario ante cierres, falta de red o errores del servidor.
 - **Escalabilidad de datos:** esquema Room versionado con migraciones probadas; claves compuestas `(accountId, id)`.
 
+### Mediciones (T19, 2026-10-02)
+Medido en el móvil de pruebas (gama alta, pantalla de 120 Hz) con la **build de depuración**, más lenta que la de release (sin R8 y con las comprobaciones de Compose en modo debug); son por tanto un límite pesimista.
+- **Arranque en frío** con datos locales (`am start -W`, 10 veces, abre el tablero favorito): mediana 338 ms, máximo 339 ms. Objetivo < 1,5 s: cumple.
+- **Desplazamiento** por un tablero de 30 tarjetas (`dumpsys gfxinfo`, desplazamientos verticales y entre columnas): p50 5 ms, p90 10 ms, p95 12 ms por fotograma; 3,2 % de fotogramas con tirones. El 95 % cabe en los 16,6 ms de 60 fps. Hay picos aislados (p99 109 ms) al componer columnas nuevas; si se notan en la build de release, el siguiente paso sería un Baseline Profile (requiere la dependencia `profileinstaller`, a consultar).
+
 ## 7. Calidad y CI
 
 - **GitHub Actions:** en cada PR, build + detekt + ktlint + Android Lint + tests unitarios + Kover.
