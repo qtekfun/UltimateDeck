@@ -5,7 +5,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 ## Fase 0 — Cimientos y prototipos de riesgo
 - [x] **T00 Proyecto base**: módulo Android, Gradle KTS, `libs.versions.toml`, Hilt, Compose, tema Material 3, `strings.xml` en/es, cabeceras SPDX, `LICENSE` (GPLv3).
   - *Verificación:* `./gradlew assembleDebug` compila y la app arranca con pantalla vacía.
-- [ ] **T01 CI y calidad**: detekt, ktlint, Lint (warnings como errores), Kover con umbrales, verificación de dependencias de Gradle, chequeo de licencias/Play Services, workflow de GitHub Actions, Dependabot.
+- [x] **T01 CI y calidad**: detekt, ktlint, Lint (warnings como errores), Kover con umbrales, verificación de dependencias de Gradle, chequeo de licencias/Play Services, workflow de GitHub Actions, Dependabot.
   - *Verificación:* un PR de prueba pasa CI; una dependencia de Play Services añadida a propósito la hace fallar.
 - [ ] **T02 Prototipo drag & drop**: columna y media + arrastre entre columnas con autoscroll, con datos falsos.
   - *Verificación:* demo manual en dispositivo; decisión documentada en `SPEC.md` (sección 9).
