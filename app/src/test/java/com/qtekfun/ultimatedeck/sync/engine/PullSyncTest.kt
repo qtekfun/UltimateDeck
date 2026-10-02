@@ -209,6 +209,38 @@ class PullSyncTest {
             CardField.fromMask(card.dirtyFields)
         )
         assertEquals("Theirs", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
+        assertEquals(CardField.TITLE.bit, card.conflictFields)
+    }
+
+    @Test
+    fun `a conflict stays until both sides agree and is never resent`() = runTest {
+        seedSynced()
+        val conflicted = card(
+            5,
+            title = "Mine",
+            dirty = CardField.TITLE.bit
+        ).copy(conflictFields = CardField.TITLE.bit)
+        db.cardDao().upsert(
+            listOf(
+                conflicted,
+                card(
+                    6,
+                    title = "Same",
+                    dirty = CardField.TITLE.bit
+                ).copy(conflictFields = CardField.TITLE.bit)
+            )
+        )
+        db.cardSnapshotDao().put(snapshot(5, title = "Theirs"))
+        db.cardSnapshotDao().put(snapshot(6, title = "Theirs"))
+        server.enqueue(MockResponse(304))
+        server.enqueue(json(stacksJson(cardJson(5, title = "Theirs"), cardJson(6, title = "Same"))))
+
+        pull.pull(api, ACCOUNT)
+
+        assertEquals(CardField.TITLE.bit, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
+        assertEquals("Mine", db.cardDao().get(ACCOUNT, 5)?.title)
+        assertEquals(0, db.cardDao().get(ACCOUNT, 6)?.conflictFields)
+        assertEquals(emptyList<Any>(), db.pendingOperationDao().all(ACCOUNT))
     }
 
     @Test

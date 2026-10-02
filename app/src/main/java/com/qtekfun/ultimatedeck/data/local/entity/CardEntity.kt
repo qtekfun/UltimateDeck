@@ -48,5 +48,7 @@ data class CardEntity(
     /** Deleted on the server while edited here: the user decides whether to keep it (SPEC §5). */
     val deletedOnServer: Boolean = false,
     /** Number of attachments on the server, shown on the board (T12). */
-    val attachmentCount: Int = 0
+    val attachmentCount: Int = 0,
+    /** Title/description fields changed on both sides, waiting for the user (SPEC §5, T14). */
+    val conflictFields: Int = 0
 )
