@@ -35,6 +35,11 @@ internal class CardMerger(database: UltimateDeckDatabase) {
         dto: CardDto?,
         boardLabels: Set<Long>
     ) {
+        // Deleted here: kept hidden while the server still has it, removed once it is gone.
+        if (card.deletedAt != null) {
+            if (dto == null) cards.delete(accountId, card.id)
+            return
+        }
         val local = LocalCard.of(
             card,
             labels.labelIdsOfCard(accountId, card.id).toSet(),

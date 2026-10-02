@@ -271,4 +271,22 @@ class PullSyncTest {
         assertEquals(PullResult.Done, pull.pull(api, ACCOUNT))
         assertEquals(0, server.requestCount)
     }
+
+    @Test
+    fun `a card deleted here stays hidden until the server drops it`() = runTest {
+        seedSynced()
+        db.cardDao().upsert(listOf(card(5).copy(deletedAt = Instant.EPOCH)))
+        server.enqueue(MockResponse(304))
+        server.enqueue(json(stacksJson(cardJson(5, title = "Still there"))))
+        server.enqueue(MockResponse(304))
+        server.enqueue(json(stacksJson()))
+
+        pull.pull(api, ACCOUNT)
+        val hidden = db.cardDao().get(ACCOUNT, 5)
+        pull.pull(api, ACCOUNT)
+
+        assertEquals("Card", hidden?.title)
+        assertEquals(Instant.EPOCH, hidden?.deletedAt)
+        assertNull(db.cardDao().get(ACCOUNT, 5))
+    }
 }
