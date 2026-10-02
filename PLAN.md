@@ -32,6 +32,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 - [x] **T10 (pospuesta tras T14) Tests de sync offline**: caídas de red, cambios concurrentes, reintentos, app cerrada a mitad de sync.
 - [x] **T16 Panel secundario**: fecha, etiquetas y asignados.
 - [x] **T18 Ajustes**: tema, colores dinámicos, idioma, cuenta y cierre de sesión.
+- [x] **T18b Menú lateral**: tableros con favorito (se abre al iniciar), cambiar de tablero y ajustes desde el menú.
 - [ ] **T17 Adjuntos**: cámara/galería/archivos, cola de subida con reintentos, descarga bajo demanda, estados visibles.
 
 ## Fase 4 — Cierre del MVP
