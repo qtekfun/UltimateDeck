@@ -46,10 +46,13 @@ fun LiveMarkdownEditor(
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     val currentValue by rememberUpdatedState(value)
     val currentDocument by rememberUpdatedState(document)
+    // The gesture detector below is installed once, so it must read the current transformation:
+    // its offset mapping depends on the cursor position.
+    val currentTransformation by rememberUpdatedState(transformation)
 
     fun taskAt(position: Offset): TaskMarker? {
         val textLayout = layout ?: return null
-        val original = transformation.mapping.transformedToOriginal(
+        val original = currentTransformation.mapping.transformedToOriginal(
             textLayout.getOffsetForPosition(position)
         )
         return currentDocument.tasks.firstOrNull { original in it.range.start..it.range.end }
