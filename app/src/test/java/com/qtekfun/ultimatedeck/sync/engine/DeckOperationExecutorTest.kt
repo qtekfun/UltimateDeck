@@ -266,4 +266,19 @@ class DeckOperationExecutorTest {
         )
         assertEquals(1, server.requestCount)
     }
+
+    @Test
+    fun `after an update the server state is what was sent, so later typing is no conflict`() =
+        runTest {
+            db.seedBoard()
+            db.cardDao().upsert(listOf(card(5, title = "Ab", dirty = CardField.TITLE.bit)))
+            db.cardSnapshotDao().put(snapshot(5, title = "A"))
+            server.enqueue(json("""{"id":5,"title":"A","stackId":10}"""))
+            server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+            executor.execute(5, QueuedOperation.UpdateCard(BOARD, STACK))
+
+            assertEquals("Ab", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
+            assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
+        }
 }

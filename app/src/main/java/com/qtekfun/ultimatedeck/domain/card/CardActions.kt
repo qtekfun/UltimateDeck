@@ -128,6 +128,7 @@ class CardActions @Inject constructor(
         if (keepMine) {
             cards.update(listOf(card.copy(conflictFields = unresolved)))
             queueUpdate(accountId, card)
+            scheduler.requestSync()
         } else {
             val theirs = card.copy(
                 title = if (field == CardField.TITLE) server.title else card.title,
@@ -143,7 +144,10 @@ class CardActions @Inject constructor(
         }
     }
 
-    /** Runs [change] on an existing card; when it saved something, the card is queued to send. */
+    /**
+     * Runs [change] on an existing card; when it saved something, the card is queued to send.
+     * No sync is requested: typing would start one per pause (the card detail syncs when it is left).
+     */
     private suspend fun edit(
         cardId: Long,
         change: suspend (accountId: Long, card: CardEntity) -> Boolean
@@ -155,7 +159,6 @@ class CardActions @Inject constructor(
 
     private suspend fun queueUpdate(accountId: Long, card: CardEntity) {
         queue.enqueue(accountId, card.id, QueuedOperation.UpdateCard(card.boardId, card.stackId))
-        scheduler.requestSync()
     }
 
     /** Deletes a card: one never sent leaves no trace, others hide until the server deletes them. */

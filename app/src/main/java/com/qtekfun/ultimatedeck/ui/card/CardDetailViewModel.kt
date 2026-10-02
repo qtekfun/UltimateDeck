@@ -11,6 +11,7 @@ import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.domain.card.CardActions
 import com.qtekfun.ultimatedeck.domain.card.textConflicts
 import com.qtekfun.ultimatedeck.sync.conflict.TextConflict
+import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -49,7 +50,8 @@ data class CardDetail(
 class CardDetailViewModel @Inject constructor(
     session: AccountSession,
     database: UltimateDeckDatabase,
-    private val actions: CardActions
+    private val actions: CardActions,
+    private val scheduler: SyncScheduler
 ) : ViewModel() {
     private val details = database.cardDetailDao()
     private val cardId = MutableStateFlow<Long?>(null)
@@ -114,6 +116,7 @@ class CardDetailViewModel @Inject constructor(
         viewModelScope.launch {
             actions.editTitle(id, title)
             actions.editDescription(id, description)
+            scheduler.requestSync()
         }
     }
 

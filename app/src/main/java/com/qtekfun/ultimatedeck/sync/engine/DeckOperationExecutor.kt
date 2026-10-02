@@ -146,14 +146,30 @@ class DeckOperationExecutor(
                 card.description
             }
         )
-        return apiCall {
+        val result = apiCall {
             api.cards.updateCard(
                 boardId,
                 card.stackId,
                 cardId,
                 sent.toUpdateRequest(userId)
             )
-        }.toExecutionResult()
+        }
+        // The server now has what was sent: later changes are measured from it, so text typed
+        // while a sync runs is not taken for someone else's change.
+        if (result is ApiResult.Success) {
+            snapshots.get(accountId, cardId)?.let { known ->
+                snapshots.put(
+                    known.copy(
+                        title = sent.title,
+                        description = sent.description,
+                        dueDate = sent.dueDate,
+                        archived = sent.archived,
+                        done = sent.done
+                    )
+                )
+            }
+        }
+        return result.toExecutionResult()
     }
 
     /** Text fields edited here that the server also changed, to something else, since the last sync. */

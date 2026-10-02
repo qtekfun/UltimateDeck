@@ -8,11 +8,13 @@ import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
 import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.domain.card.CardActions
 import com.qtekfun.ultimatedeck.sync.engine.ACCOUNT
+import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
 import com.qtekfun.ultimatedeck.sync.engine.card
 import com.qtekfun.ultimatedeck.sync.engine.seedBoard
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -32,6 +34,7 @@ class CardDetailViewModelTest {
     private val db = inMemoryDatabase()
     private val session = mockk<AccountSession>()
     private val actions = mockk<CardActions>(relaxed = true)
+    private val scheduler = mockk<SyncScheduler>(relaxed = true)
 
     @BeforeEach
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -48,7 +51,7 @@ class CardDetailViewModelTest {
             db.seedBoard()
             db.cardDao().upsert(listOf(card(5)))
             every { session.activeAccount } returns flowOf(db.accountDao().get(ACCOUNT))
-            val viewModel = CardDetailViewModel(session, db, actions)
+            val viewModel = CardDetailViewModel(session, db, actions, scheduler)
             viewModel.open(5)
             runCurrent()
 
@@ -64,6 +67,7 @@ class CardDetailViewModelTest {
             runCurrent()
             coVerify { actions.editTitle(5, "Final") }
             coVerify { actions.editDescription(5, "Notes") }
+            verify(exactly = 1) { scheduler.requestSync() }
             coVerify { actions.resolveConflict(5, CardField.TITLE, false) }
         }
 }
