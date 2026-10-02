@@ -9,7 +9,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
   - *Verificación:* un PR de prueba pasa CI; una dependencia de Play Services añadida a propósito la hace fallar.
 - [x] **T02 Prototipo drag & drop**: columna y media + arrastre entre columnas con autoscroll, con datos falsos.
   - *Verificación:* demo manual en dispositivo; decisión documentada en `SPEC.md` (sección 9).
-- [ ] **T03 Prototipo editor WYSIWYG**: evaluar opciones y demostrar el viaje Markdown → editor → Markdown sin pérdidas con un corpus de ejemplos (listas, checklists, enlaces, código, tablas, imágenes).
+- [x] **T03 Prototipo editor WYSIWYG**: evaluar opciones y demostrar el viaje Markdown → editor → Markdown sin pérdidas con un corpus de ejemplos (listas, checklists, enlaces, código, tablas, imágenes).
   - *Verificación:* tests de ida y vuelta con el corpus; decisión documentada.
 
 ## Fase 1 — Datos y red

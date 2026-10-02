@@ -141,7 +141,7 @@ Cada tarjeta guarda, por campo editable, el valor local, el último valor conoci
 4. **Reordenación y conflictos de posición** en la API de Deck: comprobar comportamiento real del servidor.
 
 ## 9. Decisiones abiertas (a confirmar durante la implementación)
-- Librería/estrategia para el editor WYSIWYG (ver riesgo 1).
+- ~~Librería/estrategia para el editor WYSIWYG (ver riesgo 1).~~ Decidido en T03; ver "Decisiones tomadas".
 - Versión mínima de Deck soportada.
 - Si crear/renombrar columnas entra en el MVP.
 - Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).
@@ -154,3 +154,33 @@ Cada tarjeta guarda, por campo editable, el valor local, el último valor conoci
   - Autoscroll horizontal (y vertical en la columna destino) proporcional a la cercanía al borde.
   - Acciones de accesibilidad "Mover a <columna>" para mover tarjetas sin arrastrar (TalkBack).
   - La lógica de movimiento es pura y está en `domain/board` (`moveItem`), con tests; T13 la reutiliza con datos reales.
+- **Editor de descripción (T03, prototipo validado en dispositivo):** editor propio "WYSIWYG por bloques" sobre el Markdown original, sin librería de texto enriquecido.
+  - **Evaluación:** viaje Markdown → editor → Markdown sobre un corpus de 14 archivos (`app/src/test/resources/markdown-corpus/`).
+
+    | Opción | Archivos idénticos |
+    |---|---|
+    | Editor propio | 14 / 14 |
+    | compose-rich-editor 1.2.1 | 1 / 14 |
+
+  - **Por qué se descarta compose-rich-editor:**
+    - Borra los checkboxes (`- [ ] x` → `- x`).
+    - Aplana tablas, bloques de código y citas a texto.
+    - Vacía autoenlaces (`<https://…>` → `<>`) y quita títulos de enlaces y HTML.
+    - Normaliza la sintaxis (`_x_` → `*x*`, `__x__` → `**x**`, `*` → `-`) y quita los espacios finales que fuerzan un salto de línea.
+    - Además obliga a usar material3 en alpha.
+  - **Diseño:**
+    - La descripción guardada es siempre el Markdown original. Se analiza con JetBrains markdown (`org.jetbrains:markdown`, Apache-2.0) sin reescribirla.
+    - Solo se reescribe el segmento que el usuario edita. Lo demás se conserva byte a byte; al abrir y cerrar el editor sin cambios, el texto queda idéntico.
+  - **Lectura:** Markdown renderizado sin ningún símbolo, al estilo de Jira.
+    - Los checkboxes se pueden marcar directamente.
+    - Tocar el texto entra en edición.
+  - **Edición:** sin símbolos tampoco. La descripción se divide en segmentos:
+    - **Texto** (párrafos, títulos, listas, checklists, citas): se edita la fuente con los marcadores ocultos.
+      - Intro continúa o termina listas y checklists.
+      - Barra con negrita, cursiva, título, lista, checklist y tabla.
+    - **Tablas:** en cuadrícula, con añadir o quitar filas y columnas.
+      - Sin editar se guardan idénticas.
+      - Editadas se regeneran con formato limpio, conservando la alineación, los `\|`, CRLF y el salto de línea final.
+    - **Código:** solo el contenido, con las vallas y el lenguaje conservados.
+    - **HTML:** tal cual.
+  - **Pendiente para T14:** autoguardado, diálogo de conflictos, edición de enlaces e imágenes.

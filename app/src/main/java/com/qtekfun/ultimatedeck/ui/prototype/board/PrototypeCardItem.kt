@@ -5,6 +5,7 @@ package com.qtekfun.ultimatedeck.ui.prototype.board
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -56,12 +59,23 @@ fun PrototypeCardItem(
     card: PrototypeCard,
     modifier: Modifier = Modifier,
     today: LocalDate = LocalDate.now(),
-    actions: List<CustomAccessibilityAction> = emptyList()
+    actions: List<CustomAccessibilityAction> = emptyList(),
+    onClick: (() -> Unit)? = null
 ) {
     val description = cardDescription(card, today)
+    val openLabel = stringResource(R.string.prototype_card_open)
+    val clickable = if (onClick !=
+        null
+    ) {
+        Modifier.clickable(onClickLabel = openLabel, onClick = onClick)
+    } else {
+        Modifier
+    }
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
+            .clip(CardDefaults.elevatedShape)
+            .then(clickable)
             .semantics(mergeDescendants = true) {
                 contentDescription = description
                 customActions = actions

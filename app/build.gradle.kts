@@ -242,6 +242,8 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.core)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
+    implementation(libs.jetbrains.markdown)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
