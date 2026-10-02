@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 private const val KEY_THEME = "theme"
 private const val KEY_AMOLED = "amoled"
 private const val KEY_DYNAMIC_COLOR = "dynamic_color"
+private const val KEY_FAVORITE_BOARD = "favorite_board"
 
 /**
  * Per-device preferences (T18). They are not Deck data, so they live in SharedPreferences
@@ -43,13 +44,20 @@ class SettingsRepository @Inject constructor(
         putBoolean(KEY_DYNAMIC_COLOR, enabled)
     }
 
+    /** Marks the board that opens at start; null removes the favorite. */
+    fun setFavoriteBoard(boardId: Long?) = preferences.edit {
+        if (boardId == null) remove(KEY_FAVORITE_BOARD) else putLong(KEY_FAVORITE_BOARD, boardId)
+    }
+
     private fun read(): AppSettings {
         val defaults = AppSettings()
         val theme = preferences.getString(KEY_THEME, null)
         return AppSettings(
             theme = ThemeMode.entries.firstOrNull { it.name == theme } ?: defaults.theme,
             amoled = preferences.getBoolean(KEY_AMOLED, defaults.amoled),
-            dynamicColor = preferences.getBoolean(KEY_DYNAMIC_COLOR, defaults.dynamicColor)
+            dynamicColor = preferences.getBoolean(KEY_DYNAMIC_COLOR, defaults.dynamicColor),
+            favoriteBoardId = KEY_FAVORITE_BOARD.takeIf(preferences::contains)
+                ?.let { preferences.getLong(it, 0) }
         )
     }
 

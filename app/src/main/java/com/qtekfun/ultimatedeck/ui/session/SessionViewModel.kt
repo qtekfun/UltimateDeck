@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qtekfun.ultimatedeck.data.auth.AccountSession
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
+import com.qtekfun.ultimatedeck.data.settings.SettingsRepository
 import com.qtekfun.ultimatedeck.domain.auth.Logout
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +25,8 @@ data class SessionState(val ready: Boolean = false, val account: AccountEntity? 
 class SessionViewModel @Inject constructor(
     private val session: AccountSession,
     private val logout: Logout,
-    private val scheduler: SyncScheduler
+    private val scheduler: SyncScheduler,
+    private val settings: SettingsRepository
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = mutableState.asStateFlow()
@@ -37,7 +39,12 @@ class SessionViewModel @Inject constructor(
                 val previous = mutableState.value
                 // Sync when the app opens or right after login; stop at logout.
                 if (!previous.ready || signedIn != (previous.account != null)) {
-                    if (signedIn) scheduler.start() else scheduler.stop()
+                    if (signedIn) {
+                        scheduler.start()
+                    } else {
+                        scheduler.stop()
+                        settings.setFavoriteBoard(null)
+                    }
                 }
                 mutableState.update { SessionState(ready = true, account = account) }
             }

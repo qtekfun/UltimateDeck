@@ -21,6 +21,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -49,7 +50,7 @@ import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
 fun BoardListScreen(
     onOpenBoard: (BoardSummary) -> Unit,
     modifier: Modifier = Modifier,
-    topBarActions: @Composable RowScope.() -> Unit = {},
+    onMenu: () -> Unit = {},
     viewModel: BoardListViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -58,11 +59,15 @@ fun BoardListScreen(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.boards_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onMenu) {
+                        Icon(Icons.Filled.Menu, stringResource(R.string.drawer_menu))
+                    }
+                },
                 actions = {
                     IconButton(onClick = viewModel::refresh) {
                         Icon(Icons.Filled.Refresh, stringResource(R.string.boards_refresh))
                     }
-                    topBarActions()
                 }
             )
         }
