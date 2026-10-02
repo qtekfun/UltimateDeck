@@ -3,6 +3,12 @@
 
 package com.qtekfun.ultimatedeck.data.settings
 
+/** How long before the due date a reminder is shown (RF-10). */
+enum class ReminderLead { AT_DUE, ONE_HOUR, ONE_DAY }
+
+/** Which cards get reminders (RF-10). */
+enum class ReminderScope { ASSIGNED_TO_ME, ALL }
+
 /** Light, dark, or whatever the system uses. */
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
@@ -14,5 +20,8 @@ data class AppSettings(
     val theme: ThemeMode = ThemeMode.SYSTEM,
     val amoled: Boolean = false,
     val dynamicColor: Boolean = true,
-    val favoriteBoardId: Long? = null
+    val favoriteBoardId: Long? = null,
+    val reminders: Boolean = false,
+    val reminderLead: ReminderLead = ReminderLead.AT_DUE,
+    val reminderScope: ReminderScope = ReminderScope.ASSIGNED_TO_ME
 )

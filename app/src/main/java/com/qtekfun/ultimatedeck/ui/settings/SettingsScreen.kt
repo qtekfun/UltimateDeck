@@ -78,6 +78,8 @@ fun SettingsScreen(
             AppearanceSection(settings, viewModel)
             if (AppLanguages.supported) LanguageSection()
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            RemindersSection(settings, viewModel)
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Section(R.string.settings_account)
             Text(
                 accountName,
@@ -137,7 +139,7 @@ private fun LanguageSection() {
 }
 
 @Composable
-private fun Section(title: Int) {
+internal fun Section(title: Int) {
     Text(
         stringResource(title),
         style = MaterialTheme.typography.titleSmall,
@@ -147,7 +149,7 @@ private fun Section(title: Int) {
 }
 
 @Composable
-private fun Choice(label: String, selected: Boolean, onSelect: () -> Unit) {
+internal fun Choice(label: String, selected: Boolean, onSelect: () -> Unit) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -163,7 +165,7 @@ private fun Choice(label: String, selected: Boolean, onSelect: () -> Unit) {
 }
 
 @Composable
-private fun Toggle(
+internal fun Toggle(
     label: String,
     hint: String,
     checked: Boolean,

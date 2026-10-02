@@ -134,4 +134,16 @@
     <string name="drawer_boards">Tableros</string>
     <string name="drawer_favorite">Abrir %1$s al iniciar</string>
     <string name="drawer_unfavorite">Dejar de abrir %1$s al iniciar</string>
+    <string name="reminder_channel">Vencimientos</string>
+    <string name="reminder_text">%1$s · vence %2$s</string>
+    <string name="settings_reminders">Recordatorios</string>
+    <string name="settings_reminders_enable">Avisos de vencimiento</string>
+    <string name="settings_reminders_hint">Una notificación cuando vence una tarjeta.</string>
+    <string name="settings_reminders_at_due">A la hora de vencimiento</string>
+    <string name="settings_reminders_one_hour">1 hora antes</string>
+    <string name="settings_reminders_one_day">1 día antes</string>
+    <string name="settings_reminders_mine">Solo las tarjetas asignadas a mí</string>
+    <string name="settings_reminders_all">Todas las tarjetas con fecha</string>
+    <string name="settings_reminders_inexact">Las alarmas exactas no están permitidas: los avisos pueden llegar unos minutos tarde.</string>
+    <string name="settings_reminders_allow_exact">Permitir alarmas exactas</string>
 </resources>
