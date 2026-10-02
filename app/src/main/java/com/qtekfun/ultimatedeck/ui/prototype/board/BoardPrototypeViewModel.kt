@@ -9,6 +9,7 @@ import com.qtekfun.ultimatedeck.data.board.BoardContentRepository
 import com.qtekfun.ultimatedeck.domain.board.BoardColumn
 import com.qtekfun.ultimatedeck.domain.board.CardItem
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
+import com.qtekfun.ultimatedeck.domain.card.CardActions
 import com.qtekfun.ultimatedeck.sync.engine.SyncEngine
 import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
@@ -18,8 +19,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
@@ -40,6 +44,7 @@ data class BoardState(
 @HiltViewModel
 class BoardPrototypeViewModel @Inject constructor(
     private val repository: BoardContentRepository,
+    private val cardActions: CardActions,
     private val engine: SyncEngine,
     private val scheduler: SyncScheduler
 ) : ViewModel() {
@@ -62,6 +67,30 @@ class BoardPrototypeViewModel @Inject constructor(
                 BoardState(false, columns.map { it.toPrototype() }, syncing, outcome.toProblem())
             }.collect { mutableState.value = it }
         }
+    }
+
+    private val mutableArchived = MutableSharedFlow<Long>(extraBufferCapacity = 1)
+
+    /** Cards just archived, each shown once in the "Undo" snackbar. */
+    val archived: SharedFlow<Long> = mutableArchived.asSharedFlow()
+
+    fun createCard(columnId: Long, title: String) {
+        val board = boardId ?: return
+        viewModelScope.launch { cardActions.create(board, columnId, title) }
+    }
+
+    fun archive(cardId: Long) {
+        mutableArchived.tryEmit(cardId)
+        viewModelScope.launch { cardActions.setArchived(cardId, true) }
+    }
+
+    /** Restores the card archived last, from the snackbar. */
+    fun undoArchive(cardId: Long) {
+        viewModelScope.launch { cardActions.setArchived(cardId, false) }
+    }
+
+    fun delete(cardId: Long) {
+        viewModelScope.launch { cardActions.delete(cardId) }
     }
 
     /** Pull-to-refresh: syncs with the server; the board updates when Room changes. */

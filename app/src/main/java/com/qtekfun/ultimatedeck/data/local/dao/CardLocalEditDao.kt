@@ -93,4 +93,8 @@ interface CardLocalEditDao {
         "SELECT id FROM card WHERE accountId = :accountId AND boardId = :boardId AND dirtyFields != 0"
     )
     fun observeDirtyCardIds(accountId: Long, boardId: Long): Flow<List<Long>>
+
+    /** Hides a card deleted here until the server confirms the deletion. */
+    @Query("UPDATE card SET deletedAt = :at WHERE accountId = :accountId AND id = :id")
+    suspend fun markDeleted(accountId: Long, id: Long, at: Instant)
 }

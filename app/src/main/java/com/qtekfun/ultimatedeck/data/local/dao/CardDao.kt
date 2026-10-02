@@ -57,4 +57,8 @@ interface CardDao {
 
     @Query("UPDATE card SET deletedOnServer = 1 WHERE accountId = :accountId AND id = :id")
     suspend fun markDeletedOnServer(accountId: Long, id: Long)
+
+    /** The highest order in a column, to append a new card after it. */
+    @Query("SELECT MAX(`order`) FROM card WHERE accountId = :accountId AND stackId = :stackId")
+    suspend fun maxOrder(accountId: Long, stackId: Long): Int?
 }

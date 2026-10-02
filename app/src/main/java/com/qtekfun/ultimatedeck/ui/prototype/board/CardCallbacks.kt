@@ -3,8 +3,9 @@
 
 package com.qtekfun.ultimatedeck.ui.prototype.board
 
-/** What a card can ask the board to do: move to another column or open its details. */
+/** What a column can ask the board to do: move a card, open its details or add a new one. */
 data class CardCallbacks(
     val onMoveToColumn: (cardId: Long, column: Int) -> Unit,
-    val onOpen: (cardId: Long) -> Unit
+    val onOpen: (cardId: Long) -> Unit,
+    val onAddCard: (columnId: Long) -> Unit
 )

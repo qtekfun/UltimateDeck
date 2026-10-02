@@ -6,6 +6,7 @@ package com.qtekfun.ultimatedeck.ui.prototype.editor
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
@@ -44,7 +45,12 @@ import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
  * edit button) switches to the block editor; the stored markdown can be checked at the bottom.
  */
 @Composable
-fun EditorPrototypeScreen(original: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun EditorPrototypeScreen(
+    original: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    cardActions: @Composable RowScope.() -> Unit = {}
+) {
     var source by rememberSaveable { mutableStateOf(original) }
     var editing by rememberSaveable { mutableStateOf(false) }
     var showMarkdown by rememberSaveable { mutableStateOf(false) }
@@ -54,7 +60,9 @@ fun EditorPrototypeScreen(original: String, onBack: () -> Unit, modifier: Modifi
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = { EditorTopBar(editing, onBack, onToggleEditing = { editing = !editing }) }
+        topBar = {
+            EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
+        }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -93,7 +101,12 @@ fun EditorPrototypeScreen(original: String, onBack: () -> Unit, modifier: Modifi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditorTopBar(editing: Boolean, onBack: () -> Unit, onToggleEditing: () -> Unit) {
+private fun EditorTopBar(
+    editing: Boolean,
+    onBack: () -> Unit,
+    onToggleEditing: () -> Unit,
+    cardActions: @Composable RowScope.() -> Unit
+) {
     TopAppBar(
         title = { Text(stringResource(R.string.editor_title)) },
         navigationIcon = {
@@ -109,6 +122,7 @@ private fun EditorTopBar(editing: Boolean, onBack: () -> Unit, onToggleEditing: 
                     Icon(Icons.Filled.Edit, stringResource(R.string.editor_edit))
                 }
             }
+            cardActions()
         }
     )
 }
