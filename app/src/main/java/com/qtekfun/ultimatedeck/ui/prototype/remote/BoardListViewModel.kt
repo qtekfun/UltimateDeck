@@ -5,59 +5,48 @@ package com.qtekfun.ultimatedeck.ui.prototype.remote
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qtekfun.ultimatedeck.data.remote.AccountApiProvider
-import com.qtekfun.ultimatedeck.data.remote.ApiResult
-import com.qtekfun.ultimatedeck.data.remote.apiCall
+import com.qtekfun.ultimatedeck.data.board.BoardRepository
+import com.qtekfun.ultimatedeck.sync.engine.SyncEngine
+import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
+import com.qtekfun.ultimatedeck.sync.engine.toProblem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 private const val STOP_TIMEOUT_MS = 5_000L
 
-/** The account's boards, fetched online (T06 preview; T11 reads them from Room). */
+/** What the board list shows. [loading] is true until Room first answers. */
+data class BoardListState(
+    val loading: Boolean = true,
+    val boards: List<BoardSummary> = emptyList(),
+    val syncing: Boolean = false,
+    val problem: SyncProblem? = null
+)
+
+/** The account's boards from Room (T11): they show offline and update after each sync. */
 @HiltViewModel
 class BoardListViewModel @Inject constructor(
-    private val apis: AccountApiProvider,
+    repository: BoardRepository,
+    engine: SyncEngine,
     private val scheduler: SyncScheduler
 ) : ViewModel() {
-    private val mutableState = MutableStateFlow<RemoteLoad<List<BoardSummary>>>(RemoteLoad.Loading)
-    val state: StateFlow<RemoteLoad<List<BoardSummary>>> = mutableState.asStateFlow()
+    val state: StateFlow<BoardListState> = combine(
+        repository.observeBoards(),
+        scheduler.syncing(),
+        engine.lastOutcome
+    ) { boards, syncing, outcome ->
+        BoardListState(
+            loading = false,
+            boards = boards.map { BoardSummary(it.id, it.title, deckColor(it.color)) },
+            syncing = syncing,
+            problem = outcome.toProblem()
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), BoardListState())
 
-    /** A sync started by pull-to-refresh is running. */
-    val syncing: StateFlow<Boolean> = scheduler.syncing()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), false)
-
-    init {
-        reload()
-    }
-
-    /** Pull-to-refresh: syncs with the server and reloads the list. */
-    fun refresh() {
-        scheduler.requestSync()
-        reload()
-    }
-
-    fun reload() {
-        mutableState.value = RemoteLoad.Loading
-        viewModelScope.launch {
-            val api = apis.api()
-            val result = if (api ==
-                null
-            ) {
-                ApiResult.Unauthorized
-            } else {
-                apiCall { api.boards.getBoards() }
-            }
-            mutableState.value = when (result) {
-                is ApiResult.Success -> RemoteLoad.Loaded(result.value.toSummaries())
-                else -> RemoteLoad.Failed(result.toRemoteError())
-            }
-        }
-    }
+    /** Pull-to-refresh: syncs with the server; the list updates when Room changes. */
+    fun refresh() = scheduler.requestSync()
 }
