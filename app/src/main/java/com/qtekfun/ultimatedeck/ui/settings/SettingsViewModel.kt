@@ -1,0 +1,31 @@
+// SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.qtekfun.ultimatedeck.ui.settings
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.qtekfun.ultimatedeck.data.settings.AppSettings
+import com.qtekfun.ultimatedeck.data.settings.SettingsRepository
+import com.qtekfun.ultimatedeck.data.settings.ThemeMode
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+
+private const val STOP_TIMEOUT_MS = 5_000L
+
+/** Appearance settings (T18); the language is kept by the system, see [AppLanguages]. */
+@HiltViewModel
+class SettingsViewModel @Inject constructor(private val repository: SettingsRepository) :
+    ViewModel() {
+    val settings: StateFlow<AppSettings> = repository.settings
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), AppSettings())
+
+    fun setTheme(theme: ThemeMode) = repository.setTheme(theme)
+
+    fun setAmoled(amoled: Boolean) = repository.setAmoled(amoled)
+
+    fun setDynamicColor(enabled: Boolean) = repository.setDynamicColor(enabled)
+}

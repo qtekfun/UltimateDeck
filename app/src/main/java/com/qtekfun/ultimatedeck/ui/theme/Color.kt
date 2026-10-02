@@ -15,3 +15,9 @@ internal val Amber80 = Color(0xFFF7BD48)
 
 // Label color for previews; real label colors come from the server.
 val LabelBlue = Color(0xFF3E7BFA)
+
+// AMOLED: near-black steps so cards and columns stay apart on a pure black screen.
+val AmoledLow = Color(0xFF0A0A0A)
+val AmoledContainer = Color(0xFF121212)
+val AmoledHigh = Color(0xFF1A1A1A)
+val AmoledHighest = Color(0xFF222222)
