@@ -36,6 +36,7 @@ class DeckOperationExecutor(
     private val cards = database.cardDao()
     private val snapshots = database.cardSnapshotDao()
     private val creator = CardCreator(api, database, accountId)
+    private val uploader = AttachmentUploader(api, database, accountId)
 
     override suspend fun execute(
         entityId: Long,
@@ -81,9 +82,7 @@ class DeckOperationExecutor(
 
         is QueuedOperation.SetAssignees -> setAssignees(entityId, operation)
 
-        is QueuedOperation.UploadAttachment -> ExecutionResult.Failed(
-            "attachments are not supported yet"
-        )
+        is QueuedOperation.UploadAttachment -> uploader.upload(entityId)
     }
 
     /**

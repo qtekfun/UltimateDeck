@@ -40,4 +40,17 @@ interface AttachmentDao {
         "SELECT * FROM attachment WHERE accountId = :accountId AND uploadState = 'PENDING' ORDER BY id DESC"
     )
     suspend fun pendingUploads(accountId: Long): List<AttachmentEntity>
+
+    @Query("SELECT * FROM attachment WHERE accountId = :accountId AND id = :id")
+    suspend fun get(accountId: Long, id: Long): AttachmentEntity?
+
+    @Query("DELETE FROM attachment WHERE accountId = :accountId AND id = :id")
+    suspend fun delete(accountId: Long, id: Long)
+
+    /** Attachments of a card that came from the server, to replace them with a fresh list. */
+    @Query(
+        "DELETE FROM attachment WHERE accountId = :accountId AND cardId = :cardId " +
+            "AND uploadState = 'DONE'"
+    )
+    suspend fun deleteSynced(accountId: Long, cardId: Long)
 }
