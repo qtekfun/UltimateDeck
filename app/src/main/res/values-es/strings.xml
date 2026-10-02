@@ -80,10 +80,8 @@
     <string name="sync_problem_offline">Sin conexión. Se muestran los últimos tableros sincronizados.</string>
     <string name="sync_problem_server">Falló la última sincronización. Se volverá a intentar.</string>
     <string name="board_back">Volver a tus tableros</string>
-    <string name="remote_retry">Reintentar</string>
     <string name="remote_error_unauthorized">El servidor ha rechazado la contraseña de aplicación. Cierra sesión y vuelve a iniciarla.</string>
-    <string name="remote_error_unreachable">No se puede contactar con el servidor. Revisa tu conexión.</string>
-    <string name="remote_error_other">El servidor ha respondido con un error. Inténtalo más tarde.</string>
     <string name="board_empty">Este tablero aún no tiene columnas. Añádelas en Nextcloud Deck.</string>
     <string name="editor_empty">Sin descripción. Toca para añadir una.</string>
+    <string name="card_pending_sync">Pendiente de sincronizar</string>
 </resources>

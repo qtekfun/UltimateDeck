@@ -63,7 +63,8 @@ fun CardDto.toEntity(accountId: Long, boardId: Long) = CardEntity(
     ownerUid = owner?.uid,
     lastModified = DeckDates.fromEpochSeconds(lastModified),
     etag = etag,
-    deletedAt = DeckDates.fromEpochSeconds(deletedAt)
+    deletedAt = DeckDates.fromEpochSeconds(deletedAt),
+    attachmentCount = attachmentCount ?: 0
 )
 
 /** The same card as the last state known from the server (SPEC §5). */

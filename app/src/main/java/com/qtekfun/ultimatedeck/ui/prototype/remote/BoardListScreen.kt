@@ -103,8 +103,9 @@ private fun EmptyBoards(state: BoardListState) {
     }
 }
 
+/** Why the last sync failed, above the content. */
 @Composable
-private fun SyncProblemBanner(problem: SyncProblem) {
+fun SyncProblemBanner(problem: SyncProblem) {
     val message = when (problem) {
         SyncProblem.OFFLINE -> R.string.sync_problem_offline
         SyncProblem.UNAUTHORIZED -> R.string.remote_error_unauthorized

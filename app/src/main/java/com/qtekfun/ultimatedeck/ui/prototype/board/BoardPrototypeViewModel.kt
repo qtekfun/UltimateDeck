@@ -5,64 +5,70 @@ package com.qtekfun.ultimatedeck.ui.prototype.board
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.qtekfun.ultimatedeck.data.remote.AccountApiProvider
-import com.qtekfun.ultimatedeck.data.remote.ApiResult
-import com.qtekfun.ultimatedeck.data.remote.apiCall
+import com.qtekfun.ultimatedeck.data.board.BoardContentRepository
+import com.qtekfun.ultimatedeck.domain.board.BoardColumn
+import com.qtekfun.ultimatedeck.domain.board.CardItem
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
-import com.qtekfun.ultimatedeck.ui.prototype.remote.RemoteLoad
-import com.qtekfun.ultimatedeck.ui.prototype.remote.toColumns
-import com.qtekfun.ultimatedeck.ui.prototype.remote.toRemoteError
+import com.qtekfun.ultimatedeck.sync.engine.SyncEngine
+import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
+import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
+import com.qtekfun.ultimatedeck.sync.engine.toProblem
+import com.qtekfun.ultimatedeck.ui.prototype.remote.deckColor
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.ZoneId
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** What the board shows. [loading] is true until Room first answers. */
+data class BoardState(
+    val loading: Boolean = true,
+    val columns: List<PrototypeColumn> = emptyList(),
+    val syncing: Boolean = false,
+    val problem: SyncProblem? = null
+)
+
 /**
- * A real board loaded from the server, read-only (T06 preview): moves only change this copy in
- * memory and are lost when leaving the board. Saving and syncing come with T09 and T13.
+ * A board read from Room (T12): it shows offline and updates after each sync. Moving cards only
+ * changes the copy on screen until T13 saves the moves; the next update from Room resets them.
  */
 @HiltViewModel
-class BoardPrototypeViewModel @Inject constructor(private val apis: AccountApiProvider) :
-    ViewModel() {
-    private val mutableState =
-        MutableStateFlow<RemoteLoad<List<PrototypeColumn>>>(RemoteLoad.Loading)
-    val state: StateFlow<RemoteLoad<List<PrototypeColumn>>> = mutableState.asStateFlow()
+class BoardPrototypeViewModel @Inject constructor(
+    private val repository: BoardContentRepository,
+    private val engine: SyncEngine,
+    private val scheduler: SyncScheduler
+) : ViewModel() {
+    private val mutableState = MutableStateFlow(BoardState())
+    val state: StateFlow<BoardState> = mutableState.asStateFlow()
     private var boardId: Long? = null
+    private var observing: Job? = null
 
-    /** Loads [id] once; the loaded copy survives rotation. */
+    /** Shows [id]; opening the same board again (e.g. after rotation) keeps the state. */
     fun open(id: Long) {
         if (boardId == id) return
         boardId = id
-        reload()
-    }
-
-    fun reload() {
-        val id = boardId ?: return
-        mutableState.value = RemoteLoad.Loading
-        viewModelScope.launch {
-            val api = apis.api()
-            val result = if (api ==
-                null
-            ) {
-                ApiResult.Unauthorized
-            } else {
-                apiCall { api.boards.getStacks(id) }
-            }
-            mutableState.value = when (result) {
-                is ApiResult.Success -> RemoteLoad.Loaded(result.value.toColumns())
-                else -> RemoteLoad.Failed(result.toRemoteError())
-            }
+        observing?.cancel()
+        observing = viewModelScope.launch {
+            combine(
+                repository.observeBoard(id),
+                scheduler.syncing(),
+                engine.lastOutcome
+            ) { columns, syncing, outcome ->
+                BoardState(false, columns.map { it.toPrototype() }, syncing, outcome.toProblem())
+            }.collect { mutableState.value = it }
         }
     }
+
+    /** Pull-to-refresh: syncs with the server; the board updates when Room changes. */
+    fun refresh() = scheduler.requestSync()
 
     fun card(cardId: Long): PrototypeCard? =
-        (state.value as? RemoteLoad.Loaded)?.value?.flatMap { it.cards }?.firstOrNull {
-            it.id ==
-                cardId
-        }
+        state.value.columns.flatMap { it.cards }.firstOrNull { it.id == cardId }
 
     fun moveCard(from: CardPosition, to: CardPosition) = updateColumns {
         it.withCardMoved(from, to)
@@ -72,13 +78,25 @@ class BoardPrototypeViewModel @Inject constructor(private val apis: AccountApiPr
     fun moveCardToColumn(cardId: Long, column: Int) = updateColumns { columns ->
         columns.positionOf(cardId)?.let {
             columns.withCardMoved(it, CardPosition(column, Int.MAX_VALUE))
-        }
-            ?: columns
+        } ?: columns
     }
 
     private fun updateColumns(change: (List<PrototypeColumn>) -> List<PrototypeColumn>) {
-        mutableState.update { current ->
-            if (current is RemoteLoad.Loaded) RemoteLoad.Loaded(change(current.value)) else current
-        }
+        mutableState.update { it.copy(columns = change(it.columns)) }
     }
 }
+
+private fun BoardColumn.toPrototype() = PrototypeColumn(id, title, cards.map { it.toPrototype() })
+
+private fun CardItem.toPrototype(zone: ZoneId = ZoneId.systemDefault()) = PrototypeCard(
+    id = id,
+    title = title,
+    description = description,
+    labels = labels.map { PrototypeLabel(it.title, deckColor(it.color)) },
+    assignees = assignees,
+    dueDate = dueDate?.atZone(zone)?.toLocalDate(),
+    attachments = attachments,
+    checklistDone = checklistDone,
+    checklistTotal = checklistTotal,
+    pendingSync = pendingSync
+)

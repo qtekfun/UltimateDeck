@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -153,6 +154,12 @@ private fun CardFooter(card: PrototypeCard, today: LocalDate) {
                     rememberVectorPainter(Icons.Outlined.DateRange),
                     formatDate(due),
                     color
+                )
+            }
+            if (card.pendingSync) {
+                FooterItem(
+                    rememberVectorPainter(Icons.Outlined.Refresh),
+                    stringResource(R.string.card_pending_sync)
                 )
             }
             if (card.attachments > 0) {

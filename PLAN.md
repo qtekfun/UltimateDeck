@@ -24,7 +24,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 
 ## Fase 3 — Interfaz del MVP
 - [x] **T11 Login y lista de tableros** (offline funcional).
-- [ ] **T12 Vista de tablero**: columna y media, snap, tarjetas con etiquetas/avatares/fecha/adjuntos/checklist, indicador "pendiente de sync".
+- [x] **T12 Vista de tablero**: columna y media, snap, tarjetas con etiquetas/avatares/fecha/adjuntos/checklist, indicador "pendiente de sync".
 - [ ] **T15 Crear, archivar y eliminar tarjetas.**
 - [ ] **T13 Mover y reordenar tarjetas**: integrar el prototipo T02 con datos reales y la cola de sync.
 - [ ] **T14 Detalle de tarjeta con edición en línea**: título y descripción WYSIWYG (según T03), guardado automático, diálogo de conflicto (tu versión / servidor).
