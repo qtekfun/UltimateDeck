@@ -51,4 +51,7 @@ interface UserDao {
             "WHERE ca.accountId = :accountId AND c.boardId = :boardId ORDER BY ca.cardId, u.displayName"
     )
     fun observeCardAssignees(accountId: Long, boardId: Long): Flow<List<CardAssigneeRow>>
+
+    @Query("SELECT uid FROM card_assignee WHERE accountId = :accountId AND cardId = :cardId")
+    suspend fun assigneeUidsOfCard(accountId: Long, cardId: Long): List<String>
 }

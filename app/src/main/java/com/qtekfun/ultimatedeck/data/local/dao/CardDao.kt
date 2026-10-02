@@ -50,4 +50,11 @@ interface CardDao {
      */
     @Query("UPDATE card SET id = :newId WHERE accountId = :accountId AND id = :oldId")
     suspend fun updateId(accountId: Long, oldId: Long, newId: Long)
+
+    /** Every card of a board, archived and deleted ones too, for sync. */
+    @Query("SELECT * FROM card WHERE accountId = :accountId AND boardId = :boardId")
+    suspend fun allForBoard(accountId: Long, boardId: Long): List<CardEntity>
+
+    @Query("UPDATE card SET deletedOnServer = 1 WHERE accountId = :accountId AND id = :id")
+    suspend fun markDeletedOnServer(accountId: Long, id: Long)
 }

@@ -56,4 +56,11 @@ interface BoardDao {
         updateBoardRowId(accountId, oldId, newId)
         updateCardsBoardId(accountId, oldId, newId)
     }
+
+    @Query("SELECT * FROM board WHERE accountId = :accountId")
+    suspend fun all(accountId: Long): List<BoardEntity>
+
+    /** Deletes a board with its columns and cards, through foreign keys. */
+    @Query("DELETE FROM board WHERE accountId = :accountId AND id = :id")
+    suspend fun delete(accountId: Long, id: Long)
 }
