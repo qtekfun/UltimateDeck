@@ -7,7 +7,6 @@
     <string name="app_name" translatable="false">UltimateDeck</string>
 
     <!-- Board prototype (T02). -->
-    <string name="prototype_board_hint">Long-press a card to move it. Moves are not saved yet.</string>
 
     <!-- Card accessibility description and actions. -->
     <string name="prototype_card_labels">Labels: %1$s</string>

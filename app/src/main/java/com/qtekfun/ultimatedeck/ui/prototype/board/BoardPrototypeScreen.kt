@@ -28,7 +28,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -150,16 +149,7 @@ fun BoardPrototypeScreen(
 @Composable
 private fun BoardTopBar(title: String, onBack: () -> Unit) {
     TopAppBar(
-        title = {
-            Column {
-                Text(title)
-                Text(
-                    text = stringResource(R.string.prototype_board_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
+        title = { Text(title) },
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(

@@ -4,6 +4,7 @@
 package com.qtekfun.ultimatedeck.domain.card
 
 import com.qtekfun.ultimatedeck.data.auth.AccountSession
+import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
 import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.sync.engine.ACCOUNT
@@ -133,5 +134,43 @@ class CardActionsTest {
         actions.delete(9)
 
         assertEquals(emptyList<Any>(), queued())
+    }
+
+    @Test
+    fun `moving a card saves the new order and queues one move`() = runTest {
+        signedIn()
+        db.stackDao().upsert(listOf(StackEntity(ACCOUNT, 11, BOARD, "Done", 1)))
+        db.cardDao().upsert(
+            listOf(
+                card(5).copy(order = 999),
+                card(6, stackId = 11).copy(order = 50),
+                card(7, stackId = 11)
+            )
+        )
+
+        actions.move(5, toStackId = 11, columnOrder = listOf(6, 5, 7))
+        actions.move(5, toStackId = 11, columnOrder = listOf(7, 6, 5))
+
+        val byId = db.cardDao().allForBoard(ACCOUNT, BOARD).associateBy { it.id }
+        assertEquals(listOf(11L, 2), byId.getValue(5).let { listOf(it.stackId, it.order.toLong()) })
+        assertEquals(setOf(CardField.POSITION), CardField.fromMask(byId.getValue(5).dirtyFields))
+        assertEquals(1 to 0, byId.getValue(6).order to byId.getValue(6).dirtyFields)
+        assertEquals(0 to 0, byId.getValue(7).order to byId.getValue(7).dirtyFields)
+        assertEquals(listOf(5L to QueuedOperation.MoveCard(BOARD, 11, 11, 2)), queued())
+        verify(exactly = 2) { scheduler.requestSync() }
+    }
+
+    @Test
+    fun `a move of an unknown card or outside its column does nothing`() = runTest {
+        signedIn()
+        db.cardDao().upsert(listOf(card(5)))
+
+        actions.move(9, STACK, listOf(9))
+        actions.move(5, STACK, listOf(6))
+        every { session.activeAccount } returns flowOf(null)
+        actions.move(5, STACK, listOf(5))
+
+        assertEquals(emptyList<Any>(), queued())
+        assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.dirtyFields)
     }
 }

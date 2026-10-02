@@ -99,19 +99,22 @@ class BoardPrototypeViewModel @Inject constructor(
     fun card(cardId: Long): PrototypeCard? =
         state.value.columns.flatMap { it.cards }.firstOrNull { it.id == cardId }
 
-    fun moveCard(from: CardPosition, to: CardPosition) = updateColumns {
-        it.withCardMoved(from, to)
+    /** A drop on the board: shown at once, then saved and queued for the server. */
+    fun moveCard(from: CardPosition, to: CardPosition) {
+        val cardId = state.value.columns.getOrNull(from.column)?.cards?.getOrNull(from.index)?.id
+        if (from == to || cardId == null) return
+        mutableState.update { it.copy(columns = it.columns.withCardMoved(from, to)) }
+        state.value.columns.getOrNull(to.column)?.let { column ->
+            viewModelScope.launch {
+                cardActions.move(cardId, column.id, column.cards.map { it.id })
+            }
+        }
     }
 
     /** Moves a card to the end of another column; used by accessibility actions. */
-    fun moveCardToColumn(cardId: Long, column: Int) = updateColumns { columns ->
-        columns.positionOf(cardId)?.let {
-            columns.withCardMoved(it, CardPosition(column, Int.MAX_VALUE))
-        } ?: columns
-    }
-
-    private fun updateColumns(change: (List<PrototypeColumn>) -> List<PrototypeColumn>) {
-        mutableState.update { it.copy(columns = change(it.columns)) }
+    fun moveCardToColumn(cardId: Long, column: Int) {
+        val from = state.value.columns.positionOf(cardId) ?: return
+        moveCard(from, CardPosition(column, Int.MAX_VALUE))
     }
 }
 
