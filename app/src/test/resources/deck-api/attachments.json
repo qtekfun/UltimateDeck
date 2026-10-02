@@ -1,0 +1,13 @@
+[
+  {
+    "cardId": 81,
+    "type": "file",
+    "data": "screenshot.png",
+    "lastModified": 1541529048,
+    "createdAt": 1541529048,
+    "createdBy": "admin",
+    "deletedAt": 0,
+    "extendedData": {"path": "/Deck/screenshot.png", "fileid": 123, "filesize": 2048, "mimetype": "image/png", "info": {"filename": "screenshot", "extension": "png"}},
+    "id": 7
+  }
+]
