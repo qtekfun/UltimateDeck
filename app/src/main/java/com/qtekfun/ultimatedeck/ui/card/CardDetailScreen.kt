@@ -93,6 +93,7 @@ fun CardDetailScreen(
                     onLabels = viewModel::setLabels,
                     onAssignees = viewModel::setAssignees
                 )
+                AttachmentsSection(cardId = current.id)
             }
         )
     }

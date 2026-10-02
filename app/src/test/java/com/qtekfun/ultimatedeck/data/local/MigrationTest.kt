@@ -231,4 +231,31 @@ class MigrationTest {
 
         assertEquals(listOf(null, Instant.ofEpochMilli(5000)), operations.map { it.startedAt })
     }
+
+    @Test
+    fun `migrates version 8 to the latest with attachments of type file`() = runTest {
+        val file = File(dir, "v8.db")
+        createFromSchema(
+            file,
+            version = 8,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO board (accountId, id, title, color, archived) " +
+                    "VALUES (1, 1, 'B', 'fff', 0)",
+                "INSERT INTO stack (accountId, id, boardId, title, `order`) VALUES (1, 10, 1, 'S', 0)",
+                "INSERT INTO card (accountId, id, boardId, stackId, title, description, `order`, " +
+                    "archived, dirtyFields, deletedOnServer, attachmentCount, conflictFields) " +
+                    "VALUES (1, 100, 1, 10, 'Card', '', 0, 0, 0, 0, 0, 0)",
+                "INSERT INTO attachment (accountId, id, cardId, fileName, size, uploadState) " +
+                    "VALUES (1, 7, 100, 'a.png', 3, 'DONE')"
+            )
+        )
+
+        val db = open(file)
+        val attachment = db.attachmentDao().observeForCard(1, 100).first().single()
+        db.close()
+
+        assertEquals("file", attachment.type)
+    }
 }

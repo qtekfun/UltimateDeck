@@ -205,13 +205,6 @@ class DeckOperationExecutorTest {
     }
 
     @Test
-    fun `attachments wait for their own task`() = runTest {
-        val result = executor.execute(3, QueuedOperation.UploadAttachment(BOARD, STACK, 5))
-
-        assertEquals(ExecutionResult.Failed("attachments are not supported yet"), result)
-    }
-
-    @Test
     fun `a title also changed on the server is kept there and marked as a conflict`() = runTest {
         db.seedBoard()
         val edited =

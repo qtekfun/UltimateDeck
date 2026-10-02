@@ -160,4 +160,20 @@
     <string name="settings_reminders_aggressive">Aggressive: rings on time like an alarm clock (shows the alarm icon)</string>
     <string name="settings_reminders_battery">Battery optimization may delay or block reminders.</string>
     <string name="settings_reminders_allow_battery">Allow running in the background</string>
+    <string name="attachments_title">Attachments</string>
+    <string name="attachments_camera">Camera</string>
+    <string name="attachments_gallery">Gallery</string>
+    <string name="attachments_file">File</string>
+    <string name="attachments_empty">No attachments.</string>
+    <string name="attachments_pending">waiting to upload</string>
+    <string name="attachments_uploading">uploading…</string>
+    <string name="attachments_failed">could not be uploaded</string>
+    <string name="attachments_done">uploaded</string>
+    <string name="attachments_retry">Retry</string>
+    <string name="attachments_discard">Discard</string>
+    <string name="attachments_open_failed">The attachment could not be downloaded.</string>
+    <string name="attachments_no_app">No app can open this file.</string>
+    <string name="attachments_delete">Delete %1$s</string>
+    <string name="attachments_delete_title">Delete this attachment?</string>
+    <string name="attachments_delete_text">%1$s will be deleted on the server too.</string>
 </resources>

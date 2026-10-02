@@ -50,7 +50,8 @@ class QueuedOperationTest {
             QueuedOperation.DeleteCard(1, 2) to OperationType.DELETE,
             QueuedOperation.SetLabels(1, 2, listOf(7, 8)) to OperationType.SET_LABELS,
             QueuedOperation.SetAssignees(1, 2, listOf("ana")) to OperationType.SET_ASSIGNEES,
-            QueuedOperation.UploadAttachment(1, 2, 3) to OperationType.UPLOAD
+            QueuedOperation.UploadAttachment(1, 2, 3) to OperationType.UPLOAD,
+            QueuedOperation.DeleteAttachment(1, 2, 3, "file") to OperationType.DELETE
         )
 
         @JvmStatic
@@ -58,9 +59,9 @@ class QueuedOperationTest {
 
         @JvmStatic
         fun kinds() = all.map { (operation, type) ->
-            val entity = if (type ==
-                OperationType.UPLOAD
-            ) {
+            val attachment = operation is QueuedOperation.UploadAttachment ||
+                operation is QueuedOperation.DeleteAttachment
+            val entity = if (attachment) {
                 EntityType.ATTACHMENT
             } else {
                 EntityType.CARD

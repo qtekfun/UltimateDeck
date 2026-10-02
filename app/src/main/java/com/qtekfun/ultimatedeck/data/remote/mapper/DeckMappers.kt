@@ -92,7 +92,8 @@ fun AttachmentDto.toEntity(accountId: Long) = AttachmentEntity(
     mimeType = extendedData?.mimetype,
     size = extendedData?.filesize ?: 0,
     createdAt = DeckDates.fromEpochSeconds(createdAt),
-    uploadState = UploadState.DONE
+    uploadState = UploadState.DONE,
+    type = type
 )
 
 /** The whole editable state Deck expects in PUT …/cards/{id}. */

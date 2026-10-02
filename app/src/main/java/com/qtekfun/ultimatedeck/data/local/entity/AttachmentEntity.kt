@@ -38,5 +38,7 @@ data class AttachmentEntity(
     val size: Long,
     val createdAt: Instant? = null,
     val localUri: String? = null,
-    val uploadState: UploadState = UploadState.DONE
+    val uploadState: UploadState = UploadState.DONE,
+    /** Deck's attachment type, part of its download path: "file", or "deck_file" for old ones. */
+    val type: String = "file"
 )
