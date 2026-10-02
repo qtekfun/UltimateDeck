@@ -42,5 +42,7 @@ data class CardEntity(
     val etag: String? = null,
     val deletedAt: Instant? = null,
     /** Bit mask of [com.qtekfun.ultimatedeck.data.local.model.CardField]s changed locally. */
-    val dirtyFields: Int = 0
+    val dirtyFields: Int = 0,
+    /** When the latest local edit happened, compared with the server's lastModified (SPEC §5). */
+    val localModifiedAt: Instant? = null
 )

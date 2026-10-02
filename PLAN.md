@@ -19,7 +19,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 
 ## Fase 2 — Sincronización (lo más crítico)
 - [x] **T07 Cola de operaciones pendientes**: operaciones idempotentes, backoff exponencial, persistencia en Room. **100% de cobertura.**
-- [ ] **T08 Resolutor de conflictos**: reglas de la sección 5 de `SPEC.md`. **100% de cobertura**, un test por regla más fallos a mitad de operación.
+- [x] **T08 Resolutor de conflictos**: reglas de la sección 5 de `SPEC.md`. **100% de cobertura**, un test por regla más fallos a mitad de operación.
 - [ ] **T09 Motor de sincronización**: pull (tableros → columnas → tarjetas), push de la cola, detección de cambios, WorkManager periódico (~15 min) y sync al abrir / pull-to-refresh.
 - [ ] **T10 Tests de sync offline**: caídas de red, cambios concurrentes, reintentos, app cerrada a mitad de sync.
 

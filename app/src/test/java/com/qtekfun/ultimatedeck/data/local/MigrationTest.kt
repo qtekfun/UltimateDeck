@@ -80,4 +80,29 @@ class MigrationTest {
         assertEquals(100L, operation.entityId)
         assertFalse(operation.failed)
     }
+
+    @Test
+    fun `migrates version 2 to the latest and keeps cards`() = runTest {
+        val file = File(dir, "v2.db")
+        createFromSchema(
+            file,
+            version = 2,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO board (accountId, id, title, color, archived) " +
+                    "VALUES (1, 1, 'B', 'fff', 0)",
+                "INSERT INTO stack (accountId, id, boardId, title, `order`) VALUES (1, 10, 1, 'S', 0)",
+                "INSERT INTO card (accountId, id, boardId, stackId, title, description, " +
+                    "`order`, archived, dirtyFields) VALUES (1, 100, 1, 10, 'Card', '', 0, 0, 1)"
+            )
+        )
+
+        val db = open(file)
+        val card = db.cardDao().get(1, 100)
+        db.close()
+
+        assertEquals("Card", card?.title)
+        assertEquals(null, card?.localModifiedAt)
+    }
 }
