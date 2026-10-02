@@ -35,3 +35,5 @@ style:
       - '**/androidTest/**'
       - '**/*.kts'
       - '**/ui/theme/**'
+      # Sample data of the drag and drop prototype (T02).
+      - '**/ui/prototype/board/FakeBoard.kt'
