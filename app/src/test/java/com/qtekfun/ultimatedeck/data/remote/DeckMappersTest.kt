@@ -55,6 +55,7 @@ class DeckMappersTest {
         assertNull(entity.done)
         assertEquals("admin", entity.ownerUid)
         assertEquals(0, entity.dirtyFields)
+        assertEquals(3, card.copy(attachmentCount = 3).toEntity(7, 10).attachmentCount)
     }
 
     @Test
@@ -71,6 +72,7 @@ class DeckMappersTest {
         val bare = CardDto(id = 1, title = "T", stackId = 2)
 
         assertEquals("", bare.toEntity(7, 1).description)
+        assertEquals(0, bare.toEntity(7, 1).attachmentCount)
         assertEquals(emptyList<Long>(), bare.toSnapshot(7).labelIds)
     }
 
