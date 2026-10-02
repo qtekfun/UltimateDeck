@@ -3,6 +3,7 @@
 
 import io.gitlab.arturbosch.detekt.Detekt
 import kotlinx.kover.gradle.plugin.dsl.CoverageUnit
+import kotlinx.kover.gradle.plugin.dsl.KoverReportFilter
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.result.ResolvedComponentResult
 import org.gradle.api.artifacts.result.ResolvedDependencyResult
@@ -106,6 +107,36 @@ val criticalPackages = listOf(
     "com.qtekfun.ultimatedeck.sync.conflict"
 )
 
+/**
+ * Generated code and pure Compose UI, excluded from coverage (CLAUDE.md). Applied to each report
+ * variant: variant filters replace the global ones instead of adding to them.
+ */
+fun KoverReportFilter.generatedAndUiCode() {
+    packages("com.qtekfun.ultimatedeck.ui", "dagger.hilt.internal", "hilt_aggregated_deps")
+    classes(
+        "*.R",
+        "*.R$*",
+        "*.BuildConfig",
+        "*Hilt_*",
+        "*_HiltModules*",
+        "*_Factory",
+        "*_Factory$*",
+        "*_MembersInjector",
+        // Room
+        "*_Impl",
+        "*_Impl$*",
+        // Kotlin compatibility bridges for interface default methods
+        "*\$DefaultImpls",
+        "*ComposableSingletons*"
+    )
+    annotatedBy(
+        "androidx.compose.ui.tooling.preview.Preview",
+        "dagger.Module",
+        "dagger.hilt.android.HiltAndroidApp",
+        "*Generated*"
+    )
+}
+
 kover {
     currentProject {
         createVariant("critical") {
@@ -114,37 +145,9 @@ kover {
     }
 
     reports {
-        filters {
-            excludes {
-                packages(
-                    "com.qtekfun.ultimatedeck.ui",
-                    "dagger.hilt.internal",
-                    "hilt_aggregated_deps"
-                )
-                classes(
-                    "*.R",
-                    "*.R$*",
-                    "*.BuildConfig",
-                    "*Hilt_*",
-                    "*_HiltModules*",
-                    "*_Factory",
-                    "*_Factory$*",
-                    "*_MembersInjector",
-                    "*_Impl",
-                    "*_Impl$*",
-                    "*ComposableSingletons*"
-                )
-                annotatedBy(
-                    "androidx.compose.ui.tooling.preview.Preview",
-                    "dagger.Module",
-                    "dagger.hilt.android.HiltAndroidApp",
-                    "*Generated*"
-                )
-            }
-        }
-
         total {
             filters {
+                excludes { generatedAndUiCode() }
                 includes {
                     packages(coveredPackages)
                 }
@@ -158,6 +161,7 @@ kover {
 
         variant("critical") {
             filters {
+                excludes { generatedAndUiCode() }
                 includes {
                     packages(criticalPackages)
                 }
