@@ -1,0 +1,37 @@
+// SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+package com.qtekfun.ultimatedeck.data.remote
+
+import com.qtekfun.ultimatedeck.data.remote.dto.BoardDto
+import com.qtekfun.ultimatedeck.data.remote.dto.StackDto
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+/** Boards and columns (stacks). Paths are relative to …/apps/deck/api/v1.1/. */
+interface BoardApi {
+    /** All boards of the user, with labels and users when [details] is true. */
+    @GET("boards")
+    suspend fun getBoards(
+        @Query("details") details: Boolean = true,
+        @Header("If-None-Match") etag: String? = null,
+        @Header("If-Modified-Since") modifiedSince: String? = null
+    ): Response<List<BoardDto>>
+
+    @GET("boards/{boardId}")
+    suspend fun getBoard(
+        @Path("boardId") boardId: Long,
+        @Header("If-None-Match") etag: String? = null
+    ): Response<BoardDto>
+
+    /** The columns of a board, each with its cards. */
+    @GET("boards/{boardId}/stacks")
+    suspend fun getStacks(
+        @Path("boardId") boardId: Long,
+        @Header("If-None-Match") etag: String? = null,
+        @Header("If-Modified-Since") modifiedSince: String? = null
+    ): Response<List<StackDto>>
+}
