@@ -12,6 +12,10 @@ import com.qtekfun.ultimatedeck.data.remote.API_PATH
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.data.remote.json
 import com.qtekfun.ultimatedeck.data.remote.testDeckApi
+import com.qtekfun.ultimatedeck.sync.queue.FixedRandom
+import com.qtekfun.ultimatedeck.sync.queue.MutableClock
+import com.qtekfun.ultimatedeck.sync.queue.OperationQueue
+import com.qtekfun.ultimatedeck.sync.queue.QueuedOperation
 import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
@@ -28,7 +32,8 @@ class PullSyncTest {
     val server = MockWebServer()
 
     private val db = inMemoryDatabase()
-    private val pull = PullSync(db)
+    private val queue = OperationQueue(db, MutableClock(), FixedRandom(0.5))
+    private val pull = PullSync(db, queue)
     private val api by lazy { testDeckApi(server) }
 
     @AfterEach
@@ -288,5 +293,43 @@ class PullSyncTest {
         assertEquals("Card", hidden?.title)
         assertEquals(Instant.EPOCH, hidden?.deletedAt)
         assertNull(db.cardDao().get(ACCOUNT, 5))
+    }
+
+    @Test
+    fun `local changes that won but are no longer queued are queued again`() = runTest {
+        seedSynced()
+        db.stackDao().upsert(listOf(StackEntity(ACCOUNT, 11, BOARD, "Done", 1)))
+        val moved =
+            card(
+                5,
+                stackId = 11,
+                dirty = CardField.maskOf(listOf(CardField.POSITION, CardField.TITLE))
+            )
+        db.cardDao().upsert(
+            listOf(
+                moved.copy(title = "Mine", order = 3),
+                card(6, title = "Mine 6", dirty = CardField.TITLE.bit)
+            )
+        )
+        db.cardSnapshotDao().put(snapshot(5))
+        db.cardSnapshotDao().put(snapshot(6))
+        queue.enqueue(ACCOUNT, 6, QueuedOperation.UpdateCard(BOARD, STACK))
+        server.enqueue(MockResponse(304))
+        server.enqueue(json(stacksJson(cardJson(5, title = "Card"), cardJson(6, title = "Card"))))
+
+        pull.pull(api, ACCOUNT)
+
+        val queued = db.pendingOperationDao().all(ACCOUNT).map {
+            it.entityId to
+                QueuedOperation.decode(it.payload)
+        }
+        assertEquals(
+            listOf(
+                6L to QueuedOperation.UpdateCard(BOARD, STACK),
+                5L to QueuedOperation.UpdateCard(BOARD, 11),
+                5L to QueuedOperation.MoveCard(BOARD, STACK, 11, 3)
+            ),
+            queued
+        )
     }
 }

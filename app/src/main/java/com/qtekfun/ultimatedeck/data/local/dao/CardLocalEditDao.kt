@@ -97,4 +97,8 @@ interface CardLocalEditDao {
     /** Hides a card deleted here until the server confirms the deletion. */
     @Query("UPDATE card SET deletedAt = :at WHERE accountId = :accountId AND id = :id")
     suspend fun markDeleted(accountId: Long, id: Long, at: Instant)
+
+    /** Renumbers a card after a move of another one; not a change of its own, so not dirty. */
+    @Query("UPDATE card SET `order` = :order WHERE accountId = :accountId AND id = :id")
+    suspend fun setOrder(accountId: Long, id: Long, order: Int)
 }

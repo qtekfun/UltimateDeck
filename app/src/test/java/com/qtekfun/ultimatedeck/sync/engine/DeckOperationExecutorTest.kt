@@ -127,7 +127,10 @@ class DeckOperationExecutorTest {
         executor.execute(5, QueuedOperation.ArchiveCard(BOARD, STACK, archived = true))
         executor.execute(5, QueuedOperation.ArchiveCard(BOARD, STACK, archived = false))
 
-        assertEquals("""PUT $cardPath/5/reorder {"order":2,"stackId":11}""", request())
+        assertEquals(
+            """PUT ${API_PATH}boards/1/stacks/11/cards/5/reorder {"order":2,"stackId":11}""",
+            request()
+        )
         assertEquals("PUT $cardPath/5/archive", request())
         assertEquals("PUT $cardPath/5/unarchive", request())
     }

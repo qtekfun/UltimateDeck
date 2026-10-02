@@ -16,6 +16,7 @@ import com.qtekfun.ultimatedeck.data.remote.dto.CardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.StackDto
 import com.qtekfun.ultimatedeck.data.remote.mapper.toEntity
 import com.qtekfun.ultimatedeck.sync.conflict.ConflictResolver
+import com.qtekfun.ultimatedeck.sync.queue.OperationQueue
 import javax.inject.Inject
 
 /** How a pull ended. [Failed] keeps the server answer that stopped it. */
@@ -31,14 +32,17 @@ sealed interface PullResult {
  * edited here go through [ConflictResolver]. Each board is written in one transaction, so a
  * pull cut off halfway leaves every board either as before or fully updated.
  */
-class PullSync @Inject constructor(private val database: UltimateDeckDatabase) {
+class PullSync @Inject constructor(
+    private val database: UltimateDeckDatabase,
+    queue: OperationQueue
+) {
     private val accounts = database.accountDao()
     private val boards = database.boardDao()
     private val stacks = database.stackDao()
     private val cards = database.cardDao()
     private val labels = database.labelDao()
     private val users = database.userDao()
-    private val merger = CardMerger(database)
+    private val merger = CardMerger(database, queue)
 
     suspend fun pull(api: DeckApi, accountId: Long): PullResult {
         val failure = accounts.get(accountId)?.let { account ->

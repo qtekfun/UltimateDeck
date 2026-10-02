@@ -3,6 +3,8 @@
 
 package com.qtekfun.ultimatedeck.domain.card
 
+import androidx.room3.immediateTransaction
+import androidx.room3.useWriterConnection
 import com.qtekfun.ultimatedeck.data.auth.AccountSession
 import com.qtekfun.ultimatedeck.data.local.UltimateDeckDatabase
 import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
@@ -21,7 +23,7 @@ import kotlinx.coroutines.flow.first
  */
 class CardActions @Inject constructor(
     private val session: AccountSession,
-    database: UltimateDeckDatabase,
+    private val database: UltimateDeckDatabase,
     private val queue: OperationQueue,
     private val clock: Clock,
     private val scheduler: SyncScheduler
@@ -64,6 +66,31 @@ class CardActions @Inject constructor(
             accountId,
             cardId,
             QueuedOperation.ArchiveCard(card.boardId, card.stackId, archived)
+        )
+        scheduler.requestSync()
+    }
+
+    /**
+     * Moves a card to [toStackId]; [columnOrder] is that column's cards in their new order. The
+     * other cards are renumbered as Deck does on the server, without counting as changes.
+     */
+    suspend fun move(cardId: Long, toStackId: Long, columnOrder: List<Long>) {
+        val accountId = accountId() ?: return
+        val card = cards.get(accountId, cardId)
+        val index = columnOrder.indexOf(cardId)
+        if (card == null || index < 0) return
+        database.useWriterConnection { transactor ->
+            transactor.immediateTransaction {
+                columnOrder.forEachIndexed { order, id ->
+                    if (id != cardId) edits.setOrder(accountId, id, order)
+                }
+                edits.updatePosition(accountId, cardId, toStackId, index, clock.instant())
+            }
+        }
+        queue.enqueue(
+            accountId,
+            cardId,
+            QueuedOperation.MoveCard(card.boardId, card.stackId, toStackId, index)
         )
         scheduler.requestSync()
     }

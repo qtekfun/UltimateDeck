@@ -42,7 +42,8 @@ class DeckOperationExecutor(
             is QueuedOperation.MoveCard -> apiCall {
                 api.cards.reorderCard(
                     operation.boardId,
-                    operation.fromStackId,
+                    // Deck takes the stack from the path, not the body: it must be the target.
+                    operation.stackId,
                     entityId,
                     ReorderCardRequest(order = operation.order, stackId = operation.stackId)
                 )
