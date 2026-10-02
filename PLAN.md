@@ -23,7 +23,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 - [x] **T09 Motor de sincronización**: pull (tableros → columnas → tarjetas), push de la cola, detección de cambios, WorkManager periódico (~15 min) y sync al abrir / pull-to-refresh.
 
 ## Fase 3 — Interfaz del MVP
-- [ ] **T11 Login y lista de tableros** (offline funcional).
+- [x] **T11 Login y lista de tableros** (offline funcional).
 - [ ] **T12 Vista de tablero**: columna y media, snap, tarjetas con etiquetas/avatares/fecha/adjuntos/checklist, indicador "pendiente de sync".
 - [ ] **T15 Crear, archivar y eliminar tarjetas.**
 - [ ] **T13 Mover y reordenar tarjetas**: integrar el prototipo T02 con datos reales y la cola de sync.
