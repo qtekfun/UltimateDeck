@@ -94,4 +94,14 @@
     <string name="card_delete">Eliminar</string>
     <string name="card_delete_title">¿Eliminar esta tarjeta?</string>
     <string name="card_delete_message">También se eliminará en el servidor. No se puede deshacer.</string>
+    <string name="card_conflict_banner">Esta tarjeta cambió también en el servidor.</string>
+    <string name="card_conflict_review">Revisar</string>
+    <string name="card_field_title">título</string>
+    <string name="card_field_description">descripción</string>
+    <string name="conflict_title">Cambió en los dos lados: %1$s</string>
+    <string name="conflict_mine">Tu versión</string>
+    <string name="conflict_server">Versión del servidor</string>
+    <string name="conflict_copy_mine">Copiar la mía</string>
+    <string name="conflict_keep_mine">Quedarme con la mía</string>
+    <string name="conflict_use_server">Usar la del servidor</string>
 </resources>

@@ -20,10 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeViewModel
-import com.qtekfun.ultimatedeck.ui.prototype.board.DeleteCardDialog
 import com.qtekfun.ultimatedeck.ui.prototype.editor.EditorPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardListScreen
 import com.qtekfun.ultimatedeck.ui.session.LogoutAction
@@ -51,7 +51,7 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
     var cardId by rememberSaveable { mutableStateOf<Long?>(null) }
     val boardViewModel: BoardPrototypeViewModel = viewModel()
     val board = boardId
-    val card = cardId?.let(boardViewModel::card)
+    val card = cardId
     when {
         board == null -> BoardListScreen(
             onOpenBoard = {
@@ -72,31 +72,17 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
             )
         }
 
-        else -> {
-            var confirmDelete by rememberSaveable { mutableStateOf(false) }
-            if (confirmDelete) {
-                DeleteCardDialog(
-                    onDelete = {
-                        confirmDelete = false
-                        boardViewModel.delete(card.id)
-                        cardId = null
-                    },
-                    onDismiss = { confirmDelete = false }
-                )
+        else -> CardDetailScreen(
+            cardId = card,
+            onBack = { cardId = null },
+            onArchive = {
+                boardViewModel.archive(card)
+                cardId = null
+            },
+            onDelete = {
+                boardViewModel.delete(card)
+                cardId = null
             }
-            EditorPrototypeScreen(
-                original = card.description,
-                onBack = { cardId = null },
-                cardActions = {
-                    TextButton(onClick = {
-                        boardViewModel.archive(card.id)
-                        cardId = null
-                    }) { Text(stringResource(R.string.card_archive)) }
-                    IconButton(onClick = { confirmDelete = true }) {
-                        Icon(Icons.Filled.Delete, stringResource(R.string.card_delete))
-                    }
-                }
-            )
-        }
+        )
     }
 }

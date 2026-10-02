@@ -31,6 +31,7 @@ class CardActions @Inject constructor(
     private val cards = database.cardDao()
     private val edits = database.cardLocalEditDao()
     private val localIds = database.localIdDao()
+    private val snapshots = database.cardSnapshotDao()
 
     /** Adds a card at the end of a column; a blank title creates nothing. */
     suspend fun create(boardId: Long, stackId: Long, title: String) {
@@ -92,6 +93,68 @@ class CardActions @Inject constructor(
             cardId,
             QueuedOperation.MoveCard(card.boardId, card.stackId, toStackId, index)
         )
+        scheduler.requestSync()
+    }
+
+    /** Saves a new title; a blank or unchanged one is ignored. */
+    suspend fun editTitle(cardId: Long, title: String) {
+        val name = title.trim()
+        edit(cardId) { accountId, card ->
+            if (name.isEmpty() || name == card.title) return@edit false
+            edits.updateTitle(accountId, cardId, name, clock.instant())
+            true
+        }
+    }
+
+    /** Saves a new description (Markdown); an unchanged one is ignored. */
+    suspend fun editDescription(cardId: Long, description: String) {
+        edit(cardId) { accountId, card ->
+            if (description == card.description) return@edit false
+            edits.updateDescription(accountId, cardId, description, clock.instant())
+            true
+        }
+    }
+
+    /**
+     * Ends a title/description conflict (SPEC §5). Keeping mine sends it on the next sync; using
+     * the server's replaces mine with the last version read from the server.
+     */
+    suspend fun resolveConflict(cardId: Long, field: CardField, keepMine: Boolean) {
+        val accountId = accountId() ?: return
+        val card = cards.get(accountId, cardId)
+        val server = snapshots.get(accountId, cardId)
+        if (card == null || server == null) return
+        val unresolved = card.conflictFields and field.bit.inv()
+        if (keepMine) {
+            cards.update(listOf(card.copy(conflictFields = unresolved)))
+            queueUpdate(accountId, card)
+        } else {
+            val theirs = card.copy(
+                title = if (field == CardField.TITLE) server.title else card.title,
+                description = if (field == CardField.DESCRIPTION) {
+                    server.description
+                } else {
+                    card.description
+                },
+                conflictFields = unresolved,
+                dirtyFields = card.dirtyFields and field.bit.inv()
+            )
+            cards.update(listOf(theirs))
+        }
+    }
+
+    /** Runs [change] on an existing card; when it saved something, the card is queued to send. */
+    private suspend fun edit(
+        cardId: Long,
+        change: suspend (accountId: Long, card: CardEntity) -> Boolean
+    ) {
+        val accountId = accountId() ?: return
+        val card = cards.get(accountId, cardId) ?: return
+        if (change(accountId, card)) queueUpdate(accountId, card)
+    }
+
+    private suspend fun queueUpdate(accountId: Long, card: CardEntity) {
+        queue.enqueue(accountId, card.id, QueuedOperation.UpdateCard(card.boardId, card.stackId))
         scheduler.requestSync()
     }
 

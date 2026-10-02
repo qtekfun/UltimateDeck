@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,7 +50,9 @@ fun EditorPrototypeScreen(
     original: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    cardActions: @Composable RowScope.() -> Unit = {}
+    cardActions: @Composable RowScope.() -> Unit = {},
+    onSourceChange: (String) -> Unit = {},
+    header: @Composable () -> Unit = {}
 ) {
     var source by rememberSaveable { mutableStateOf(original) }
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -57,6 +60,7 @@ fun EditorPrototypeScreen(
     var activeText by remember { mutableStateOf<TextCommandTarget?>(null) }
     val tableTemplate = stringResource(R.string.editor_table_template)
     BackHandler { if (editing) editing = false else onBack() }
+    LaunchedEffect(source) { onSourceChange(source) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -72,6 +76,7 @@ fun EditorPrototypeScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            header()
             if (editing) {
                 EditorToolbar(
                     editorActions(activeText) {
