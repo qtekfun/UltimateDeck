@@ -23,4 +23,7 @@ interface AccountDao {
     /** Deletes the account and, through foreign keys, all its local data (RF-01). */
     @Query("DELETE FROM account WHERE id = :id")
     suspend fun delete(id: Long)
+
+    @Query("UPDATE account SET boardsEtag = :etag WHERE id = :id")
+    suspend fun setBoardsEtag(id: Long, etag: String?)
 }

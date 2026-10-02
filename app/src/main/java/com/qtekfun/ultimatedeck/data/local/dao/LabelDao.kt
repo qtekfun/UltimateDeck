@@ -52,4 +52,10 @@ interface LabelDao {
             "WHERE cl.accountId = :accountId AND l.boardId = :boardId ORDER BY cl.cardId, l.title"
     )
     fun observeCardLabels(accountId: Long, boardId: Long): Flow<List<CardLabelRow>>
+
+    @Query("SELECT id FROM label WHERE accountId = :accountId AND boardId = :boardId")
+    suspend fun idsForBoard(accountId: Long, boardId: Long): List<Long>
+
+    @Query("SELECT labelId FROM card_label WHERE accountId = :accountId AND cardId = :cardId")
+    suspend fun labelIdsOfCard(accountId: Long, cardId: Long): List<Long>
 }

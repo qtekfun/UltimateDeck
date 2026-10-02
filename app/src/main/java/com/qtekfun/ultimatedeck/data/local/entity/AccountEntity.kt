@@ -12,5 +12,7 @@ data class AccountEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val serverUrl: String,
     val userId: String,
-    val displayName: String
+    val displayName: String,
+    /** ETag of the last board list pulled, to skip it when nothing changed (T09). */
+    val boardsEtag: String? = null
 )

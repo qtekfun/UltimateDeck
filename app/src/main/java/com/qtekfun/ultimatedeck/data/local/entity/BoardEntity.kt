@@ -31,5 +31,7 @@ data class BoardEntity(
     val ownerUid: String? = null,
     val lastModified: Instant? = null,
     val etag: String? = null,
-    val deletedAt: Instant? = null
+    val deletedAt: Instant? = null,
+    /** ETag of the last columns and cards pulled for this board (T09). */
+    val stacksEtag: String? = null
 )

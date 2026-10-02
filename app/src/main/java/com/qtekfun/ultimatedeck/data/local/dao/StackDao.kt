@@ -35,4 +35,11 @@ interface StackDao {
             "AND deletedAt IS NULL ORDER BY `order`, id"
     )
     fun observeForBoard(accountId: Long, boardId: Long): Flow<List<StackEntity>>
+
+    @Query("SELECT * FROM stack WHERE accountId = :accountId AND boardId = :boardId")
+    suspend fun forBoard(accountId: Long, boardId: Long): List<StackEntity>
+
+    /** Deletes a column with its cards, through foreign keys. */
+    @Query("DELETE FROM stack WHERE accountId = :accountId AND id = :id")
+    suspend fun delete(accountId: Long, id: Long)
 }

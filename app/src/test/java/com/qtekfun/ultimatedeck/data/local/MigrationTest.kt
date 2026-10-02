@@ -105,4 +105,32 @@ class MigrationTest {
         assertEquals("Card", card?.title)
         assertEquals(null, card?.localModifiedAt)
     }
+
+    @Test
+    fun `migrates version 3 to the latest with empty sync state`() = runTest {
+        val file = File(dir, "v3.db")
+        createFromSchema(
+            file,
+            version = 3,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO board (accountId, id, title, color, archived) " +
+                    "VALUES (1, 1, 'B', 'fff', 0)",
+                "INSERT INTO stack (accountId, id, boardId, title, `order`) VALUES (1, 10, 1, 'S', 0)",
+                "INSERT INTO card (accountId, id, boardId, stackId, title, description, " +
+                    "`order`, archived, dirtyFields) VALUES (1, 100, 1, 10, 'Card', '', 0, 0, 0)"
+            )
+        )
+
+        val db = open(file)
+        val account = db.accountDao().get(1)
+        val board = db.boardDao().get(1, 1)
+        val card = db.cardDao().get(1, 100)
+        db.close()
+
+        assertEquals(null, account?.boardsEtag)
+        assertEquals(null, board?.stacksEtag)
+        assertFalse(card!!.deletedOnServer)
+    }
 }
