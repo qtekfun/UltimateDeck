@@ -116,4 +116,18 @@
     <string name="card_assign">Asignar</string>
     <string name="card_choices_empty">No hay nada que elegir en este tablero.</string>
     <string name="editor_description_label">Descripción</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_appearance">Apariencia</string>
+    <string name="settings_theme_system">Según el sistema</string>
+    <string name="settings_theme_light">Claro</string>
+    <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_amoled">Negro puro (AMOLED)</string>
+    <string name="settings_amoled_hint">Fondo negro en el tema oscuro, ahorra batería en pantallas OLED.</string>
+    <string name="settings_dynamic_color">Colores dinámicos</string>
+    <string name="settings_dynamic_color_hint">Colores tomados de tu fondo de pantalla.</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_language_system">Según el sistema</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_account">Cuenta</string>
 </resources>

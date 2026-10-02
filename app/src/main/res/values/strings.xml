@@ -124,4 +124,18 @@
     <string name="card_assign">Assign</string>
     <string name="card_choices_empty">Nothing to choose from on this board.</string>
     <string name="editor_description_label">Description</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">Follow the system</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_amoled">Pure black (AMOLED)</string>
+    <string name="settings_amoled_hint">Black background in dark theme, saves battery on OLED screens.</string>
+    <string name="settings_dynamic_color">Dynamic colors</string>
+    <string name="settings_dynamic_color_hint">Colors taken from your wallpaper.</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">Follow the system</string>
+    <string name="settings_language_english">English</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_account">Account</string>
 </resources>

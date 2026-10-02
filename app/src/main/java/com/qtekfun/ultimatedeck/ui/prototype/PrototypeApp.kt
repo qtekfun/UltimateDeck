@@ -5,11 +5,9 @@ package com.qtekfun.ultimatedeck.ui.prototype
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,15 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.ui.card.ArchivedCardsScreen
 import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeViewModel
-import com.qtekfun.ultimatedeck.ui.prototype.editor.EditorPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardListScreen
-import com.qtekfun.ultimatedeck.ui.session.LogoutAction
 import com.qtekfun.ultimatedeck.ui.session.SessionViewModel
+import com.qtekfun.ultimatedeck.ui.settings.SettingsScreen
 
 /**
  * Minimal navigation until real navigation arrives with T11: login when nobody is signed in,
@@ -41,12 +39,23 @@ fun PrototypeApp(sessionViewModel: SessionViewModel = viewModel()) {
     when {
         !session.ready -> Unit
         account == null -> LoginScreen()
-        else -> SignedIn(accountName = account.displayName, onLogOut = sessionViewModel::logOut)
+        else -> SignedIn(account, onLogOut = sessionViewModel::logOut)
     }
 }
 
 @Composable
-private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
+private fun SignedIn(account: AccountEntity, onLogOut: () -> Unit) {
+    var showSettings by rememberSaveable { mutableStateOf(false) }
+    if (showSettings) {
+        BackHandler { showSettings = false }
+        SettingsScreen(
+            accountName = account.displayName,
+            server = account.serverUrl,
+            onLogOut = onLogOut,
+            onBack = { showSettings = false }
+        )
+        return
+    }
     var boardId by rememberSaveable { mutableStateOf<Long?>(null) }
     var boardTitle by rememberSaveable { mutableStateOf("") }
     var cardId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -60,7 +69,7 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
                 boardId = it.id
                 boardTitle = it.title
             },
-            topBarActions = { LogoutAction(accountName, onLogOut) }
+            topBarActions = { SettingsAction { showSettings = true } }
         )
 
         showArchived -> {
@@ -92,5 +101,12 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
                 cardId = null
             }
         )
+    }
+}
+
+@Composable
+private fun SettingsAction(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(Icons.Filled.Settings, stringResource(R.string.settings_title))
     }
 }
