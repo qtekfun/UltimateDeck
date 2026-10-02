@@ -111,4 +111,24 @@ class SettingsRepositoryTest {
             assertEquals(null, awaitItem().favoriteBoardId)
         }
     }
+
+    @Test
+    fun `reminder preferences are kept`() = runTest {
+        repository.settings.test {
+            assertEquals(AppSettings(), awaitItem())
+            repository.setReminders(true)
+            awaitItem()
+            repository.setReminderLead(ReminderLead.ONE_DAY)
+            awaitItem()
+            repository.setReminderScope(ReminderScope.ALL)
+            assertEquals(
+                AppSettings(
+                    reminders = true,
+                    reminderLead = ReminderLead.ONE_DAY,
+                    reminderScope = ReminderScope.ALL
+                ),
+                awaitItem()
+            )
+        }
+    }
 }

@@ -19,11 +19,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
+import com.qtekfun.ultimatedeck.notify.CardLink
 import com.qtekfun.ultimatedeck.ui.card.ArchivedCardsScreen
 import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
@@ -46,13 +48,17 @@ import kotlinx.coroutines.launch
  * otherwise the account's boards, a board and a card description.
  */
 @Composable
-fun PrototypeApp(sessionViewModel: SessionViewModel = viewModel()) {
+fun PrototypeApp(
+    link: CardLink? = null,
+    onLinkOpened: () -> Unit = {},
+    sessionViewModel: SessionViewModel = viewModel()
+) {
     val session by sessionViewModel.state.collectAsStateWithLifecycle()
     val account = session.account
     when {
         !session.ready -> Unit
         account == null -> LoginScreen()
-        else -> SignedIn(account, onLogOut = sessionViewModel::logOut)
+        else -> SignedIn(account, link, onLinkOpened, onLogOut = sessionViewModel::logOut)
     }
 }
 
@@ -90,7 +96,12 @@ private class Place {
 }
 
 @Composable
-private fun SignedIn(account: AccountEntity, onLogOut: () -> Unit) {
+private fun SignedIn(
+    account: AccountEntity,
+    link: CardLink?,
+    onLinkOpened: () -> Unit,
+    onLogOut: () -> Unit
+) {
     val place = rememberSaveable(saver = Place.Saver) { Place() }
     val drawer = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -103,8 +114,16 @@ private fun SignedIn(account: AccountEntity, onLogOut: () -> Unit) {
         if (started) return@LaunchedEffect
         val favorite = settingsViewModel.storedFavorite()
         val active = boardsViewModel.state.first { !it.loading }.boards
-        startBoard(favorite, active)?.let(place::open)
+        // A card opened from a notification wins over the favorite board.
+        if (place.boardId == null) startBoard(favorite, active)?.let(place::open)
         started = true
+    }
+    LaunchedEffect(link) {
+        link?.let {
+            place.open(BoardSummary(it.boardId, it.boardTitle, Color.Unspecified))
+            place.cardId = it.cardId
+            onLinkOpened()
+        }
     }
     val closeThen: (() -> Unit) -> Unit = { action ->
         action()

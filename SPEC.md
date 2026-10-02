@@ -93,8 +93,15 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - Inglés y español; sigue el idioma del sistema.
 - Tema claro/oscuro/sistema y colores dinámicos (Material You).
 
+### RF-10 Recordatorios de vencimiento
+- Notificaciones **locales** cuando vence una tarjeta: sin servidor de push ni servicios de Google, funcionan sin conexión.
+- En Ajustes: activarlos (desactivados por defecto), antelación (a la hora, 1 h antes, 1 día antes) y de qué tarjetas (solo las asignadas a mí, o todas).
+- A la hora exacta cuando el sistema lo permite (permiso de alarmas exactas); si no, con unos minutos de margen.
+- No avisan de tarjetas archivadas, borradas ni hechas; se reprograman tras cada sincronización o cambio y al reiniciar el móvil.
+- Tocar la notificación abre la tarjeta.
+
 ## 4. Fuera de alcance (MVP)
-- Comentarios, notificaciones push, widgets.
+- Comentarios, notificaciones push de servidor (los recordatorios locales son RF-10), widgets.
 - Épicas, sprints, campos personalizados, informes (Deck no los almacena).
 - Websockets o tiempo real (se usa polling/sync periódica).
 - Multicuenta completo en la interfaz.

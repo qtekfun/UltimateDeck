@@ -3,6 +3,7 @@
 
 package com.qtekfun.ultimatedeck.ui.card
 
+import android.text.format.DateFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +31,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -46,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.card.dueDateFor
 import com.qtekfun.ultimatedeck.domain.card.pickerMillisFor
+import com.qtekfun.ultimatedeck.domain.card.withTime
 import com.qtekfun.ultimatedeck.ui.prototype.remote.deckColor
 import java.time.Instant
 import java.time.ZoneId
@@ -141,14 +146,39 @@ private fun memberSummary(card: CardDetail): String {
 }
 
 private fun formatDue(dueDate: Instant, zone: ZoneId): String =
-    DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(dueDate.atZone(zone))
+    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+        .format(dueDate.atZone(zone))
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Picks the day, then the time; the time starts at the current one (or midday). */
 @Composable
 private fun DueDateDialog(
     current: Instant?,
     zone: ZoneId,
     onDueDate: (Instant?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var day by remember { mutableStateOf<Instant?>(null) }
+    val picked = day
+    if (picked == null) {
+        DayDialog(current, zone, onPicked = { day = it }, onRemove = {
+            onDueDate(null)
+            onDismiss()
+        }, onDismiss = onDismiss)
+    } else {
+        TimeDialog(picked, zone, onTime = {
+            onDueDate(it)
+            onDismiss()
+        }, onDismiss = onDismiss)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DayDialog(
+    current: Instant?,
+    zone: ZoneId,
+    onPicked: (Instant) -> Unit,
+    onRemove: () -> Unit,
     onDismiss: () -> Unit
 ) {
     val state =
@@ -162,24 +192,52 @@ private fun DueDateDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    state.selectedDateMillis?.let { onDueDate(dueDateFor(it, current, zone)) }
-                    onDismiss()
+                    state.selectedDateMillis?.let { onPicked(dueDateFor(it, current, zone)) }
                 },
                 enabled = state.selectedDateMillis != null
-            ) { Text(stringResource(R.string.card_due_save)) }
+            ) { Text(stringResource(R.string.card_due_next)) }
         },
         dismissButton = {
             Row {
                 if (current != null) {
-                    TextButton(onClick = {
-                        onDueDate(null)
-                        onDismiss()
-                    }) { Text(stringResource(R.string.card_due_remove)) }
+                    TextButton(onClick = onRemove) {
+                        Text(stringResource(R.string.card_due_remove))
+                    }
                 }
                 TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
             }
         }
     ) { DatePicker(state = state) }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TimeDialog(
+    day: Instant,
+    zone: ZoneId,
+    onTime: (Instant) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    val start = day.atZone(zone)
+    val state = rememberTimePickerState(
+        initialHour = start.hour,
+        initialMinute = start.minute,
+        is24Hour = DateFormat.is24HourFormat(context)
+    )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.card_due_time)) },
+        text = { TimePicker(state = state) },
+        confirmButton = {
+            TextButton(onClick = { onTime(withTime(day, state.hour, state.minute, zone)) }) {
+                Text(stringResource(R.string.card_due_save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.dialog_cancel)) }
+        }
+    )
 }
 
 /** One option of a multiple choice; [color] draws a label dot. */

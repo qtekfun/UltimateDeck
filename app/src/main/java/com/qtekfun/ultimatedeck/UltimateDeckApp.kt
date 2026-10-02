@@ -5,9 +5,13 @@ package com.qtekfun.ultimatedeck
 
 import android.app.Application
 import androidx.work.Configuration
+import com.qtekfun.ultimatedeck.notify.ReminderCoordinator
 import com.qtekfun.ultimatedeck.sync.engine.SyncWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 @HiltAndroidApp
 class UltimateDeckApp :
@@ -15,6 +19,17 @@ class UltimateDeckApp :
     Configuration.Provider {
     @Inject
     lateinit var workerFactory: SyncWorkerFactory
+
+    @Inject
+    lateinit var reminders: ReminderCoordinator
+
+    /** Lives as long as the process: keeps the reminders scheduled (RF-10). */
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    override fun onCreate() {
+        super.onCreate()
+        reminders.start(appScope)
+    }
 
     /** WorkManager starts on demand with this factory; its default initializer is off. */
     override val workManagerConfiguration: Configuration

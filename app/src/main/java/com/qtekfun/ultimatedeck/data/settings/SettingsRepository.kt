@@ -17,6 +17,9 @@ private const val KEY_THEME = "theme"
 private const val KEY_AMOLED = "amoled"
 private const val KEY_DYNAMIC_COLOR = "dynamic_color"
 private const val KEY_FAVORITE_BOARD = "favorite_board"
+private const val KEY_REMINDERS = "reminders"
+private const val KEY_REMINDER_LEAD = "reminder_lead"
+private const val KEY_REMINDER_SCOPE = "reminder_scope"
 
 /**
  * Per-device preferences (T18). They are not Deck data, so they live in SharedPreferences
@@ -49,6 +52,15 @@ class SettingsRepository @Inject constructor(
         if (boardId == null) remove(KEY_FAVORITE_BOARD) else putLong(KEY_FAVORITE_BOARD, boardId)
     }
 
+    fun setReminders(enabled: Boolean) = preferences.edit { putBoolean(KEY_REMINDERS, enabled) }
+
+    fun setReminderLead(lead: ReminderLead) = preferences.edit {
+        putString(KEY_REMINDER_LEAD, lead.name)
+    }
+
+    fun setReminderScope(scope: ReminderScope) =
+        preferences.edit { putString(KEY_REMINDER_SCOPE, scope.name) }
+
     private fun read(): AppSettings {
         val defaults = AppSettings()
         val theme = preferences.getString(KEY_THEME, null)
@@ -57,8 +69,16 @@ class SettingsRepository @Inject constructor(
             amoled = preferences.getBoolean(KEY_AMOLED, defaults.amoled),
             dynamicColor = preferences.getBoolean(KEY_DYNAMIC_COLOR, defaults.dynamicColor),
             favoriteBoardId = KEY_FAVORITE_BOARD.takeIf(preferences::contains)
-                ?.let { preferences.getLong(it, 0) }
+                ?.let { preferences.getLong(it, 0) },
+            reminders = preferences.getBoolean(KEY_REMINDERS, defaults.reminders),
+            reminderLead = enumValue(KEY_REMINDER_LEAD, defaults.reminderLead),
+            reminderScope = enumValue(KEY_REMINDER_SCOPE, defaults.reminderScope)
         )
+    }
+
+    private inline fun <reified T : Enum<T>> enumValue(key: String, default: T): T {
+        val stored = preferences.getString(key, null)
+        return enumValues<T>().firstOrNull { it.name == stored } ?: default
     }
 
     companion object {

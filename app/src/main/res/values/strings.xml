@@ -142,4 +142,18 @@
     <string name="drawer_boards">Boards</string>
     <string name="drawer_favorite">Open %1$s at start</string>
     <string name="drawer_unfavorite">Stop opening %1$s at start</string>
+    <string name="reminder_channel">Due dates</string>
+    <string name="reminder_text">%1$s · due %2$s</string>
+    <string name="settings_reminders">Reminders</string>
+    <string name="settings_reminders_enable">Due date reminders</string>
+    <string name="settings_reminders_hint">A notification when a card falls due.</string>
+    <string name="settings_reminders_at_due">At the due time</string>
+    <string name="settings_reminders_one_hour">1 hour before</string>
+    <string name="settings_reminders_one_day">1 day before</string>
+    <string name="settings_reminders_mine">Only cards assigned to me</string>
+    <string name="settings_reminders_all">All cards with a date</string>
+    <string name="settings_reminders_inexact">Exact alarms are not allowed: reminders may arrive a few minutes late.</string>
+    <string name="settings_reminders_allow_exact">Allow exact alarms</string>
+    <string name="card_due_next">Next</string>
+    <string name="card_due_time">Time</string>
 </resources>
