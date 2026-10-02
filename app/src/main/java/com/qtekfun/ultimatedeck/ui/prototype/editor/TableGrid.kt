@@ -93,12 +93,8 @@ private fun TableCell(
         contentAlignment = Alignment.CenterStart
     ) {
         if (editable) {
-            TextSegmentEditor(
-                text = text,
-                onTextChange = onChange,
-                onActive = onActive,
-                singleLine = true
-            )
+            // Cells wrap; a line break typed in a cell is saved as a space (see MarkdownTable).
+            TextSegmentEditor(text = text, onTextChange = onChange, onActive = onActive)
         } else {
             MarkdownText(source = text)
         }

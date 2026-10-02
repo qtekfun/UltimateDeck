@@ -52,14 +52,7 @@ android {
     }
 
     testOptions {
-        unitTests.all { test ->
-            // Editor evaluation tests (T03) document expected losses, so they only run on demand:
-            // ./gradlew testDebugUnitTest -PeditorEvaluation
-            val evaluation = providers.gradleProperty("editorEvaluation").isPresent
-            test.useJUnitPlatform {
-                if (evaluation) includeTags("evaluation") else excludeTags("evaluation")
-            }
-        }
+        unitTests.all { it.useJUnitPlatform() }
     }
 
     lint {
