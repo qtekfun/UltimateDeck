@@ -106,8 +106,7 @@
     <string name="conflict_use_server">Usar la del servidor</string>
     <string name="archived_title">Tarjetas archivadas</string>
     <string name="archived_empty">No hay tarjetas archivadas.</string>
-    <string name="archived_offline">Conéctate para ver las tarjetas archivadas.</string>
-    <string name="archived_failed">No se pudieron cargar las tarjetas archivadas. Desliza hacia abajo para reintentar.</string>
+    <string name="archived_failed">Algo falló con el servidor. Desliza hacia abajo para reintentar.</string>
     <string name="archived_restore">Restaurar</string>
     <string name="archived_restore_card">Restaurar %1$s</string>
 </resources>

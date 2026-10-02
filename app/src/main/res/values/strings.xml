@@ -114,8 +114,7 @@
     <string name="conflict_use_server">Use the server\'s</string>
     <string name="archived_title">Archived cards</string>
     <string name="archived_empty">No archived cards.</string>
-    <string name="archived_offline">Connect to see the archived cards.</string>
-    <string name="archived_failed">The archived cards could not be loaded. Pull to try again.</string>
+    <string name="archived_failed">Something went wrong with the server. Pull to try again.</string>
     <string name="archived_restore">Restore</string>
     <string name="archived_restore_card">Restore %1$s</string>
 </resources>

@@ -69,8 +69,8 @@ fun ArchivedCardsScreen(
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {
             LazyColumn(Modifier.fillMaxSize()) {
-                state.problem?.let { problem -> item { ProblemText(problem) } }
-                if (!state.loading && state.problem == null && state.cards.isEmpty()) {
+                if (state.failed) item { FailedText() }
+                if (!state.loading && !state.failed && state.cards.isEmpty()) {
                     item { Text(stringResource(R.string.archived_empty), Modifier.padding(24.dp)) }
                 }
                 items(state.cards, key = { it.id }) { card ->
@@ -83,13 +83,9 @@ fun ArchivedCardsScreen(
 }
 
 @Composable
-private fun ProblemText(problem: ArchivedProblem) {
-    val message = when (problem) {
-        ArchivedProblem.OFFLINE -> R.string.archived_offline
-        ArchivedProblem.FAILED -> R.string.archived_failed
-    }
+private fun FailedText() {
     Text(
-        text = stringResource(message),
+        text = stringResource(R.string.archived_failed),
         color = MaterialTheme.colorScheme.error,
         modifier = Modifier.padding(16.dp)
     )

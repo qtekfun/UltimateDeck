@@ -17,13 +17,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Why the archived cards could not be loaded or restored. */
-enum class ArchivedProblem { OFFLINE, FAILED }
-
 data class ArchivedState(
     val loading: Boolean = true,
     val cards: List<ArchivedCard> = emptyList(),
-    val problem: ArchivedProblem? = null
+    /** The server failed (not just offline: then the cards archived here are enough). */
+    val failed: Boolean = false
 )
 
 /** Archived cards of one board: from the server, plus those archived here (T15b). */
@@ -51,7 +49,7 @@ class ArchivedCardsViewModel @Inject constructor(
             mutableState.value = ArchivedState(
                 loading = false,
                 cards = result.cards,
-                problem = result.failure?.toProblem()
+                failed = result.failure.let { it != null && it !is ApiResult.NetworkError }
             )
         }
     }
@@ -67,14 +65,11 @@ class ArchivedCardsViewModel @Inject constructor(
             }
             mutableState.update { state ->
                 if (result is ApiResult.Success) {
-                    state.copy(cards = state.cards - card, problem = null)
+                    state.copy(cards = state.cards - card, failed = false)
                 } else {
-                    state.copy(problem = result.toProblem())
+                    state.copy(failed = true)
                 }
             }
         }
     }
-
-    private fun ApiResult<*>.toProblem() =
-        if (this is ApiResult.NetworkError) ArchivedProblem.OFFLINE else ArchivedProblem.FAILED
 }
