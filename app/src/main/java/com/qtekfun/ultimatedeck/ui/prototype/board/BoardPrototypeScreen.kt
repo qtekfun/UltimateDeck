@@ -34,6 +34,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -92,6 +93,7 @@ fun BoardPrototypeScreen(
     viewModel: BoardPrototypeViewModel,
     onBack: () -> Unit,
     onOpenCard: (cardId: Long) -> Unit,
+    onShowArchived: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -110,7 +112,7 @@ fun BoardPrototypeScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { BoardTopBar(title, onBack) }
+        topBar = { BoardTopBar(title, onBack, onShowArchived) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -147,7 +149,7 @@ fun BoardPrototypeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BoardTopBar(title: String, onBack: () -> Unit) {
+private fun BoardTopBar(title: String, onBack: () -> Unit, onShowArchived: () -> Unit) {
     TopAppBar(
         title = { Text(title) },
         navigationIcon = {
@@ -157,6 +159,9 @@ private fun BoardTopBar(title: String, onBack: () -> Unit) {
                     stringResource(R.string.board_back)
                 )
             }
+        },
+        actions = {
+            TextButton(onClick = onShowArchived) { Text(stringResource(R.string.archived_title)) }
         }
     )
 }
