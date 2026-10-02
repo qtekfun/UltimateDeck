@@ -28,6 +28,12 @@ style:
     ignoreAnnotated:
       - Preview
   MagicNumber:
-    # Color and typography tokens are literal values by nature.
+    # detekt's default test exclusions, plus color and typography tokens,
+    # which are literal values by nature.
     excludes:
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/*.kts'
       - '**/ui/theme/**'
+      # Sample data of the drag and drop prototype (T02).
+      - '**/ui/prototype/board/FakeBoard.kt'

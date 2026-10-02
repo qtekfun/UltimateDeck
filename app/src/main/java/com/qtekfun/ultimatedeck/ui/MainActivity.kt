@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.theme.UltimateDeckTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,7 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             UltimateDeckTheme {
-                EmptyScreen()
+                BoardPrototypeScreen()
             }
         }
     }

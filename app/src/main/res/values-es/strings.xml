@@ -4,5 +4,48 @@
   SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <resources>
-    <string name="empty_screen_message">Te damos la bienvenida a UltimateDeck</string>
+    <string name="prototype_board_title">Hoja de ruta del producto</string>
+    <string name="prototype_board_hint">Mantén pulsada una tarjeta para moverla</string>
+    <string name="prototype_column_todo">Por hacer</string>
+    <string name="prototype_column_in_progress">En curso</string>
+    <string name="prototype_column_review">En revisión</string>
+    <string name="prototype_column_done">Hecho</string>
+    <string name="prototype_label_bug">Error</string>
+    <string name="prototype_label_feature">Funcionalidad</string>
+    <string name="prototype_label_design">Diseño</string>
+    <string name="prototype_label_urgent">Urgente</string>
+    <string name="prototype_label_docs">Documentación</string>
+    <string name="prototype_card_crash_server">Corregir el cierre cuando el servidor no responde</string>
+    <string name="prototype_card_attachments">Subir adjuntos en segundo plano</string>
+    <string name="prototype_card_onboarding">Estados vacíos y bienvenida</string>
+    <string name="prototype_card_fdroid">Preparar los metadatos de F-Droid</string>
+    <string name="prototype_card_drag_drop">Arrastrar tarjetas entre columnas</string>
+    <string name="prototype_card_offline_cache">Guardar tableros para usarlos sin conexión</string>
+    <string name="prototype_card_markdown_editor">Editor enriquecido para descripciones</string>
+    <string name="prototype_card_conflicts">Resolver conflictos de sincronización</string>
+    <string name="prototype_card_accessibility">Revisión con TalkBack</string>
+    <string name="prototype_card_login_flow">Iniciar sesión con Login Flow v2</string>
+    <string name="prototype_card_translations">Traducción al español</string>
+    <string name="prototype_card_dark_mode">Pulir el tema oscuro</string>
+
+    <string name="prototype_card_labels">Etiquetas: %1$s</string>
+    <string name="prototype_card_due">Vence el %1$s</string>
+    <string name="prototype_card_overdue">Vencida desde el %1$s</string>
+    <plurals name="prototype_card_attachments">
+        <item quantity="one">%d adjunto</item>
+        <item quantity="many">%d adjuntos</item>
+        <item quantity="other">%d adjuntos</item>
+    </plurals>
+    <plurals name="prototype_card_checklist">
+        <item quantity="one">%1$d de %2$d elemento de la lista completado</item>
+        <item quantity="many">%1$d de %2$d elementos de la lista completados</item>
+        <item quantity="other">%1$d de %2$d elementos de la lista completados</item>
+    </plurals>
+    <string name="prototype_card_assignees">Asignada a %1$s</string>
+    <string name="prototype_action_move_to">Mover a %1$s</string>
+    <plurals name="prototype_column_description">
+        <item quantity="one">%1$s, %2$d tarjeta</item>
+        <item quantity="many">%1$s, %2$d tarjetas</item>
+        <item quantity="other">%1$s, %2$d tarjetas</item>
+    </plurals>
 </resources>

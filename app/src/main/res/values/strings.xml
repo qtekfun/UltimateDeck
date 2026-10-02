@@ -5,5 +5,48 @@
 -->
 <resources>
     <string name="app_name" translatable="false">UltimateDeck</string>
-    <string name="empty_screen_message">Welcome to UltimateDeck</string>
+
+    <!-- Drag and drop prototype (T02): fake board content. -->
+    <string name="prototype_board_title">Product roadmap</string>
+    <string name="prototype_board_hint">Long-press a card to move it</string>
+    <string name="prototype_column_todo">To do</string>
+    <string name="prototype_column_in_progress">In progress</string>
+    <string name="prototype_column_review">Review</string>
+    <string name="prototype_column_done">Done</string>
+    <string name="prototype_label_bug">Bug</string>
+    <string name="prototype_label_feature">Feature</string>
+    <string name="prototype_label_design">Design</string>
+    <string name="prototype_label_urgent">Urgent</string>
+    <string name="prototype_label_docs">Docs</string>
+    <string name="prototype_card_crash_server">Fix crash when the server is unreachable</string>
+    <string name="prototype_card_attachments">Upload attachments in the background</string>
+    <string name="prototype_card_onboarding">Empty states and onboarding</string>
+    <string name="prototype_card_fdroid">Prepare F-Droid metadata</string>
+    <string name="prototype_card_drag_drop">Drag cards between columns</string>
+    <string name="prototype_card_offline_cache">Cache boards for offline use</string>
+    <string name="prototype_card_markdown_editor">Rich text editor for descriptions</string>
+    <string name="prototype_card_conflicts">Resolve sync conflicts</string>
+    <string name="prototype_card_accessibility">TalkBack review</string>
+    <string name="prototype_card_login_flow">Sign in with Login Flow v2</string>
+    <string name="prototype_card_translations">Spanish translations</string>
+    <string name="prototype_card_dark_mode">Dark theme polish</string>
+
+    <!-- Card accessibility description and actions. -->
+    <string name="prototype_card_labels">Labels: %1$s</string>
+    <string name="prototype_card_due">Due %1$s</string>
+    <string name="prototype_card_overdue">Overdue since %1$s</string>
+    <plurals name="prototype_card_attachments">
+        <item quantity="one">%d attachment</item>
+        <item quantity="other">%d attachments</item>
+    </plurals>
+    <plurals name="prototype_card_checklist">
+        <item quantity="one">%1$d of %2$d checklist item done</item>
+        <item quantity="other">%1$d of %2$d checklist items done</item>
+    </plurals>
+    <string name="prototype_card_assignees">Assigned to %1$s</string>
+    <string name="prototype_action_move_to">Move to %1$s</string>
+    <plurals name="prototype_column_description">
+        <item quantity="one">%1$s, %2$d card</item>
+        <item quantity="other">%1$s, %2$d cards</item>
+    </plurals>
 </resources>
