@@ -109,4 +109,11 @@
     <string name="archived_failed">Algo falló con el servidor. Desliza hacia abajo para reintentar.</string>
     <string name="archived_restore">Restaurar</string>
     <string name="archived_restore_card">Restaurar %1$s</string>
+    <string name="card_due_add">Fecha</string>
+    <string name="card_due_save">Guardar</string>
+    <string name="card_due_remove">Quitar</string>
+    <string name="card_labels">Etiquetas</string>
+    <string name="card_assignees">Asignados</string>
+    <string name="card_assign">Asignar</string>
+    <string name="card_choices_empty">No hay nada que elegir en este tablero.</string>
 </resources>

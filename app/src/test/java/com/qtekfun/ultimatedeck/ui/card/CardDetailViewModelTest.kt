@@ -7,6 +7,7 @@ import com.qtekfun.ultimatedeck.data.auth.AccountSession
 import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
 import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.domain.card.CardActions
+import com.qtekfun.ultimatedeck.domain.card.CardMetadataActions
 import com.qtekfun.ultimatedeck.sync.engine.ACCOUNT
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
 import com.qtekfun.ultimatedeck.sync.engine.card
@@ -35,6 +36,7 @@ class CardDetailViewModelTest {
     private val session = mockk<AccountSession>()
     private val actions = mockk<CardActions>(relaxed = true)
     private val scheduler = mockk<SyncScheduler>(relaxed = true)
+    private val metadata = mockk<CardMetadataActions>(relaxed = true)
 
     @BeforeEach
     fun setUp() = Dispatchers.setMain(dispatcher)
@@ -51,7 +53,7 @@ class CardDetailViewModelTest {
             db.seedBoard()
             db.cardDao().upsert(listOf(card(5)))
             every { session.activeAccount } returns flowOf(db.accountDao().get(ACCOUNT))
-            val viewModel = CardDetailViewModel(session, db, actions, scheduler)
+            val viewModel = CardDetailViewModel(session, db, actions, metadata, scheduler)
             viewModel.open(5)
             runCurrent()
 

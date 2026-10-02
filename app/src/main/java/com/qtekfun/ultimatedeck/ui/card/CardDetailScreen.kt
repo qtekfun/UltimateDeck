@@ -87,6 +87,12 @@ fun CardDetailScreen(
                     card = current,
                     onReview = { reviewing = true }
                 )
+                CardMetadata(
+                    card = current,
+                    onDueDate = viewModel::setDueDate,
+                    onLabels = viewModel::setLabels,
+                    onAssignees = viewModel::setAssignees
+                )
             }
         )
     }
