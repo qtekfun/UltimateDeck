@@ -26,7 +26,6 @@
         <item quantity="other">%1$s, %2$d tarjetas</item>
     </plurals>
     <string name="prototype_card_open">Editar descripción</string>
-    <string name="editor_title">Editor de descripción (prototipo)</string>
     <string name="editor_back">Atrás</string>
     <string name="editor_bold">Negrita</string>
     <string name="editor_bold_short">N</string>
@@ -116,4 +115,5 @@
     <string name="card_assignees">Asignados</string>
     <string name="card_assign">Asignar</string>
     <string name="card_choices_empty">No hay nada que elegir en este tablero.</string>
+    <string name="editor_description_label">Descripción</string>
 </resources>

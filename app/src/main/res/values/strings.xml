@@ -28,7 +28,6 @@
     </plurals>
     <!-- Editor evaluation prototype (T03). -->
     <string name="prototype_card_open">Edit description</string>
-    <string name="editor_title">Description editor (prototype)</string>
     <string name="editor_back">Back</string>
     <string name="editor_bold">Bold</string>
     <string name="editor_bold_short">B</string>
@@ -124,4 +123,5 @@
     <string name="card_assignees">Assignees</string>
     <string name="card_assign">Assign</string>
     <string name="card_choices_empty">Nothing to choose from on this board.</string>
+    <string name="editor_description_label">Description</string>
 </resources>
