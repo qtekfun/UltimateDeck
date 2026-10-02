@@ -5,27 +5,27 @@
 -->
 <resources>
 
-    <string name="prototype_card_labels">Etiquetas: %1$s</string>
-    <string name="prototype_card_due">Vence el %1$s</string>
-    <string name="prototype_card_overdue">Vencida desde el %1$s</string>
-    <plurals name="prototype_card_attachments">
+    <string name="board_card_labels">Etiquetas: %1$s</string>
+    <string name="board_card_due">Vence el %1$s</string>
+    <string name="board_card_overdue">Vencida desde el %1$s</string>
+    <plurals name="board_card_attachments">
         <item quantity="one">%d adjunto</item>
         <item quantity="many">%d adjuntos</item>
         <item quantity="other">%d adjuntos</item>
     </plurals>
-    <plurals name="prototype_card_checklist">
+    <plurals name="board_card_checklist">
         <item quantity="one">%1$d de %2$d elemento de la lista completado</item>
         <item quantity="many">%1$d de %2$d elementos de la lista completados</item>
         <item quantity="other">%1$d de %2$d elementos de la lista completados</item>
     </plurals>
-    <string name="prototype_card_assignees">Asignada a %1$s</string>
-    <string name="prototype_action_move_to">Mover a %1$s</string>
-    <plurals name="prototype_column_description">
+    <string name="board_card_assignees">Asignada a %1$s</string>
+    <string name="board_action_move_to">Mover a %1$s</string>
+    <plurals name="board_column_description">
         <item quantity="one">%1$s, %2$d tarjeta</item>
         <item quantity="many">%1$s, %2$d tarjetas</item>
         <item quantity="other">%1$s, %2$d tarjetas</item>
     </plurals>
-    <string name="prototype_card_open">Editar descripción</string>
+    <string name="board_card_open">Editar descripción</string>
     <string name="editor_back">Atrás</string>
     <string name="editor_bold">Negrita</string>
     <string name="editor_bold_short">N</string>

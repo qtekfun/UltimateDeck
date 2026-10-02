@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.SettingsRepository
 import com.qtekfun.ultimatedeck.notify.CardLink
-import com.qtekfun.ultimatedeck.ui.prototype.PrototypeApp
+import com.qtekfun.ultimatedeck.ui.navigation.AppNavigation
 import com.qtekfun.ultimatedeck.ui.theme.UltimateDeckTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settings by settingsRepository.settings.collectAsStateWithLifecycle(AppSettings())
             UltimateDeckTheme(settings) {
-                PrototypeApp(link = link, onLinkOpened = { link = null })
+                AppNavigation(link = link, onLinkOpened = { link = null })
             }
         }
     }

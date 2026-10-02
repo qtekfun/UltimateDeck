@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
-import com.qtekfun.ultimatedeck.ui.prototype.board.DeleteCardDialog
-import com.qtekfun.ultimatedeck.ui.prototype.editor.EditorPrototypeScreen
+import com.qtekfun.ultimatedeck.ui.board.DeleteCardDialog
+import com.qtekfun.ultimatedeck.ui.editor.CardEditor
 
 /** Card detail (T14): title and description edited in place and saved automatically. */
 @Composable
@@ -61,7 +61,7 @@ fun CardDetailScreen(
     key(cardId, revision) {
         var title by rememberSaveable { mutableStateOf(current.title) }
         var description by rememberSaveable { mutableStateOf(current.description) }
-        EditorPrototypeScreen(
+        CardEditor(
             original = current.description,
             onBack = {
                 viewModel.saveNow(title, description)

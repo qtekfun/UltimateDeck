@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
-import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
+import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 
 /** Side menu (T18b): the boards, each can be the one that opens at start, and the settings. */
 @Composable

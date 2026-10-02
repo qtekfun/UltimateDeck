@@ -51,7 +51,7 @@ import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.card.dueDateFor
 import com.qtekfun.ultimatedeck.domain.card.pickerMillisFor
 import com.qtekfun.ultimatedeck.domain.card.withTime
-import com.qtekfun.ultimatedeck.ui.prototype.remote.deckColor
+import com.qtekfun.ultimatedeck.ui.boards.deckColor
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

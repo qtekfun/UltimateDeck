@@ -3,7 +3,7 @@
 
 package com.qtekfun.ultimatedeck.ui.navigation
 
-import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
+import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 
 /** What the side menu can do: open a board, mark the favorite, open the settings. */
 data class DrawerCallbacks(

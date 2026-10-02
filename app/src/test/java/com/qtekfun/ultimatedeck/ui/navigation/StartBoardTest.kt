@@ -4,7 +4,7 @@
 package com.qtekfun.ultimatedeck.ui.navigation
 
 import androidx.compose.ui.graphics.Color
-import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
+import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
