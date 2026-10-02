@@ -112,37 +112,42 @@ class LocalIdsAndQueueTest {
     }
 
     @Test
-    fun `returns ready operations of the account in queue order`() = runTest {
+    fun `lists the operations of the account in queue order`() = runTest {
         val ana = Fixtures.account(db, "ana")
         val luis = Fixtures.account(db, "luis")
         val first = queue.enqueue(operation(ana, 100))
-        val later = queue.enqueue(operation(ana, 101, createdAt = t0.plusSeconds(60)))
-        val second = queue.enqueue(operation(ana, 102))
+        val second = queue.enqueue(operation(ana, 101, createdAt = t0.plusSeconds(60)))
         queue.enqueue(operation(luis, 100))
 
-        assertEquals(listOf(first, second), queue.ready(ana, t0).map { it.id })
-        assertEquals(
-            listOf(first, later, second),
-            queue.ready(ana, t0.plusSeconds(60)).map {
-                it.id
-            }
-        )
+        assertEquals(listOf(first, second), queue.all(ana).map { it.id })
+        assertEquals(listOf(100L), queue.forEntity(ana, EntityType.CARD, 100).map { it.entityId })
     }
 
     @Test
-    fun `records failures, postpones and deletes operations`() = runTest {
+    fun `records postponed and failed operations, retries and deletes them`() = runTest {
         val accountId = Fixtures.account(db)
         val id = queue.enqueue(operation(accountId, 100))
+        val retries = db.pendingOperationRetryDao()
 
-        queue.recordFailure(id, nextAttemptAt = t0.plusSeconds(30), error = "HTTP 503")
+        retries.recordFailure(id, nextAttemptAt = t0.plusSeconds(30), error = "HTTP 503")
+        val postponed = queue.all(accountId).single()
+        assertEquals(1 to "HTTP 503", postponed.attempts to postponed.lastError)
+        assertEquals(t0.plusSeconds(30), postponed.nextAttemptAt)
 
-        assertEquals(emptyList<PendingOperationEntity>(), queue.ready(accountId, t0))
-        val retried = queue.ready(accountId, t0.plusSeconds(30)).single()
-        assertEquals(1, retried.attempts)
-        assertEquals("HTTP 503", retried.lastError)
+        retries.observeFailed(accountId).test {
+            assertEquals(emptyList<PendingOperationEntity>(), awaitItem())
+            retries.markFailed(id, "HTTP 413")
+            assertEquals(2, awaitItem().single().attempts)
+            retries.resetForRetry(id, t0)
+            assertEquals(emptyList<PendingOperationEntity>(), awaitItem())
+        }
+        assertEquals(t0, queue.all(accountId).single().nextAttemptAt)
+
+        queue.replacePayload(id, "{\"changed\":true}")
+        assertEquals("{\"changed\":true}", queue.all(accountId).single().payload)
         queue.observeCount(accountId).test {
             assertEquals(1, awaitItem())
-            queue.delete(id)
+            queue.delete(listOf(id))
             assertEquals(0, awaitItem())
         }
     }
@@ -155,7 +160,7 @@ class LocalIdsAndQueueTest {
 
         queue.remapEntityId(accountId, EntityType.CARD, oldId = -1, newId = 555)
 
-        assertEquals(listOf(555L, -2L), queue.ready(accountId, t0).map { it.entityId })
+        assertEquals(listOf(555L, -2L), queue.all(accountId).map { it.entityId })
     }
 
     @Test
@@ -167,7 +172,7 @@ class LocalIdsAndQueueTest {
         db.accountDao().delete(accountId)
         val again = Fixtures.account(db)
 
-        assertEquals(emptyList<PendingOperationEntity>(), queue.ready(accountId, t0))
+        assertEquals(emptyList<PendingOperationEntity>(), queue.all(accountId))
         assertEquals(-1L, ids.nextId(again, EntityType.CARD))
     }
 }

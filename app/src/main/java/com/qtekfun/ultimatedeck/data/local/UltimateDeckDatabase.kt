@@ -17,6 +17,7 @@ import com.qtekfun.ultimatedeck.data.local.dao.CredentialsDao
 import com.qtekfun.ultimatedeck.data.local.dao.LabelDao
 import com.qtekfun.ultimatedeck.data.local.dao.LocalIdDao
 import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationDao
+import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationRetryDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
 import com.qtekfun.ultimatedeck.data.local.dao.UserDao
 import com.qtekfun.ultimatedeck.data.local.entity.AccountCredentialsEntity
@@ -84,6 +85,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun cardSnapshotDao(): CardSnapshotDao
 
     abstract fun pendingOperationDao(): PendingOperationDao
+
+    abstract fun pendingOperationRetryDao(): PendingOperationRetryDao
 
     abstract fun localIdDao(): LocalIdDao
 

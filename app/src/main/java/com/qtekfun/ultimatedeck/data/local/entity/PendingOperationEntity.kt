@@ -37,5 +37,7 @@ data class PendingOperationEntity(
     val createdAt: Instant,
     val attempts: Int = 0,
     val nextAttemptAt: Instant = createdAt,
-    val lastError: String? = null
+    val lastError: String? = null,
+    /** Refused for good by the server: no automatic retries until the user retries or discards it. */
+    val failed: Boolean = false
 )
