@@ -3,21 +3,32 @@
 
 package com.qtekfun.ultimatedeck.data.board
 
+import com.qtekfun.ultimatedeck.data.auth.AccountSession
+import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
 import com.qtekfun.ultimatedeck.data.remote.API_PATH
 import com.qtekfun.ultimatedeck.data.remote.AccountApiProvider
 import com.qtekfun.ultimatedeck.data.remote.ApiFixtures
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.data.remote.json
 import com.qtekfun.ultimatedeck.data.remote.testDeckApi
+import com.qtekfun.ultimatedeck.sync.engine.ACCOUNT
+import com.qtekfun.ultimatedeck.sync.engine.BOARD
+import com.qtekfun.ultimatedeck.sync.engine.STACK
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
+import com.qtekfun.ultimatedeck.sync.engine.card
+import com.qtekfun.ultimatedeck.sync.engine.seedBoard
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import java.time.Instant
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
+import mockwebserver3.SocketEffect
 import mockwebserver3.junit5.StartStop
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -25,12 +36,21 @@ class ArchivedCardsRepositoryTest {
     @StartStop
     val server = MockWebServer()
 
+    private val db = inMemoryDatabase()
     private val apis = mockk<AccountApiProvider>()
     private val scheduler = mockk<SyncScheduler>(relaxed = true)
-    private val repository = ArchivedCardsRepository(apis, scheduler)
+    private val session = mockk<AccountSession>()
+    private val repository = ArchivedCardsRepository(apis, scheduler, session, db)
     private val card = ArchivedCard(5, 1, 10, "Old", "To do", null)
 
-    private fun signedIn() = coEvery { apis.api() } returns testDeckApi(server)
+    @AfterEach
+    fun close() = db.close()
+
+    private suspend fun signedIn() {
+        db.seedBoard()
+        every { session.activeAccount } returns flowOf(db.accountDao().get(ACCOUNT))
+        coEvery { apis.api() } returns testDeckApi(server)
+    }
 
     @Test
     fun `lists archived cards with their column, newest first, without deleted ones`() = runTest {
@@ -45,11 +65,11 @@ class ArchivedCardsRepositoryTest {
             )
         )
 
-        val result = repository.load(1)
+        val result = repository.load(BOARD)
 
         assertEquals("${API_PATH}boards/1/stacks/archived", server.takeRequest().target)
         assertEquals(
-            ApiResult.Success(
+            ArchivedCards(
                 listOf(
                     ArchivedCard(7, 1, 11, "Recent", "Done", Instant.ofEpochSecond(200)),
                     card.copy(archivedAt = Instant.ofEpochSecond(100))
@@ -60,11 +80,35 @@ class ArchivedCardsRepositoryTest {
     }
 
     @Test
-    fun `failures are reported as they are`() = runTest {
+    fun `cards archived here show up before syncing, and offline too`() = runTest {
         signedIn()
-        server.enqueue(MockResponse(500))
+        val archivedAt = Instant.ofEpochSecond(500)
+        db.cardDao().upsert(
+            listOf(
+                card(
+                    8,
+                    title = "Just archived"
+                ).copy(archived = true, localModifiedAt = archivedAt),
+                card(5, title = "Old").copy(archived = true),
+                card(9, title = "Open")
+            )
+        )
+        server.enqueue(
+            json(
+                """[{"id":10,"title":"To do","boardId":1,"cards":[{"id":5,"title":"Old","stackId":10}]}]"""
+            )
+        )
+        server.enqueue(json("[]").newBuilder().onResponseStart(SocketEffect.CloseSocket()).build())
 
-        assertEquals(ApiResult.HttpError(500), repository.load(1))
+        val online = repository.load(BOARD)
+        val offline = repository.load(BOARD)
+
+        val pending =
+            ArchivedCard(8, BOARD, STACK, "Just archived", "To do", archivedAt, local = true)
+        assertEquals(listOf(pending, card), online.cards)
+        assertEquals(null, online.failure)
+        assertEquals(listOf(8L, 5L), offline.cards.map { it.id })
+        assertEquals(true, offline.failure is ApiResult.NetworkError)
     }
 
     @Test
@@ -75,9 +119,7 @@ class ArchivedCardsRepositoryTest {
         assertEquals(ApiResult.Success(Unit), repository.unarchive(card))
         assertEquals(
             "PUT ${API_PATH}boards/1/stacks/10/cards/5/unarchive",
-            server.takeRequest().let {
-                "${it.method} ${it.target}"
-            }
+            server.takeRequest().let { "${it.method} ${it.target}" }
         )
         verify { scheduler.requestSync() }
     }
@@ -93,9 +135,10 @@ class ArchivedCardsRepositoryTest {
 
     @Test
     fun `without an account nothing is asked`() = runTest {
+        every { session.activeAccount } returns flowOf(null)
         coEvery { apis.api() } returns null
 
-        assertEquals(ApiResult.Unauthorized, repository.load(1))
+        assertEquals(ArchivedCards(emptyList(), ApiResult.Unauthorized), repository.load(BOARD))
         assertEquals(ApiResult.Unauthorized, repository.unarchive(card))
         assertEquals(0, server.requestCount)
     }

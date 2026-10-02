@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.qtekfun.ultimatedeck.data.board.ArchivedCard
 import com.qtekfun.ultimatedeck.data.board.ArchivedCardsRepository
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
+import com.qtekfun.ultimatedeck.domain.card.CardActions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,16 +26,19 @@ data class ArchivedState(
     val problem: ArchivedProblem? = null
 )
 
-/** Archived cards of one board, read from the server (T15b). */
+/** Archived cards of one board: from the server, plus those archived here (T15b). */
 @HiltViewModel
-class ArchivedCardsViewModel @Inject constructor(private val repository: ArchivedCardsRepository) :
-    ViewModel() {
+class ArchivedCardsViewModel @Inject constructor(
+    private val repository: ArchivedCardsRepository,
+    private val cardActions: CardActions
+) : ViewModel() {
     private val mutableState = MutableStateFlow(ArchivedState())
     val state: StateFlow<ArchivedState> = mutableState.asStateFlow()
     private var boardId: Long? = null
 
+    /** Loads again on every visit: cards may have been archived since the last one. */
     fun open(id: Long) {
-        if (boardId == id) return
+        if (boardId != id) mutableState.value = ArchivedState()
         boardId = id
         reload()
     }
@@ -44,17 +48,23 @@ class ArchivedCardsViewModel @Inject constructor(private val repository: Archive
         mutableState.update { it.copy(loading = true) }
         viewModelScope.launch {
             val result = repository.load(id)
-            mutableState.value = if (result is ApiResult.Success) {
-                ArchivedState(loading = false, cards = result.value)
-            } else {
-                ArchivedState(loading = false, problem = result.toProblem())
-            }
+            mutableState.value = ArchivedState(
+                loading = false,
+                cards = result.cards,
+                problem = result.failure?.toProblem()
+            )
         }
     }
 
     fun restore(card: ArchivedCard) {
         viewModelScope.launch {
-            val result = repository.unarchive(card)
+            // Archived here: restored here too, offline if needed, like archiving.
+            val result = if (card.local) {
+                cardActions.setArchived(card.id, archived = false)
+                ApiResult.Success(Unit)
+            } else {
+                repository.unarchive(card)
+            }
             mutableState.update { state ->
                 if (result is ApiResult.Success) {
                     state.copy(cards = state.cards - card, problem = null)
