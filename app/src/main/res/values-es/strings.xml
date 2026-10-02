@@ -4,7 +4,7 @@
   SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <resources>
-    <string name="prototype_board_hint">Vista previa: mantén pulsada una tarjeta para moverla. Los cambios aún no se guardan.</string>
+    <string name="prototype_board_hint">Mantén pulsada una tarjeta para moverla. Los movimientos aún no se guardan.</string>
 
     <string name="prototype_card_labels">Etiquetas: %1$s</string>
     <string name="prototype_card_due">Vence el %1$s</string>
@@ -84,4 +84,15 @@
     <string name="board_empty">Este tablero aún no tiene columnas. Añádelas en Nextcloud Deck.</string>
     <string name="editor_empty">Sin descripción. Toca para añadir una.</string>
     <string name="card_pending_sync">Pendiente de sincronizar</string>
+    <string name="card_add">Añadir tarjeta</string>
+    <string name="card_add_title">Nueva tarjeta</string>
+    <string name="card_title_label">Título</string>
+    <string name="card_add_confirm">Añadir</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="card_archive">Archivar</string>
+    <string name="card_archived">Tarjeta archivada</string>
+    <string name="card_undo">Deshacer</string>
+    <string name="card_delete">Eliminar</string>
+    <string name="card_delete_title">¿Eliminar esta tarjeta?</string>
+    <string name="card_delete_message">También se eliminará en el servidor. No se puede deshacer.</string>
 </resources>

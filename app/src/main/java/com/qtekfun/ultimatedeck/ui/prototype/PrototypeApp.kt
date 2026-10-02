@@ -4,17 +4,26 @@
 package com.qtekfun.ultimatedeck.ui.prototype
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeViewModel
+import com.qtekfun.ultimatedeck.ui.prototype.board.DeleteCardDialog
 import com.qtekfun.ultimatedeck.ui.prototype.editor.EditorPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardListScreen
 import com.qtekfun.ultimatedeck.ui.session.LogoutAction
@@ -63,6 +72,31 @@ private fun SignedIn(accountName: String, onLogOut: () -> Unit) {
             )
         }
 
-        else -> EditorPrototypeScreen(original = card.description, onBack = { cardId = null })
+        else -> {
+            var confirmDelete by rememberSaveable { mutableStateOf(false) }
+            if (confirmDelete) {
+                DeleteCardDialog(
+                    onDelete = {
+                        confirmDelete = false
+                        boardViewModel.delete(card.id)
+                        cardId = null
+                    },
+                    onDismiss = { confirmDelete = false }
+                )
+            }
+            EditorPrototypeScreen(
+                original = card.description,
+                onBack = { cardId = null },
+                cardActions = {
+                    TextButton(onClick = {
+                        boardViewModel.archive(card.id)
+                        cardId = null
+                    }) { Text(stringResource(R.string.card_archive)) }
+                    IconButton(onClick = { confirmDelete = true }) {
+                        Icon(Icons.Filled.Delete, stringResource(R.string.card_delete))
+                    }
+                }
+            )
+        }
     }
 }

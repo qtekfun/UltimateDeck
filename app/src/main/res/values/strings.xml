@@ -7,7 +7,7 @@
     <string name="app_name" translatable="false">UltimateDeck</string>
 
     <!-- Board prototype (T02). -->
-    <string name="prototype_board_hint">Preview: long-press to move cards. Changes are not saved yet.</string>
+    <string name="prototype_board_hint">Long-press a card to move it. Moves are not saved yet.</string>
 
     <!-- Card accessibility description and actions. -->
     <string name="prototype_card_labels">Labels: %1$s</string>
@@ -92,4 +92,15 @@
     <string name="board_empty">This board has no columns yet. Add them in Nextcloud Deck.</string>
     <string name="editor_empty">No description yet. Tap to add one.</string>
     <string name="card_pending_sync">Pending sync</string>
+    <string name="card_add">Add card</string>
+    <string name="card_add_title">New card</string>
+    <string name="card_title_label">Title</string>
+    <string name="card_add_confirm">Add</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="card_archive">Archive</string>
+    <string name="card_archived">Card archived</string>
+    <string name="card_undo">Undo</string>
+    <string name="card_delete">Delete</string>
+    <string name="card_delete_title">Delete this card?</string>
+    <string name="card_delete_message">It will be deleted on the server too. This cannot be undone.</string>
 </resources>

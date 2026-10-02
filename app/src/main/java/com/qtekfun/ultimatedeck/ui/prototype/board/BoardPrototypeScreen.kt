@@ -30,6 +30,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -37,9 +41,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,30 +96,22 @@ fun BoardPrototypeScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var addingTo by rememberSaveable { mutableStateOf<Long?>(null) }
+    val snackbar = remember { SnackbarHostState() }
+    ArchivedSnackbar(viewModel, snackbar)
+    addingTo?.let { columnId ->
+        AddCardDialog(
+            onCreate = {
+                viewModel.createCard(columnId, it)
+                addingTo = null
+            },
+            onDismiss = { addingTo = null }
+        )
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(title)
-                        Text(
-                            text = stringResource(R.string.prototype_board_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            stringResource(R.string.board_back)
-                        )
-                    }
-                }
-            )
-        }
+        snackbarHost = { SnackbarHost(snackbar) },
+        topBar = { BoardTopBar(title, onBack) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -135,10 +134,52 @@ fun BoardPrototypeScreen(
                     else -> Board(
                         columns = state.columns,
                         onMove = viewModel::moveCard,
-                        callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard)
+                        callbacks = CardCallbacks(
+                            viewModel::moveCardToColumn,
+                            onOpenCard,
+                            onAddCard = { addingTo = it }
+                        )
                     )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BoardTopBar(title: String, onBack: () -> Unit) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(title)
+                Text(
+                    text = stringResource(R.string.prototype_board_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    stringResource(R.string.board_back)
+                )
+            }
+        }
+    )
+}
+
+/** "Card archived · Undo" after each archive. */
+@Composable
+private fun ArchivedSnackbar(viewModel: BoardPrototypeViewModel, snackbar: SnackbarHostState) {
+    val message = stringResource(R.string.card_archived)
+    val undo = stringResource(R.string.card_undo)
+    LaunchedEffect(viewModel) {
+        viewModel.archived.collect { cardId ->
+            val result = snackbar.showSnackbar(message, undo, duration = SnackbarDuration.Short)
+            if (result == SnackbarResult.ActionPerformed) viewModel.undoArchive(cardId)
         }
     }
 }
