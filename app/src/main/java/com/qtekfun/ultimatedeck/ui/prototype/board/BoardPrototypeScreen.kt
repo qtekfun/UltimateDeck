@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +21,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -33,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
@@ -45,12 +51,13 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
+import com.qtekfun.ultimatedeck.ui.prototype.remote.RemoteContent
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -65,38 +72,58 @@ private const val AUTO_SCROLL_EDGE_FRACTION = 0.15f
 private val AutoScrollMaxSpeed = 14.dp
 private val AutoScrollMinEdge = 48.dp
 
-/** Drag and drop prototype (T02): a fake board with Jira-style columns. */
+/**
+ * Board view (T02) showing a real board loaded online (T06 preview): moves only change the copy
+ * in memory until sync arrives (T09, T13).
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardPrototypeScreen(
+    title: String,
+    viewModel: BoardPrototypeViewModel,
+    onBack: () -> Unit,
     onOpenCard: (cardId: Long) -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: BoardPrototypeViewModel = viewModel()
+    modifier: Modifier = Modifier
 ) {
-    val columns by viewModel.columns.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(R.string.prototype_board_title))
+                        Text(title)
                         Text(
                             text = stringResource(R.string.prototype_board_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            stringResource(R.string.board_back)
+                        )
+                    }
                 }
             )
         }
     ) { padding ->
-        Board(
-            columns = columns,
-            onMove = viewModel::moveCard,
-            callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard),
-            modifier = Modifier.padding(padding)
-        )
+        RemoteContent(state, viewModel::reload, Modifier.padding(padding)) { columns ->
+            if (columns.isEmpty()) {
+                Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+                    Text(stringResource(R.string.board_empty), textAlign = TextAlign.Center)
+                }
+                return@RemoteContent
+            }
+            Board(
+                columns = columns,
+                onMove = viewModel::moveCard,
+                callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard)
+            )
+        }
     }
 }
 
@@ -112,7 +139,7 @@ private fun Board(
     val currentColumns = rememberUpdatedState(columns)
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
-    val columnTitles = columns.map { stringResource(it.title) }
+    val columnTitles = columns.map { it.title }
 
     BoxWithConstraints(
         modifier = modifier

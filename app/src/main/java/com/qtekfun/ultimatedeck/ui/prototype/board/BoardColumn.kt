@@ -72,7 +72,7 @@ fun BoardColumn(
         color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column {
-            ColumnHeader(stringResource(column.title), column.cards.size)
+            ColumnHeader(column.title, column.cards.size)
             LazyColumn(
                 state = listState,
                 userScrollEnabled = !dragState.isDragging,

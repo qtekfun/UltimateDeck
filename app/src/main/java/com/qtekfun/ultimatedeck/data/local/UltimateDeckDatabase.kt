@@ -13,11 +13,13 @@ import com.qtekfun.ultimatedeck.data.local.dao.BoardDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardLocalEditDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardSnapshotDao
+import com.qtekfun.ultimatedeck.data.local.dao.CredentialsDao
 import com.qtekfun.ultimatedeck.data.local.dao.LabelDao
 import com.qtekfun.ultimatedeck.data.local.dao.LocalIdDao
 import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
 import com.qtekfun.ultimatedeck.data.local.dao.UserDao
+import com.qtekfun.ultimatedeck.data.local.entity.AccountCredentialsEntity
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.data.local.entity.AttachmentEntity
 import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
@@ -45,7 +47,8 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         AttachmentEntity::class,
         CardServerSnapshotEntity::class,
         PendingOperationEntity::class,
-        LocalIdSequenceEntity::class
+        LocalIdSequenceEntity::class,
+        AccountCredentialsEntity::class
     ],
     version = UltimateDeckDatabase.VERSION,
     exportSchema = true
@@ -83,4 +86,6 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun pendingOperationDao(): PendingOperationDao
 
     abstract fun localIdDao(): LocalIdDao
+
+    abstract fun credentialsDao(): CredentialsDao
 }

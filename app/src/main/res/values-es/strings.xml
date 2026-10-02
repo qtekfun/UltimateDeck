@@ -4,29 +4,7 @@
   SPDX-License-Identifier: GPL-3.0-or-later
 -->
 <resources>
-    <string name="prototype_board_title">Hoja de ruta del producto</string>
-    <string name="prototype_board_hint">Mantén pulsada una tarjeta para moverla</string>
-    <string name="prototype_column_todo">Por hacer</string>
-    <string name="prototype_column_in_progress">En curso</string>
-    <string name="prototype_column_review">En revisión</string>
-    <string name="prototype_column_done">Hecho</string>
-    <string name="prototype_label_bug">Error</string>
-    <string name="prototype_label_feature">Funcionalidad</string>
-    <string name="prototype_label_design">Diseño</string>
-    <string name="prototype_label_urgent">Urgente</string>
-    <string name="prototype_label_docs">Documentación</string>
-    <string name="prototype_card_crash_server">Corregir el cierre cuando el servidor no responde</string>
-    <string name="prototype_card_attachments">Subir adjuntos en segundo plano</string>
-    <string name="prototype_card_onboarding">Estados vacíos y bienvenida</string>
-    <string name="prototype_card_fdroid">Preparar los metadatos de F-Droid</string>
-    <string name="prototype_card_drag_drop">Arrastrar tarjetas entre columnas</string>
-    <string name="prototype_card_offline_cache">Guardar tableros para usarlos sin conexión</string>
-    <string name="prototype_card_markdown_editor">Editor enriquecido para descripciones</string>
-    <string name="prototype_card_conflicts">Resolver conflictos de sincronización</string>
-    <string name="prototype_card_accessibility">Revisión con TalkBack</string>
-    <string name="prototype_card_login_flow">Iniciar sesión con Login Flow v2</string>
-    <string name="prototype_card_translations">Traducción al español</string>
-    <string name="prototype_card_dark_mode">Pulir el tema oscuro</string>
+    <string name="prototype_board_hint">Vista previa: mantén pulsada una tarjeta para moverla. Los cambios aún no se guardan.</string>
 
     <string name="prototype_card_labels">Etiquetas: %1$s</string>
     <string name="prototype_card_due">Vence el %1$s</string>
@@ -73,4 +51,36 @@
     <string name="table_add_column">Añadir columna</string>
     <string name="table_remove_row">Quitar última fila</string>
     <string name="table_remove_column">Quitar última columna</string>
+
+    <string name="login_title">Inicia sesión en Nextcloud</string>
+    <string name="login_server_label">Dirección del servidor</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="login_checking">Comprobando el servidor…</string>
+    <string name="login_waiting">Completa el inicio de sesión en el navegador y vuelve aquí.</string>
+    <string name="login_reopen">Abrir el navegador de nuevo</string>
+    <string name="login_cancel">Cancelar</string>
+    <string name="login_verifying">Comprobando Deck…</string>
+    <string name="login_error_invalid_url">Eso no parece una dirección de servidor.</string>
+    <string name="login_error_insecure">Usa una dirección https://. UltimateDeck nunca se conecta sin cifrado.</string>
+    <string name="login_error_not_nextcloud">No se ha encontrado un servidor Nextcloud en esa dirección.</string>
+    <string name="login_error_unreachable">No se puede contactar con el servidor. Revisa la dirección y tu conexión.</string>
+    <string name="login_error_tls">El certificado del servidor no es de confianza. Si usa su propia autoridad, instálala en los ajustes de Android.</string>
+    <string name="login_error_deck_missing">La app Deck no está activada en este servidor.</string>
+    <string name="login_error_deck_too_old">El Deck de este servidor es demasiado antiguo. Actualízalo a la versión 1.3 o posterior.</string>
+    <string name="login_error_expired">El inicio de sesión ha tardado demasiado. Vuelve a intentarlo.</string>
+    <string name="login_error_unknown">Algo ha fallado al iniciar sesión. Vuelve a intentarlo.</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="logout_confirm_title">¿Cerrar sesión?</string>
+    <string name="logout_confirm_text">Se borrarán de este dispositivo los datos locales de %1$s. Los cambios aún no sincronizados se perderán.</string>
+
+    <string name="boards_title">Tus tableros</string>
+    <string name="boards_refresh">Recargar</string>
+    <string name="boards_empty">Aún no hay tableros. Crea uno en Nextcloud Deck.</string>
+    <string name="board_back">Volver a tus tableros</string>
+    <string name="remote_retry">Reintentar</string>
+    <string name="remote_error_unauthorized">El servidor ha rechazado la contraseña de aplicación. Cierra sesión y vuelve a iniciarla.</string>
+    <string name="remote_error_unreachable">No se puede contactar con el servidor. Revisa tu conexión.</string>
+    <string name="remote_error_other">El servidor ha respondido con un error. Inténtalo más tarde.</string>
+    <string name="board_empty">Este tablero aún no tiene columnas. Añádelas en Nextcloud Deck.</string>
+    <string name="editor_empty">Sin descripción. Toca para añadir una.</string>
 </resources>

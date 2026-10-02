@@ -6,30 +6,8 @@
 <resources>
     <string name="app_name" translatable="false">UltimateDeck</string>
 
-    <!-- Drag and drop prototype (T02): fake board content. -->
-    <string name="prototype_board_title">Product roadmap</string>
-    <string name="prototype_board_hint">Long-press a card to move it</string>
-    <string name="prototype_column_todo">To do</string>
-    <string name="prototype_column_in_progress">In progress</string>
-    <string name="prototype_column_review">Review</string>
-    <string name="prototype_column_done">Done</string>
-    <string name="prototype_label_bug">Bug</string>
-    <string name="prototype_label_feature">Feature</string>
-    <string name="prototype_label_design">Design</string>
-    <string name="prototype_label_urgent">Urgent</string>
-    <string name="prototype_label_docs">Docs</string>
-    <string name="prototype_card_crash_server">Fix crash when the server is unreachable</string>
-    <string name="prototype_card_attachments">Upload attachments in the background</string>
-    <string name="prototype_card_onboarding">Empty states and onboarding</string>
-    <string name="prototype_card_fdroid">Prepare F-Droid metadata</string>
-    <string name="prototype_card_drag_drop">Drag cards between columns</string>
-    <string name="prototype_card_offline_cache">Cache boards for offline use</string>
-    <string name="prototype_card_markdown_editor">Rich text editor for descriptions</string>
-    <string name="prototype_card_conflicts">Resolve sync conflicts</string>
-    <string name="prototype_card_accessibility">TalkBack review</string>
-    <string name="prototype_card_login_flow">Sign in with Login Flow v2</string>
-    <string name="prototype_card_translations">Spanish translations</string>
-    <string name="prototype_card_dark_mode">Dark theme polish</string>
+    <!-- Board prototype (T02). -->
+    <string name="prototype_board_hint">Preview: long-press to move cards. Changes are not saved yet.</string>
 
     <!-- Card accessibility description and actions. -->
     <string name="prototype_card_labels">Labels: %1$s</string>
@@ -78,4 +56,39 @@
     <string name="table_add_column">Add column</string>
     <string name="table_remove_row">Remove last row</string>
     <string name="table_remove_column">Remove last column</string>
+
+    <!-- Login (T06). -->
+    <string name="login_title">Sign in to Nextcloud</string>
+    <string name="login_server_label">Server address</string>
+    <string name="login_server_hint" translatable="false">cloud.example.com</string>
+    <string name="login_button">Sign in</string>
+    <string name="login_checking">Checking the server…</string>
+    <string name="login_waiting">Finish signing in with your browser, then come back here.</string>
+    <string name="login_reopen">Open the browser again</string>
+    <string name="login_cancel">Cancel</string>
+    <string name="login_verifying">Checking Deck…</string>
+    <string name="login_error_invalid_url">That doesn\'t look like a server address.</string>
+    <string name="login_error_insecure">Use an https:// address. UltimateDeck never connects without encryption.</string>
+    <string name="login_error_not_nextcloud">No Nextcloud server was found at that address.</string>
+    <string name="login_error_unreachable">The server can\'t be reached. Check the address and your connection.</string>
+    <string name="login_error_tls">The server\'s certificate isn\'t trusted. If it uses its own authority, install it in Android settings.</string>
+    <string name="login_error_deck_missing">The Deck app isn\'t enabled on this server.</string>
+    <string name="login_error_deck_too_old">This server\'s Deck is too old. Update it to version 1.3 or later.</string>
+    <string name="login_error_expired">Signing in took too long. Try again.</string>
+    <string name="login_error_unknown">Something went wrong while signing in. Try again.</string>
+    <string name="logout">Log out</string>
+    <string name="logout_confirm_title">Log out?</string>
+    <string name="logout_confirm_text">The local data of %1$s will be removed from this device. Changes not synced yet will be lost.</string>
+
+    <!-- Online board list (T06 preview of T11). -->
+    <string name="boards_title">Your boards</string>
+    <string name="boards_refresh">Refresh</string>
+    <string name="boards_empty">No boards yet. Create one in Nextcloud Deck.</string>
+    <string name="board_back">Back to your boards</string>
+    <string name="remote_retry">Try again</string>
+    <string name="remote_error_unauthorized">The server rejected the app password. Log out and sign in again.</string>
+    <string name="remote_error_unreachable">Can\'t reach the server. Check your connection.</string>
+    <string name="remote_error_other">The server answered with an error. Try again later.</string>
+    <string name="board_empty">This board has no columns yet. Add them in Nextcloud Deck.</string>
+    <string name="editor_empty">No description yet. Tap to add one.</string>
 </resources>

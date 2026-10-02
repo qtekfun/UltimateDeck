@@ -3,6 +3,7 @@
 
 package com.qtekfun.ultimatedeck.data.remote
 
+import com.qtekfun.ultimatedeck.data.auth.basicAuth
 import okhttp3.Interceptor
 import okhttp3.Response
 
