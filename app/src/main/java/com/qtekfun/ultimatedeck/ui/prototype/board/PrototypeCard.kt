@@ -15,5 +15,6 @@ data class PrototypeCard(
     val dueDate: LocalDate? = null,
     val attachments: Int = 0,
     val checklistDone: Int = 0,
-    val checklistTotal: Int = 0
+    val checklistTotal: Int = 0,
+    val pendingSync: Boolean = false
 )

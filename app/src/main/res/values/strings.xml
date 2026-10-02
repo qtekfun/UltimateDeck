@@ -88,10 +88,8 @@
     <string name="sync_problem_offline">Offline. Showing the last synced boards.</string>
     <string name="sync_problem_server">The last sync failed. It will be retried.</string>
     <string name="board_back">Back to your boards</string>
-    <string name="remote_retry">Try again</string>
     <string name="remote_error_unauthorized">The server rejected the app password. Log out and sign in again.</string>
-    <string name="remote_error_unreachable">Can\'t reach the server. Check your connection.</string>
-    <string name="remote_error_other">The server answered with an error. Try again later.</string>
     <string name="board_empty">This board has no columns yet. Add them in Nextcloud Deck.</string>
     <string name="editor_empty">No description yet. Tap to add one.</string>
+    <string name="card_pending_sync">Pending sync</string>
 </resources>

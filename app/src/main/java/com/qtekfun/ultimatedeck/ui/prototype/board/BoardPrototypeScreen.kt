@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -57,7 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
-import com.qtekfun.ultimatedeck.ui.prototype.remote.RemoteContent
+import com.qtekfun.ultimatedeck.ui.prototype.remote.SyncProblemBanner
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -111,18 +114,31 @@ fun BoardPrototypeScreen(
             )
         }
     ) { padding ->
-        RemoteContent(state, viewModel::reload, Modifier.padding(padding)) { columns ->
-            if (columns.isEmpty()) {
-                Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.board_empty), textAlign = TextAlign.Center)
+        PullToRefreshBox(
+            isRefreshing = state.syncing,
+            onRefresh = viewModel::refresh,
+            modifier = Modifier.fillMaxSize().padding(padding)
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                state.problem?.let { SyncProblemBanner(it) }
+                when {
+                    state.loading -> Unit
+
+                    state.columns.isEmpty() -> Box(
+                        // Scrollable so that the pull gesture also works on an empty board.
+                        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.board_empty), textAlign = TextAlign.Center)
+                    }
+
+                    else -> Board(
+                        columns = state.columns,
+                        onMove = viewModel::moveCard,
+                        callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard)
+                    )
                 }
-                return@RemoteContent
             }
-            Board(
-                columns = columns,
-                onMove = viewModel::moveCard,
-                callbacks = CardCallbacks(viewModel::moveCardToColumn, onOpenCard)
-            )
         }
     }
 }
