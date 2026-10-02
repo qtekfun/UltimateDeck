@@ -45,9 +45,12 @@ class ReminderCoordinator @Inject constructor(
                     } else {
                         dao.observeDueCards(account.id, account.userId)
                     }
-                    cards.map { ReminderPlanner.plan(it, settings, clock.instant()) }
+                    cards.map {
+                        ReminderPlanner.plan(it, settings, clock.instant()) to
+                            settings.reminderAlarmClock
+                    }
                 }
-                .collect(scheduler::schedule)
+                .collect { (reminders, alarmClock) -> scheduler.schedule(reminders, alarmClock) }
         }
     }
 }

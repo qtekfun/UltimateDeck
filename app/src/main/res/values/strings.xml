@@ -156,4 +156,6 @@
     <string name="settings_reminders_allow_exact">Allow exact alarms</string>
     <string name="card_due_next">Next</string>
     <string name="card_due_time">Time</string>
+    <string name="settings_reminders_normal">Normal: the system may delay it a few minutes to save battery</string>
+    <string name="settings_reminders_aggressive">Aggressive: rings on time like an alarm clock (shows the alarm icon)</string>
 </resources>

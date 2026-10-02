@@ -148,4 +148,6 @@
     <string name="settings_reminders_allow_exact">Permitir alarmas exactas</string>
     <string name="card_due_next">Siguiente</string>
     <string name="card_due_time">Hora</string>
+    <string name="settings_reminders_normal">Normal: el sistema puede retrasarlo unos minutos para ahorrar batería</string>
+    <string name="settings_reminders_aggressive">Agresivo: suena a su hora como un despertador (muestra el icono de alarma)</string>
 </resources>

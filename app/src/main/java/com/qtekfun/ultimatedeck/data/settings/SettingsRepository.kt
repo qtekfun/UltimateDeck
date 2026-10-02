@@ -20,6 +20,7 @@ private const val KEY_FAVORITE_BOARD = "favorite_board"
 private const val KEY_REMINDERS = "reminders"
 private const val KEY_REMINDER_LEAD = "reminder_lead"
 private const val KEY_REMINDER_SCOPE = "reminder_scope"
+private const val KEY_REMINDER_ALARM_CLOCK = "reminder_alarm_clock"
 
 /**
  * Per-device preferences (T18). They are not Deck data, so they live in SharedPreferences
@@ -61,6 +62,9 @@ class SettingsRepository @Inject constructor(
     fun setReminderScope(scope: ReminderScope) =
         preferences.edit { putString(KEY_REMINDER_SCOPE, scope.name) }
 
+    fun setReminderAlarmClock(enabled: Boolean) =
+        preferences.edit { putBoolean(KEY_REMINDER_ALARM_CLOCK, enabled) }
+
     private fun read(): AppSettings {
         val defaults = AppSettings()
         val theme = preferences.getString(KEY_THEME, null)
@@ -72,7 +76,9 @@ class SettingsRepository @Inject constructor(
                 ?.let { preferences.getLong(it, 0) },
             reminders = preferences.getBoolean(KEY_REMINDERS, defaults.reminders),
             reminderLead = enumValue(KEY_REMINDER_LEAD, defaults.reminderLead),
-            reminderScope = enumValue(KEY_REMINDER_SCOPE, defaults.reminderScope)
+            reminderScope = enumValue(KEY_REMINDER_SCOPE, defaults.reminderScope),
+            reminderAlarmClock =
+                preferences.getBoolean(KEY_REMINDER_ALARM_CLOCK, defaults.reminderAlarmClock)
         )
     }
 

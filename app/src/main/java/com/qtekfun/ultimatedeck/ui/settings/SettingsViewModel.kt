@@ -43,6 +43,8 @@ class SettingsViewModel @Inject constructor(
 
     fun setReminderScope(scope: ReminderScope) = repository.setReminderScope(scope)
 
+    fun setReminderAlarmClock(enabled: Boolean) = repository.setReminderAlarmClock(enabled)
+
     /** Whether reminders can ring at the exact time (Android 12+ asks the user). */
     fun canScheduleExact() = reminderScheduler.canScheduleExact()
 

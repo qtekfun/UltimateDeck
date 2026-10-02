@@ -63,6 +63,12 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
             viewModel.setReminderScope(scope)
         }
     }
+    Choice(stringResource(R.string.settings_reminders_normal), !settings.reminderAlarmClock) {
+        viewModel.setReminderAlarmClock(false)
+    }
+    Choice(stringResource(R.string.settings_reminders_aggressive), settings.reminderAlarmClock) {
+        viewModel.setReminderAlarmClock(true)
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         ExactAlarmNotice(viewModel) {
             context.startActivity(
