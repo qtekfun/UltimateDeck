@@ -41,7 +41,8 @@ class SyncEngineTest {
     private val queue = OperationQueue(db, MutableClock(), FixedRandom(0.5))
     private val session = mockk<AccountSession>(relaxed = true)
     private val apiProvider = mockk<AccountApiProvider>()
-    private val engine = SyncEngine(session, apiProvider, db, queue, PullSync(db), Dispatchers.IO)
+    private val engine =
+        SyncEngine(session, apiProvider, db, queue, PullSync(db, queue), Dispatchers.IO)
 
     @AfterEach
     fun close() = db.close()
