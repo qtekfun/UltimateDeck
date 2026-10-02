@@ -17,14 +17,16 @@ private const val CHECKED_BOX = '☑'
 private const val BULLET = '•'
 
 /**
- * Displays markdown "live": the text stays the markdown source, but styles are applied and the
- * syntax markers are hidden unless the cursor is inside their span, like Obsidian or Typora.
+ * Displays markdown rendered: the text stays the markdown source, but styles are applied and
+ * the syntax markers are hidden. With [revealMarkers] the markers of the span holding the
+ * cursor are shown, like Obsidian; without it they never are, like a rich text editor.
  * Task checkboxes are drawn as ballot boxes and list bullets as dots.
  */
 internal class LiveMarkdownTransformation(
     private val document: MarkdownDocument,
     private val selection: TextRange,
-    private val styles: LiveMarkdownStyles
+    private val styles: LiveMarkdownStyles,
+    private val revealMarkers: Boolean = false
 ) : VisualTransformation {
 
     /** Mapping of the last [filter] call, used to hit-test checkboxes. */
@@ -76,7 +78,7 @@ internal class LiveMarkdownTransformation(
     }
 
     private fun touchesSelection(range: SourceRange): Boolean =
-        selection.min <= range.end && selection.max >= range.start
+        revealMarkers && selection.min <= range.end && selection.max >= range.start
 
     private fun withReplacements(
         text: AnnotatedString,

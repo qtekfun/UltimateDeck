@@ -28,9 +28,13 @@ class LiveMarkdownTransformationTest {
         headingSizes = listOf(24.sp, 20.sp, 16.sp)
     )
 
-    private fun display(source: String, cursor: Int = source.length): String {
+    private fun display(
+        source: String,
+        cursor: Int = source.length,
+        reveal: Boolean = true
+    ): String {
         val document = MarkdownDocument.parse(source)
-        return LiveMarkdownTransformation(document, TextRange(cursor), styles)
+        return LiveMarkdownTransformation(document, TextRange(cursor), styles, reveal)
             .filter(AnnotatedString(source)).text.text
     }
 
@@ -55,6 +59,36 @@ class LiveMarkdownTransformationTest {
     @Test
     fun `hides heading hashes away from the cursor`() {
         assertEquals("Title\n\ntext", display("## Title\n\ntext"))
+    }
+
+    @Test
+    fun `never shows markers when revealing is off, even with the cursor inside`() {
+        val source = "## Title\n\nShip **bold** and _italic_ ~~old~~\n- [ ] task\n"
+
+        assertEquals(
+            "Title\n\nShip bold and italic old\n\u2022 \u2610 task\n",
+            display(source, cursor = source.indexOf("bold") + 1, reveal = false)
+        )
+    }
+
+    @ParameterizedTest
+    @MethodSource("corpus")
+    fun `hides every inline marker of the corpus when revealing is off`(name: String) {
+        val source = MarkdownCorpus.read(name)
+        val document = MarkdownDocument.parse(source)
+        val shown = LiveMarkdownTransformation(
+            document,
+            TextRange(0),
+            styles,
+            revealMarkers = false
+        )
+            .filter(AnnotatedString(source))
+
+        document.inlineSpans.flatMap { it.markers }.forEach { marker ->
+            val start = shown.offsetMapping.originalToTransformed(marker.start)
+            val end = shown.offsetMapping.originalToTransformed(marker.end)
+            assertEquals(start, end, "marker $marker of $name is still displayed")
+        }
     }
 
     @ParameterizedTest
