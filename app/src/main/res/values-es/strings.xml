@@ -130,4 +130,8 @@
     <string name="settings_language_english">English</string>
     <string name="settings_language_spanish">Español</string>
     <string name="settings_account">Cuenta</string>
+    <string name="drawer_menu">Menú</string>
+    <string name="drawer_boards">Tableros</string>
+    <string name="drawer_favorite">Abrir %1$s al iniciar</string>
+    <string name="drawer_unfavorite">Dejar de abrir %1$s al iniciar</string>
 </resources>

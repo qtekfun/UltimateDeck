@@ -9,6 +9,8 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+private val REMOVED = Any()
+
 /** In-memory SharedPreferences that notifies listeners like the real one. */
 private class FakePreferences : SharedPreferences {
     val values = mutableMapOf<String, Any?>()
@@ -18,7 +20,7 @@ private class FakePreferences : SharedPreferences {
     override fun getString(key: String, defValue: String?) = values[key] as? String ?: defValue
     override fun getStringSet(key: String, defValues: Set<String>?) = defValues
     override fun getInt(key: String, defValue: Int) = defValue
-    override fun getLong(key: String, defValue: Long) = defValue
+    override fun getLong(key: String, defValue: Long) = values[key] as? Long ?: defValue
     override fun getFloat(key: String, defValue: Float) = defValue
     override fun getBoolean(key: String, defValue: Boolean) = values[key] as? Boolean ?: defValue
     override fun contains(key: String) = key in values
@@ -41,10 +43,10 @@ private class FakePreferences : SharedPreferences {
         override fun putString(key: String, value: String?) = apply { changes[key] = value }
         override fun putStringSet(key: String, values: Set<String>?) = this
         override fun putInt(key: String, value: Int) = this
-        override fun putLong(key: String, value: Long) = this
+        override fun putLong(key: String, value: Long) = apply { changes[key] = value }
         override fun putFloat(key: String, value: Float) = this
         override fun putBoolean(key: String, value: Boolean) = apply { changes[key] = value }
-        override fun remove(key: String) = this
+        override fun remove(key: String) = apply { changes[key] = REMOVED }
         override fun clear() = this
         override fun commit(): Boolean {
             apply()
@@ -52,7 +54,15 @@ private class FakePreferences : SharedPreferences {
         }
 
         override fun apply() {
-            values += changes
+            changes.forEach { (key, value) ->
+                if (value ===
+                    REMOVED
+                ) {
+                    values -= key
+                } else {
+                    values[key] = value
+                }
+            }
             changes.keys.forEach { key ->
                 listeners.forEach { it.onSharedPreferenceChanged(this@FakePreferences, key) }
             }
@@ -86,6 +96,19 @@ class SettingsRepositoryTest {
 
         repository.settings.test {
             assertEquals(ThemeMode.SYSTEM, awaitItem().theme)
+        }
+    }
+
+    @Test
+    fun `the favorite board is kept, changed and removed`() = runTest {
+        repository.settings.test {
+            assertEquals(null, awaitItem().favoriteBoardId)
+            repository.setFavoriteBoard(19)
+            assertEquals(19L, awaitItem().favoriteBoardId)
+            repository.setFavoriteBoard(18)
+            assertEquals(18L, awaitItem().favoriteBoardId)
+            repository.setFavoriteBoard(null)
+            assertEquals(null, awaitItem().favoriteBoardId)
         }
     }
 }

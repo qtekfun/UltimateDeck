@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -91,7 +92,7 @@ private val AutoScrollMinEdge = 48.dp
 fun BoardPrototypeScreen(
     title: String,
     viewModel: BoardPrototypeViewModel,
-    onBack: () -> Unit,
+    onMenu: () -> Unit,
     onOpenCard: (cardId: Long) -> Unit,
     onShowArchived: () -> Unit,
     modifier: Modifier = Modifier
@@ -112,7 +113,7 @@ fun BoardPrototypeScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { BoardTopBar(title, onBack, onShowArchived) }
+        topBar = { BoardTopBar(title, onMenu, onShowArchived) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -149,15 +150,12 @@ fun BoardPrototypeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BoardTopBar(title: String, onBack: () -> Unit, onShowArchived: () -> Unit) {
+private fun BoardTopBar(title: String, onMenu: () -> Unit, onShowArchived: () -> Unit) {
     TopAppBar(
         title = { Text(title) },
         navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    stringResource(R.string.board_back)
-                )
+            IconButton(onClick = onMenu) {
+                Icon(Icons.Filled.Menu, stringResource(R.string.drawer_menu))
             }
         },
         actions = {

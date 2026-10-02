@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 
 private const val STOP_TIMEOUT_MS = 5_000L
@@ -28,4 +29,9 @@ class SettingsViewModel @Inject constructor(private val repository: SettingsRepo
     fun setAmoled(amoled: Boolean) = repository.setAmoled(amoled)
 
     fun setDynamicColor(enabled: Boolean) = repository.setDynamicColor(enabled)
+
+    fun setFavoriteBoard(boardId: Long?) = repository.setFavoriteBoard(boardId)
+
+    /** The favorite as stored, waiting for it to be read (the state starts with defaults). */
+    suspend fun storedFavorite(): Long? = repository.settings.first().favoriteBoardId
 }

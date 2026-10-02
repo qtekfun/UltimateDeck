@@ -6,12 +6,17 @@ package com.qtekfun.ultimatedeck.ui.prototype
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
@@ -22,11 +27,19 @@ import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.ui.card.ArchivedCardsScreen
 import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
+import com.qtekfun.ultimatedeck.ui.navigation.AppDrawer
+import com.qtekfun.ultimatedeck.ui.navigation.DrawerCallbacks
+import com.qtekfun.ultimatedeck.ui.navigation.startBoard
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeScreen
 import com.qtekfun.ultimatedeck.ui.prototype.board.BoardPrototypeViewModel
 import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardListScreen
+import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardListViewModel
+import com.qtekfun.ultimatedeck.ui.prototype.remote.BoardSummary
 import com.qtekfun.ultimatedeck.ui.session.SessionViewModel
 import com.qtekfun.ultimatedeck.ui.settings.SettingsScreen
+import com.qtekfun.ultimatedeck.ui.settings.SettingsViewModel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Minimal navigation until real navigation arrives with T11: login when nobody is signed in,
@@ -43,70 +56,133 @@ fun PrototypeApp(sessionViewModel: SessionViewModel = viewModel()) {
     }
 }
 
-@Composable
-private fun SignedIn(account: AccountEntity, onLogOut: () -> Unit) {
-    var showSettings by rememberSaveable { mutableStateOf(false) }
-    if (showSettings) {
-        BackHandler { showSettings = false }
-        SettingsScreen(
-            accountName = account.displayName,
-            server = account.serverUrl,
-            onLogOut = onLogOut,
-            onBack = { showSettings = false }
-        )
-        return
+/** Where the signed-in user is: a board, its archived cards, a card, or the settings. */
+private class Place {
+    var boardId by mutableStateOf<Long?>(null)
+    var boardTitle by mutableStateOf("")
+    var cardId by mutableStateOf<Long?>(null)
+    var archived by mutableStateOf(false)
+    var settings by mutableStateOf(false)
+
+    fun open(board: BoardSummary) {
+        boardId = board.id
+        boardTitle = board.title
+        cardId = null
+        archived = false
+        settings = false
     }
-    var boardId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var boardTitle by rememberSaveable { mutableStateOf("") }
-    var cardId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var showArchived by rememberSaveable { mutableStateOf(false) }
-    val boardViewModel: BoardPrototypeViewModel = viewModel()
-    val board = boardId
-    val card = cardId
-    when {
-        board == null -> BoardListScreen(
-            onOpenBoard = {
-                boardId = it.id
-                boardTitle = it.title
-            },
-            topBarActions = { SettingsAction { showSettings = true } }
-        )
 
-        showArchived -> {
-            BackHandler { showArchived = false }
-            ArchivedCardsScreen(boardId = board, onBack = { showArchived = false })
-        }
-
-        card == null -> {
-            BackHandler { boardId = null }
-            LaunchedEffect(board) { boardViewModel.open(board) }
-            BoardPrototypeScreen(
-                title = boardTitle,
-                viewModel = boardViewModel,
-                onBack = { boardId = null },
-                onOpenCard = { cardId = it },
-                onShowArchived = { showArchived = true }
-            )
-        }
-
-        else -> CardDetailScreen(
-            cardId = card,
-            onBack = { cardId = null },
-            onArchive = {
-                boardViewModel.archive(card)
-                cardId = null
-            },
-            onDelete = {
-                boardViewModel.delete(card)
-                cardId = null
+    companion object {
+        /** Keeps the place across rotation and process death, like the rest of the UI state. */
+        val Saver = listSaver<Place, Any?>(
+            save = { listOf(it.boardId, it.boardTitle, it.cardId, it.archived, it.settings) },
+            restore = { saved ->
+                Place().apply {
+                    boardId = saved[0] as Long?
+                    boardTitle = saved[1] as String
+                    cardId = saved[2] as Long?
+                    archived = saved[3] as Boolean
+                    settings = saved[4] as Boolean
+                }
             }
         )
     }
 }
 
 @Composable
-private fun SettingsAction(onClick: () -> Unit) {
-    IconButton(onClick = onClick) {
-        Icon(Icons.Filled.Settings, stringResource(R.string.settings_title))
+private fun SignedIn(account: AccountEntity, onLogOut: () -> Unit) {
+    val place = rememberSaveable(saver = Place.Saver) { Place() }
+    val drawer = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val boardsViewModel: BoardListViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val boards by boardsViewModel.state.collectAsStateWithLifecycle()
+    val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+    var started by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (started) return@LaunchedEffect
+        val favorite = settingsViewModel.storedFavorite()
+        val active = boardsViewModel.state.first { !it.loading }.boards
+        startBoard(favorite, active)?.let(place::open)
+        started = true
+    }
+    val closeThen: (() -> Unit) -> Unit = { action ->
+        action()
+        scope.launch { drawer.close() }
+    }
+    ModalNavigationDrawer(
+        drawerState = drawer,
+        // Opened from the menu button only: a swipe would fight the board's columns.
+        gesturesEnabled = drawer.isOpen,
+        drawerContent = {
+            AppDrawer(
+                accountName = account.displayName,
+                boards = boards.boards,
+                currentBoardId = place.boardId,
+                favoriteBoardId = settings.favoriteBoardId,
+                callbacks = DrawerCallbacks(
+                    onOpenBoard = { board -> closeThen { place.open(board) } },
+                    onFavorite = settingsViewModel::setFavoriteBoard,
+                    onSettings = { closeThen { place.settings = true } }
+                )
+            )
+        }
+    ) {
+        SignedInContent(account, place, onLogOut) { scope.launch { drawer.open() } }
+    }
+}
+
+@Composable
+private fun SignedInContent(
+    account: AccountEntity,
+    place: Place,
+    onLogOut: () -> Unit,
+    onMenu: () -> Unit
+) {
+    val boardViewModel: BoardPrototypeViewModel = viewModel()
+    val board = place.boardId
+    val card = place.cardId
+    when {
+        place.settings -> {
+            BackHandler { place.settings = false }
+            SettingsScreen(
+                accountName = account.displayName,
+                server = account.serverUrl,
+                onLogOut = onLogOut,
+                onBack = { place.settings = false }
+            )
+        }
+
+        board == null -> BoardListScreen(onOpenBoard = place::open, onMenu = onMenu)
+
+        place.archived -> {
+            BackHandler { place.archived = false }
+            ArchivedCardsScreen(boardId = board, onBack = { place.archived = false })
+        }
+
+        card == null -> {
+            BackHandler { place.boardId = null }
+            LaunchedEffect(board) { boardViewModel.open(board) }
+            BoardPrototypeScreen(
+                title = place.boardTitle,
+                viewModel = boardViewModel,
+                onMenu = onMenu,
+                onOpenCard = { place.cardId = it },
+                onShowArchived = { place.archived = true }
+            )
+        }
+
+        else -> CardDetailScreen(
+            cardId = card,
+            onBack = { place.cardId = null },
+            onArchive = {
+                boardViewModel.archive(card)
+                place.cardId = null
+            },
+            onDelete = {
+                boardViewModel.delete(card)
+                place.cardId = null
+            }
+        )
     }
 }
