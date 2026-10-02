@@ -13,6 +13,9 @@ import com.qtekfun.ultimatedeck.sync.queue.ProcessResult
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -47,8 +50,14 @@ class SyncEngine @Inject constructor(
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) {
     private val mutex = Mutex()
+    private val mutableLastOutcome = MutableStateFlow<SyncOutcome?>(null)
 
-    suspend fun sync(): SyncOutcome = withContext(dispatcher) { mutex.withLock { run() } }
+    /** How the latest sync of this process ended; null until one finishes. */
+    val lastOutcome: StateFlow<SyncOutcome?> = mutableLastOutcome.asStateFlow()
+
+    suspend fun sync(): SyncOutcome = withContext(dispatcher) {
+        mutex.withLock { run().also { mutableLastOutcome.value = it } }
+    }
 
     private suspend fun run(): SyncOutcome {
         // A background sync may start in a fresh process, before the UI loaded the credentials.

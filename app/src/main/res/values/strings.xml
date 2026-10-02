@@ -84,6 +84,9 @@
     <string name="boards_title">Your boards</string>
     <string name="boards_refresh">Refresh</string>
     <string name="boards_empty">No boards yet. Create one in Nextcloud Deck.</string>
+    <string name="boards_syncing">Syncing your boards…</string>
+    <string name="sync_problem_offline">Offline. Showing the last synced boards.</string>
+    <string name="sync_problem_server">The last sync failed. It will be retried.</string>
     <string name="board_back">Back to your boards</string>
     <string name="remote_retry">Try again</string>
     <string name="remote_error_unauthorized">The server rejected the app password. Log out and sign in again.</string>

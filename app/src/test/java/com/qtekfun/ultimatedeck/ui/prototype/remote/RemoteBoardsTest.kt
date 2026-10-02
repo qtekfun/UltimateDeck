@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import com.qtekfun.ultimatedeck.data.remote.ApiFixtures
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.data.remote.dto.AssignmentDto
-import com.qtekfun.ultimatedeck.data.remote.dto.BoardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.CardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.DeckJson
 import com.qtekfun.ultimatedeck.data.remote.dto.StackDto
@@ -19,17 +18,6 @@ import org.junit.jupiter.api.Test
 
 class RemoteBoardsTest {
     private val madrid = ZoneId.of("Europe/Madrid")
-
-    @Test
-    fun `lists only active boards, by title, with their colors`() {
-        val boards = DeckJson.decodeFromString<List<BoardDto>>(ApiFixtures.read("boards.json")) +
-            BoardDto(id = 12, title = "alpha", color = "31CC7C")
-
-        val summaries = boards.toSummaries()
-
-        assertEquals(listOf("alpha", "Board title"), summaries.map { it.title })
-        assertEquals(Color(0xFF31CC7C), summaries.first().color)
-    }
 
     @Test
     fun `falls back to the Nextcloud blue for unusable colors`() {

@@ -21,14 +21,14 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 - [x] **T07 Cola de operaciones pendientes**: operaciones idempotentes, backoff exponencial, persistencia en Room. **100% de cobertura.**
 - [x] **T08 Resolutor de conflictos**: reglas de la sección 5 de `SPEC.md`. **100% de cobertura**, un test por regla más fallos a mitad de operación.
 - [x] **T09 Motor de sincronización**: pull (tableros → columnas → tarjetas), push de la cola, detección de cambios, WorkManager periódico (~15 min) y sync al abrir / pull-to-refresh.
-- [ ] **T10 Tests de sync offline**: caídas de red, cambios concurrentes, reintentos, app cerrada a mitad de sync.
 
 ## Fase 3 — Interfaz del MVP
-- [ ] **T11 Login y lista de tableros** (offline funcional).
+- [x] **T11 Login y lista de tableros** (offline funcional).
 - [ ] **T12 Vista de tablero**: columna y media, snap, tarjetas con etiquetas/avatares/fecha/adjuntos/checklist, indicador "pendiente de sync".
+- [ ] **T15 Crear, archivar y eliminar tarjetas.**
 - [ ] **T13 Mover y reordenar tarjetas**: integrar el prototipo T02 con datos reales y la cola de sync.
 - [ ] **T14 Detalle de tarjeta con edición en línea**: título y descripción WYSIWYG (según T03), guardado automático, diálogo de conflicto (tu versión / servidor).
-- [ ] **T15 Crear, archivar y eliminar tarjetas.**
+- [ ] **T10 (pospuesta tras T14) Tests de sync offline**: caídas de red, cambios concurrentes, reintentos, app cerrada a mitad de sync.
 - [ ] **T16 Panel secundario**: fecha, etiquetas y asignados.
 - [ ] **T17 Adjuntos**: cámara/galería/archivos, cola de subida con reintentos, descarga bajo demanda, estados visibles.
 - [ ] **T18 Ajustes**: tema, colores dinámicos, idioma, cuenta y cierre de sesión.

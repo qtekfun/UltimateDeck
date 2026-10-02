@@ -5,7 +5,6 @@ package com.qtekfun.ultimatedeck.ui.prototype.remote
 
 import androidx.compose.ui.graphics.Color
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
-import com.qtekfun.ultimatedeck.data.remote.dto.BoardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.CardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.LabelDto
 import com.qtekfun.ultimatedeck.data.remote.dto.StackDto
@@ -51,11 +50,6 @@ fun ApiResult<*>.toRemoteError(): RemoteError = when (this) {
     is ApiResult.NetworkError -> RemoteError.UNREACHABLE
     else -> RemoteError.OTHER
 }
-
-/** Boards shown in the list: not archived and not deleted, by title. */
-fun List<BoardDto>.toSummaries(): List<BoardSummary> = filter { !it.archived && it.deletedAt == 0L }
-    .sortedBy { it.title.lowercase() }
-    .map { BoardSummary(it.id, it.title, deckColor(it.color)) }
 
 /** Columns in order, with their visible cards in order. */
 fun List<StackDto>.toColumns(zone: ZoneId = ZoneId.systemDefault()): List<PrototypeColumn> =

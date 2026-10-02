@@ -118,7 +118,9 @@ class SyncEngineTest {
         signedIn()
         server.enqueue(json("[]").newBuilder().onResponseStart(SocketEffect.CloseSocket()).build())
 
+        assertEquals(null, engine.lastOutcome.value)
         assertEquals(SyncOutcome.Offline, engine.sync())
+        assertEquals(SyncOutcome.Offline, engine.lastOutcome.value)
     }
 
     @Test

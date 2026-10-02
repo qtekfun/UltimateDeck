@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,8 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
 
-/** "Your boards": the account's boards, fetched online (T06 preview of T11). */
+/** "Your boards": the account's boards from Room, so they also show offline (T11). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoardListScreen(
@@ -51,7 +53,6 @@ fun BoardListScreen(
     viewModel: BoardListViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val syncing by viewModel.syncing.collectAsStateWithLifecycle()
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -66,31 +67,58 @@ fun BoardListScreen(
             )
         }
     ) { padding ->
-        RemoteContent(state, viewModel::reload, Modifier.padding(padding)) { boards ->
-            PullToRefreshBox(
-                isRefreshing = syncing,
-                onRefresh = viewModel::refresh,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (boards.isEmpty()) {
-                    // Scrollable so that the pull gesture also works on an empty list.
-                    Box(
-                        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(stringResource(R.string.boards_empty), textAlign = TextAlign.Center)
-                    }
-                } else {
-                    LazyColumn(Modifier.fillMaxSize()) {
-                        items(boards, key = { it.id }) { board ->
-                            BoardRow(board, onClick = { onOpenBoard(board) })
-                            HorizontalDivider()
-                        }
+        PullToRefreshBox(
+            isRefreshing = state.syncing,
+            onRefresh = viewModel::refresh,
+            modifier = Modifier.fillMaxSize().padding(padding)
+        ) {
+            when {
+                state.loading -> Unit
+
+                state.boards.isEmpty() -> EmptyBoards(state)
+
+                else -> LazyColumn(Modifier.fillMaxSize()) {
+                    state.problem?.let { problem -> item { SyncProblemBanner(problem) } }
+                    items(state.boards, key = { it.id }) { board ->
+                        BoardRow(board, onClick = { onOpenBoard(board) })
+                        HorizontalDivider()
                     }
                 }
             }
         }
     }
+}
+
+/** Scrollable so that the pull gesture also works without boards. */
+@Composable
+private fun EmptyBoards(state: BoardListState) {
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        state.problem?.let { SyncProblemBanner(it) }
+        val message = if (state.syncing) R.string.boards_syncing else R.string.boards_empty
+        Text(stringResource(message), textAlign = TextAlign.Center)
+    }
+}
+
+@Composable
+private fun SyncProblemBanner(problem: SyncProblem) {
+    val message = when (problem) {
+        SyncProblem.OFFLINE -> R.string.sync_problem_offline
+        SyncProblem.UNAUTHORIZED -> R.string.remote_error_unauthorized
+        SyncProblem.SERVER -> R.string.sync_problem_server
+    }
+    Text(
+        text = stringResource(message),
+        color = MaterialTheme.colorScheme.onErrorContainer,
+        style = MaterialTheme.typography.bodyMedium,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.errorContainer)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    )
 }
 
 @Composable

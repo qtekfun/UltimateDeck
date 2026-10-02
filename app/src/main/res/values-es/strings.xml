@@ -76,6 +76,9 @@
     <string name="boards_title">Tus tableros</string>
     <string name="boards_refresh">Recargar</string>
     <string name="boards_empty">Aún no hay tableros. Crea uno en Nextcloud Deck.</string>
+    <string name="boards_syncing">Sincronizando tus tableros…</string>
+    <string name="sync_problem_offline">Sin conexión. Se muestran los últimos tableros sincronizados.</string>
+    <string name="sync_problem_server">Falló la última sincronización. Se volverá a intentar.</string>
     <string name="board_back">Volver a tus tableros</string>
     <string name="remote_retry">Reintentar</string>
     <string name="remote_error_unauthorized">El servidor ha rechazado la contraseña de aplicación. Cierra sesión y vuelve a iniciarla.</string>
