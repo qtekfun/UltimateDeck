@@ -95,9 +95,11 @@ class DeckOperationExecutorTest {
     }
 
     @Test
-    fun `updates a card with its whole local state`() = runTest {
+    fun `an update sends what changed here and keeps the server's other fields`() = runTest {
         db.seedBoard()
-        db.cardDao().upsert(listOf(card(5, title = "Now", stackId = STACK)))
+        val edited = card(5, title = "Now", dirty = CardField.TITLE.bit)
+        db.cardDao().upsert(listOf(edited.copy(description = "Stale", order = 3)))
+        db.cardSnapshotDao().put(snapshot(5, title = "Test"))
         repeat(2) { server.enqueue(json(ApiFixtures.read("card_created.json"))) }
 
         val result = executor.execute(5, QueuedOperation.UpdateCard(BOARD, stackId = 99))
@@ -105,8 +107,8 @@ class DeckOperationExecutorTest {
         assertEquals(ExecutionResult.Done(), result)
         assertEquals("GET $cardPath/5", request())
         assertEquals(
-            """PUT $cardPath/5 {"title":"Now","owner":"ana","order":0,"description":"",""" +
-                """"type":"plain","archived":false}""",
+            """PUT $cardPath/5 {"title":"Now","owner":"ana","order":999,"description":"",""" +
+                """"type":"plain","duedate":"2019-12-24T19:29:30+00:00","archived":false}""",
             request()
         )
     }

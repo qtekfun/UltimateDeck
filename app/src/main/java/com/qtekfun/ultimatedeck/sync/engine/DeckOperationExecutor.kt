@@ -15,6 +15,7 @@ import com.qtekfun.ultimatedeck.data.remote.dto.LabelIdRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.ReorderCardRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.UserIdRequest
 import com.qtekfun.ultimatedeck.data.remote.map
+import com.qtekfun.ultimatedeck.data.remote.mapper.DeckDates
 import com.qtekfun.ultimatedeck.data.remote.mapper.toSnapshot
 import com.qtekfun.ultimatedeck.data.remote.mapper.toUpdateRequest
 import com.qtekfun.ultimatedeck.sync.queue.ExecutionResult
@@ -108,19 +109,30 @@ class DeckOperationExecutor(
         val conflicts = card.conflictFields or newConflicts(card, server)
         if (conflicts != card.conflictFields) {
             cards.update(listOf(card.copy(conflictFields = conflicts)))
-            val known = snapshots.get(accountId, cardId) ?: server.toSnapshot(accountId)
+            val known = snapshots.get(accountId, cardId)
+                ?: server.toSnapshot(accountId).copy(cardId = cardId)
             snapshots.put(
                 known.copy(title = server.title, description = server.description.orEmpty())
             )
         }
-        val conflicted = CardField.fromMask(conflicts)
+        // Only fields changed here (and not in conflict) take the local value; the rest keep
+        // what the server has now, so changes made by others meanwhile are not undone.
+        val mine = CardField.fromMask(card.dirtyFields) - CardField.fromMask(conflicts)
         val sent = card.copy(
-            title = if (CardField.TITLE in conflicted) server.title else card.title,
-            description = if (CardField.DESCRIPTION in conflicted) {
+            title = pick(CardField.TITLE in mine, card.title, server.title),
+            description = pick(
+                CardField.DESCRIPTION in mine,
+                card.description,
                 server.description.orEmpty()
-            } else {
-                card.description
-            }
+            ),
+            dueDate = pick(
+                CardField.DUE_DATE in mine,
+                card.dueDate,
+                DeckDates.fromIso(server.duedate)
+            ),
+            done = pick(CardField.DONE in mine, card.done, DeckDates.fromIso(server.done)),
+            order = pick(CardField.POSITION in mine, card.order, server.order),
+            archived = pick(CardField.ARCHIVED in mine, card.archived, server.archived)
         )
         val result = apiCall {
             api.cards.updateCard(
@@ -229,3 +241,5 @@ class DeckOperationExecutor(
 
     private data class CardPath(val board: Long, val stack: Long, val card: Long)
 }
+
+private fun <T> pick(useMine: Boolean, mine: T, theirs: T): T = if (useMine) mine else theirs
