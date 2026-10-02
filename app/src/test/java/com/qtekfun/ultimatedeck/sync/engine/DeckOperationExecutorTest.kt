@@ -33,6 +33,10 @@ class DeckOperationExecutorTest {
     @AfterEach
     fun close() = db.close()
 
+    /** A first attempt: nothing was sent before. */
+    private suspend fun DeckOperationExecutor.execute(entityId: Long, operation: QueuedOperation) =
+        execute(entityId, operation, maybeSent = false)
+
     private fun request() = server.takeRequest().let {
         "${it.method} ${it.target} ${it.body?.utf8().orEmpty()}".trim()
     }
@@ -281,4 +285,62 @@ class DeckOperationExecutorTest {
             assertEquals("Ab", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
             assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
         }
+
+    @Test
+    fun `a create that may have reached the server takes the card it created`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New"), card(9, title = "New")))
+        server.enqueue(
+            json(
+                """[{"id":10,"title":"To do","boardId":1,"cards":[
+                {"id":9,"title":"New","stackId":10},{"id":12,"title":"New","stackId":10}]}]"""
+            )
+        )
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Done(serverId = 12), result)
+        assertEquals("GET ${API_PATH}boards/1/stacks", request())
+        assertEquals(1, server.requestCount)
+        assertEquals("New", db.cardDao().get(ACCOUNT, 12)?.title)
+    }
+
+    @Test
+    fun `a create that may have been sent but is not on the server is sent again`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New")))
+        server.enqueue(json("""[{"id":10,"title":"To do","boardId":1,"cards":[]}]"""))
+        server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Done(serverId = 10), result)
+        request()
+        assertEquals("POST $cardPath", request().substringBefore(" {"))
+    }
+
+    @Test
+    fun `a create waits when the server cannot be checked first`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(-1, title = "New")))
+        server.enqueue(MockResponse(503))
+
+        val result = executor.execute(
+            -1,
+            QueuedOperation.CreateCard(BOARD, STACK, "New", 0),
+            maybeSent = true
+        )
+
+        assertEquals(ExecutionResult.Retry("HTTP 503"), result)
+        assertEquals(1, server.requestCount)
+        assertEquals("New", db.cardDao().get(ACCOUNT, -1)?.title)
+    }
 }

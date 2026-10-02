@@ -11,11 +11,10 @@ import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.data.remote.DeckApi
 import com.qtekfun.ultimatedeck.data.remote.apiCall
 import com.qtekfun.ultimatedeck.data.remote.dto.CardDto
-import com.qtekfun.ultimatedeck.data.remote.dto.CreateCardRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.LabelIdRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.ReorderCardRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.UserIdRequest
-import com.qtekfun.ultimatedeck.data.remote.mapper.DeckDates
+import com.qtekfun.ultimatedeck.data.remote.map
 import com.qtekfun.ultimatedeck.data.remote.mapper.toSnapshot
 import com.qtekfun.ultimatedeck.data.remote.mapper.toUpdateRequest
 import com.qtekfun.ultimatedeck.sync.queue.ExecutionResult
@@ -35,78 +34,55 @@ class DeckOperationExecutor(
 ) : OperationExecutor {
     private val cards = database.cardDao()
     private val snapshots = database.cardSnapshotDao()
+    private val creator = CardCreator(api, database, accountId)
 
-    override suspend fun execute(entityId: Long, operation: QueuedOperation): ExecutionResult =
-        when (operation) {
-            is QueuedOperation.CreateCard -> create(entityId, operation)
+    override suspend fun execute(
+        entityId: Long,
+        operation: QueuedOperation,
+        maybeSent: Boolean
+    ): ExecutionResult = when (operation) {
+        is QueuedOperation.CreateCard -> creator.create(entityId, operation, maybeSent)
 
-            is QueuedOperation.UpdateCard -> update(entityId, operation)
+        is QueuedOperation.UpdateCard -> update(entityId, operation)
 
-            is QueuedOperation.MoveCard -> apiCall {
-                api.cards.reorderCard(
-                    operation.boardId,
-                    // Deck takes the stack from the path, not the body: it must be the target.
-                    operation.stackId,
-                    entityId,
-                    ReorderCardRequest(order = operation.order, stackId = operation.stackId)
-                )
-            }.toExecutionResult()
-
-            is QueuedOperation.ArchiveCard -> apiCall {
-                if (operation.archived) {
-                    api.cards.archiveCard(operation.boardId, operation.stackId, entityId)
-                } else {
-                    api.cards.unarchiveCard(operation.boardId, operation.stackId, entityId)
-                }
-            }.toExecutionResult()
-
-            is QueuedOperation.DeleteCard -> {
-                val result = apiCall {
-                    api.cards.deleteCard(operation.boardId, operation.stackId, entityId)
-                }
-                if (result ==
-                    ApiResult.NotFound
-                ) {
-                    ExecutionResult.Done()
-                } else {
-                    result.toExecutionResult()
-                }
-            }
-
-            is QueuedOperation.SetLabels -> setLabels(entityId, operation)
-
-            is QueuedOperation.SetAssignees -> setAssignees(entityId, operation)
-
-            is QueuedOperation.UploadAttachment -> ExecutionResult.Failed(
-                "attachments are not supported yet"
-            )
-        }
-
-    /** Creates the card with its current local values and moves the local row to the server id. */
-    private suspend fun create(
-        localId: Long,
-        operation: QueuedOperation.CreateCard
-    ): ExecutionResult {
-        val local = cards.get(accountId, localId)
-        val result = apiCall {
-            api.cards.createCard(
+        is QueuedOperation.MoveCard -> apiCall {
+            api.cards.reorderCard(
                 operation.boardId,
+                // Deck takes the stack from the path, not the body: it must be the target.
                 operation.stackId,
-                CreateCardRequest(
-                    title = local?.title ?: operation.title,
-                    order = operation.order,
-                    description = local?.description?.takeIf { it.isNotEmpty() },
-                    duedate = DeckDates.toIso(local?.dueDate)
-                )
+                entityId,
+                ReorderCardRequest(order = operation.order, stackId = operation.stackId)
             )
+        }.toExecutionResult()
+
+        is QueuedOperation.ArchiveCard -> apiCall {
+            if (operation.archived) {
+                api.cards.archiveCard(operation.boardId, operation.stackId, entityId)
+            } else {
+                api.cards.unarchiveCard(operation.boardId, operation.stackId, entityId)
+            }
+        }.toExecutionResult()
+
+        is QueuedOperation.DeleteCard -> {
+            val result = apiCall {
+                api.cards.deleteCard(operation.boardId, operation.stackId, entityId)
+            }
+            if (result ==
+                ApiResult.NotFound
+            ) {
+                ExecutionResult.Done()
+            } else {
+                result.toExecutionResult()
+            }
         }
-        if (result !is ApiResult.Success) return result.toExecutionResult()
-        val created = result.value
-        if (local != null) {
-            cards.updateId(accountId, localId, created.id)
-            snapshots.put(created.toSnapshot(accountId))
-        }
-        return ExecutionResult.Done(serverId = created.id)
+
+        is QueuedOperation.SetLabels -> setLabels(entityId, operation)
+
+        is QueuedOperation.SetAssignees -> setAssignees(entityId, operation)
+
+        is QueuedOperation.UploadAttachment -> ExecutionResult.Failed(
+            "attachments are not supported yet"
+        )
     }
 
     /**

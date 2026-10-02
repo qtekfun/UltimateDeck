@@ -39,8 +39,16 @@ class ScriptedExecutor : OperationExecutor {
         scripts.getOrPut(entityId) { ArrayDeque() }.addAll(results)
     }
 
-    override suspend fun execute(entityId: Long, operation: QueuedOperation): ExecutionResult {
+    /** Whether each call was told the operation may already have been sent. */
+    val maybeSent = mutableListOf<Boolean>()
+
+    override suspend fun execute(
+        entityId: Long,
+        operation: QueuedOperation,
+        maybeSent: Boolean
+    ): ExecutionResult {
         calls += entityId to operation
+        this.maybeSent += maybeSent
         return scripts[entityId]?.removeFirstOrNull()?.invoke() ?: ExecutionResult.Done()
     }
 }

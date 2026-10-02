@@ -5,7 +5,15 @@ package com.qtekfun.ultimatedeck.sync.queue
 
 /** Sends one queued operation to the server; implemented by the sync engine (T09). */
 fun interface OperationExecutor {
-    suspend fun execute(entityId: Long, operation: QueuedOperation): ExecutionResult
+    /**
+     * [maybeSent] is true when an earlier run was started and may have reached the server
+     * without its answer arriving (timeout, app closed): non-idempotent operations check first.
+     */
+    suspend fun execute(
+        entityId: Long,
+        operation: QueuedOperation,
+        maybeSent: Boolean
+    ): ExecutionResult
 }
 
 /** What happened when an operation ran. */

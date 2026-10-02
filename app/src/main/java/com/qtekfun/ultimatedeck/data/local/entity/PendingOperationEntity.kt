@@ -41,5 +41,7 @@ data class PendingOperationEntity(
     val lastError: String? = null,
     /** Refused for good by the server: no automatic retries until the user retries or discards it. */
     @ColumnInfo(defaultValue = "0")
-    val failed: Boolean = false
+    val failed: Boolean = false,
+    /** When it was last handed to the server; it may have arrived even without an answer (T10). */
+    val startedAt: Instant? = null
 )

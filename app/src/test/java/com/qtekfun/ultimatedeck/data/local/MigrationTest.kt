@@ -10,6 +10,7 @@ import androidx.sqlite.execSQL
 import io.mockk.every
 import io.mockk.mockk
 import java.io.File
+import java.time.Instant
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -206,5 +207,28 @@ class MigrationTest {
         db.close()
 
         assertEquals(listOf("ana"), members.map { it.uid })
+    }
+
+    @Test
+    fun `migrates version 7 to the latest with queued operations not started`() = runTest {
+        val file = File(dir, "v7.db")
+        createFromSchema(
+            file,
+            version = 7,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO pending_operation (id, accountId, type, entityType, entityId, " +
+                    "payload, createdAt, attempts, nextAttemptAt, lastError, failed) " +
+                    "VALUES (1, 1, 'MOVE', 'CARD', 100, '{}', 0, 0, 0, NULL, 0), " +
+                    "(2, 1, 'MOVE', 'CARD', 101, '{}', 5000, 2, 0, NULL, 0)"
+            )
+        )
+
+        val db = open(file)
+        val operations = db.pendingOperationDao().all(1)
+        db.close()
+
+        assertEquals(listOf(null, Instant.ofEpochMilli(5000)), operations.map { it.startedAt })
     }
 }
