@@ -146,19 +146,19 @@ class PullSync @Inject constructor(
                 .distinctBy { it.uid }
                 .map { it.toEntity(accountId) }
         )
-        val boardLabels = labels.idsForBoard(accountId, boardId).toSet()
+        val scope = BoardScope(accountId, boardId, labels.idsForBoard(accountId, boardId).toSet())
         val local = cards.allForBoard(accountId, boardId).associateBy { it.id }
         serverCards.values.forEach { dto ->
             val card = local[dto.id]
             if (card == null) {
-                merger.insert(accountId, boardId, dto, boardLabels)
+                merger.insert(scope, dto)
             } else {
-                merger.settle(accountId, boardId, card, dto, boardLabels)
+                merger.settle(scope, card, dto)
             }
         }
         local.values
             .filter { it.id > 0 && it.id !in serverCards }
-            .forEach { merger.settle(accountId, boardId, it, null, boardLabels) }
+            .forEach { merger.settle(scope, it, null) }
         removeMissingColumns(accountId, boardId, columns.map { it.id }.toSet())
     }
 

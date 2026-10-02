@@ -158,4 +158,29 @@ class MigrationTest {
 
         assertEquals(0, card?.attachmentCount)
     }
+
+    @Test
+    fun `migrates version 5 to the latest without conflicts`() = runTest {
+        val file = File(dir, "v5.db")
+        createFromSchema(
+            file,
+            version = 5,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')",
+                "INSERT INTO board (accountId, id, title, color, archived) " +
+                    "VALUES (1, 1, 'B', 'fff', 0)",
+                "INSERT INTO stack (accountId, id, boardId, title, `order`) VALUES (1, 10, 1, 'S', 0)",
+                "INSERT INTO card (accountId, id, boardId, stackId, title, description, " +
+                    "`order`, archived, dirtyFields, deletedOnServer, attachmentCount) " +
+                    "VALUES (1, 100, 1, 10, 'Card', '', 0, 0, 0, 0, 0)"
+            )
+        )
+
+        val db = open(file)
+        val card = db.cardDao().get(1, 100)
+        db.close()
+
+        assertEquals(0, card?.conflictFields)
+    }
 }

@@ -5,6 +5,7 @@ package com.qtekfun.ultimatedeck.sync.engine
 
 import com.qtekfun.ultimatedeck.data.local.entity.LabelEntity
 import com.qtekfun.ultimatedeck.data.local.inMemoryDatabase
+import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.data.remote.API_PATH
 import com.qtekfun.ultimatedeck.data.remote.ApiFixtures
 import com.qtekfun.ultimatedeck.data.remote.json
@@ -93,11 +94,12 @@ class DeckOperationExecutorTest {
     fun `updates a card with its whole local state`() = runTest {
         db.seedBoard()
         db.cardDao().upsert(listOf(card(5, title = "Now", stackId = STACK)))
-        server.enqueue(json(ApiFixtures.read("card_created.json")))
+        repeat(2) { server.enqueue(json(ApiFixtures.read("card_created.json"))) }
 
         val result = executor.execute(5, QueuedOperation.UpdateCard(BOARD, stackId = 99))
 
         assertEquals(ExecutionResult.Done(), result)
+        assertEquals("GET $cardPath/5", request())
         assertEquals(
             """PUT $cardPath/5 {"title":"Now","owner":"ana","order":0,"description":"",""" +
                 """"type":"plain","archived":false}""",
@@ -202,4 +204,81 @@ class DeckOperationExecutorTest {
 
         assertEquals(ExecutionResult.Failed("attachments are not supported yet"), result)
     }
+
+    @Test
+    fun `a title also changed on the server is kept there and marked as a conflict`() = runTest {
+        db.seedBoard()
+        val edited =
+            card(
+                5,
+                title = "Mine",
+                dirty = CardField.maskOf(listOf(CardField.TITLE, CardField.DESCRIPTION))
+            )
+        db.cardDao().upsert(listOf(edited.copy(description = "My notes")))
+        db.cardSnapshotDao().put(snapshot(5, title = "Card"))
+        server.enqueue(json("""{"id":5,"title":"Theirs","stackId":10,"description":null}"""))
+        server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+        val result = executor.execute(5, QueuedOperation.UpdateCard(BOARD, STACK))
+
+        assertEquals(ExecutionResult.Done(), result)
+        request()
+        assertEquals(
+            """PUT $cardPath/5 {"title":"Theirs","owner":"ana","order":0,""" +
+                """"description":"My notes","type":"plain","archived":false}""",
+            request()
+        )
+        assertEquals(CardField.TITLE.bit, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
+        assertEquals("Mine", db.cardDao().get(ACCOUNT, 5)?.title)
+        assertEquals("Theirs", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
+    }
+
+    @Test
+    fun `a conflict on a card never synced takes the server version as known state`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(
+            listOf(
+                card(
+                    5,
+                    title = "Mine",
+                    dirty = CardField.DESCRIPTION.bit
+                ).copy(description = "Mine")
+            )
+        )
+        server.enqueue(json("""{"id":5,"title":"Card","stackId":10,"description":"Theirs"}"""))
+        server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+        executor.execute(5, QueuedOperation.UpdateCard(BOARD, STACK))
+
+        assertEquals(CardField.DESCRIPTION.bit, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
+        assertEquals("Theirs", db.cardSnapshotDao().get(ACCOUNT, 5)?.description)
+    }
+
+    @Test
+    fun `an update waits when the server cannot be read first`() = runTest {
+        db.seedBoard()
+        db.cardDao().upsert(listOf(card(5)))
+        server.enqueue(MockResponse(503))
+
+        assertEquals(
+            ExecutionResult.Retry("HTTP 503"),
+            executor.execute(5, QueuedOperation.UpdateCard(BOARD, STACK))
+        )
+        assertEquals(1, server.requestCount)
+    }
+
+    @Test
+    fun `after an update the server state is what was sent, so later typing is no conflict`() =
+        runTest {
+            db.seedBoard()
+            db.cardDao().upsert(listOf(card(5, title = "Ab", dirty = CardField.TITLE.bit)))
+            db.cardSnapshotDao().put(snapshot(5, title = "A"))
+            server.enqueue(json("""{"id":5,"title":"A","stackId":10}"""))
+            server.enqueue(json(ApiFixtures.read("card_created.json")))
+
+            executor.execute(5, QueuedOperation.UpdateCard(BOARD, STACK))
+
+            assertEquals("Ab", db.cardSnapshotDao().get(ACCOUNT, 5)?.title)
+            assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.conflictFields)
+        }
 }

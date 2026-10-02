@@ -102,4 +102,14 @@
     <string name="card_delete">Delete</string>
     <string name="card_delete_title">Delete this card?</string>
     <string name="card_delete_message">It will be deleted on the server too. This cannot be undone.</string>
+    <string name="card_conflict_banner">This card also changed on the server.</string>
+    <string name="card_conflict_review">Review</string>
+    <string name="card_field_title">title</string>
+    <string name="card_field_description">description</string>
+    <string name="conflict_title">The %1$s changed on both sides</string>
+    <string name="conflict_mine">Your version</string>
+    <string name="conflict_server">Server version</string>
+    <string name="conflict_copy_mine">Copy mine</string>
+    <string name="conflict_keep_mine">Keep mine</string>
+    <string name="conflict_use_server">Use the server\'s</string>
 </resources>

@@ -4,10 +4,13 @@
 package com.qtekfun.ultimatedeck.sync.engine
 
 import com.qtekfun.ultimatedeck.data.local.UltimateDeckDatabase
+import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
 import com.qtekfun.ultimatedeck.data.local.entity.CardServerSnapshotEntity
+import com.qtekfun.ultimatedeck.data.local.model.CardField
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.data.remote.DeckApi
 import com.qtekfun.ultimatedeck.data.remote.apiCall
+import com.qtekfun.ultimatedeck.data.remote.dto.CardDto
 import com.qtekfun.ultimatedeck.data.remote.dto.CreateCardRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.LabelIdRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.ReorderCardRequest
@@ -106,20 +109,80 @@ class DeckOperationExecutor(
         return ExecutionResult.Done(serverId = created.id)
     }
 
-    /** Sends the whole editable state, as Deck expects; a card deleted here needs nothing. */
+    /**
+     * Sends the whole editable state, as Deck expects; a card deleted here needs nothing. The
+     * server version is read first: a title or description changed there too is not overwritten
+     * (SPEC §5) but marked as a conflict, and its server value is sent back unchanged.
+     */
     private suspend fun update(
         cardId: Long,
         operation: QueuedOperation.UpdateCard
     ): ExecutionResult {
         val card = cards.get(accountId, cardId) ?: return ExecutionResult.Done()
-        return apiCall {
+        val current = apiCall { api.cards.getCard(operation.boardId, card.stackId, cardId) }
+        return if (current is ApiResult.Success) {
+            send(card, current.value, operation.boardId)
+        } else {
+            current.toExecutionResult()
+        }
+    }
+
+    private suspend fun send(card: CardEntity, server: CardDto, boardId: Long): ExecutionResult {
+        val cardId = card.id
+        val conflicts = card.conflictFields or newConflicts(card, server)
+        if (conflicts != card.conflictFields) {
+            cards.update(listOf(card.copy(conflictFields = conflicts)))
+            val known = snapshots.get(accountId, cardId) ?: server.toSnapshot(accountId)
+            snapshots.put(
+                known.copy(title = server.title, description = server.description.orEmpty())
+            )
+        }
+        val conflicted = CardField.fromMask(conflicts)
+        val sent = card.copy(
+            title = if (CardField.TITLE in conflicted) server.title else card.title,
+            description = if (CardField.DESCRIPTION in conflicted) {
+                server.description.orEmpty()
+            } else {
+                card.description
+            }
+        )
+        val result = apiCall {
             api.cards.updateCard(
-                operation.boardId,
+                boardId,
                 card.stackId,
                 cardId,
-                card.toUpdateRequest(userId)
+                sent.toUpdateRequest(userId)
             )
-        }.toExecutionResult()
+        }
+        // The server now has what was sent: later changes are measured from it, so text typed
+        // while a sync runs is not taken for someone else's change.
+        if (result is ApiResult.Success) {
+            snapshots.get(accountId, cardId)?.let { known ->
+                snapshots.put(
+                    known.copy(
+                        title = sent.title,
+                        description = sent.description,
+                        dueDate = sent.dueDate,
+                        archived = sent.archived,
+                        done = sent.done
+                    )
+                )
+            }
+        }
+        return result.toExecutionResult()
+    }
+
+    /** Text fields edited here that the server also changed, to something else, since the last sync. */
+    private suspend fun newConflicts(card: CardEntity, server: CardDto): Int {
+        val known = snapshots.get(accountId, card.id)
+        val dirty = CardField.fromMask(card.dirtyFields)
+        val title =
+            CardField.TITLE in dirty && server.title != known?.title && server.title != card.title
+        val serverDescription = server.description.orEmpty()
+        val description = CardField.DESCRIPTION in dirty &&
+            serverDescription != known?.description && serverDescription != card.description
+        return (if (title) CardField.TITLE.bit else 0) or
+            (if (description) CardField.DESCRIPTION.bit else 0)
     }
 
     private suspend fun setLabels(

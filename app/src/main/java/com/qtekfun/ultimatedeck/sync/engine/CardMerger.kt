@@ -28,17 +28,12 @@ internal class CardMerger(database: UltimateDeckDatabase, private val queue: Ope
     private val pending = database.pendingOperationDao()
 
     /** A card new to this device: stored as the server has it. */
-    suspend fun insert(accountId: Long, boardId: Long, dto: CardDto, boardLabels: Set<Long>) =
-        write(accountId, boardId, dto, ServerCard.of(dto).state, emptySet(), null, boardLabels)
+    suspend fun insert(scope: BoardScope, dto: CardDto) =
+        write(scope, dto, ServerCard.of(dto).state, LocalMarks.NONE)
 
     /** Resolves a card known here against the server version, or its absence. */
-    suspend fun settle(
-        accountId: Long,
-        boardId: Long,
-        card: CardEntity,
-        dto: CardDto?,
-        boardLabels: Set<Long>
-    ) {
+    suspend fun settle(scope: BoardScope, card: CardEntity, dto: CardDto?) {
+        val accountId = scope.accountId
         // Deleted here: kept hidden while the server still has it, removed once it is gone.
         if (card.deletedAt != null) {
             if (dto == null) cards.delete(accountId, card.id)
@@ -53,16 +48,16 @@ internal class CardMerger(database: UltimateDeckDatabase, private val queue: Ope
         when (val resolution = ConflictResolver.resolve(local, base, dto?.let(ServerCard::of))) {
             is Resolution.Merged -> {
                 val server = requireNotNull(dto)
-                write(
-                    accountId,
-                    boardId,
-                    server,
-                    resolution.state,
-                    resolution.toSend + resolution.conflicts.map { it.field },
-                    card.localModifiedAt,
-                    boardLabels
-                )
-                resend(accountId, boardId, card.id, server.stackId, resolution)
+                // Conflicts wait for the user (T14): new ones, and older ones still unsolved.
+                val serverState = ServerCard.of(server).state
+                val conflicts = resolution.conflicts.map { it.field }.toSet() +
+                    CardField.fromMask(card.conflictFields).filter {
+                        it.textIn(local.state) != it.textIn(serverState)
+                    }
+                val toSend = resolution.toSend - conflicts
+                val marks = LocalMarks(toSend + conflicts, conflicts, card.localModifiedAt)
+                write(scope, server, resolution.state, marks)
+                resend(scope, card.id, server.stackId, resolution.state, toSend)
             }
 
             is Resolution.DeletedOnServer -> cards.markDeletedOnServer(accountId, card.id)
@@ -76,33 +71,30 @@ internal class CardMerger(database: UltimateDeckDatabase, private val queue: Ope
      * again, so they are not left marked as pending forever. Queued or failed ones are left alone.
      */
     private suspend fun resend(
-        accountId: Long,
-        boardId: Long,
+        scope: BoardScope,
         cardId: Long,
         serverStackId: Long,
-        resolution: Resolution.Merged
+        state: CardState,
+        toSend: Set<CardField>
     ) {
-        if (resolution.toSend.isEmpty()) return
+        if (toSend.isEmpty()) return
+        val accountId = scope.accountId
         if (pending.forEntity(accountId, EntityType.CARD, cardId).isNotEmpty()) return
-        val state = resolution.state
-        resolution.toSend
-            .map { field -> field.operation(boardId, serverStackId, state) }
+        toSend
+            .map { field -> field.operation(scope.boardId, serverStackId, state) }
             .distinct()
             .forEach { queue.enqueue(accountId, cardId, it) }
     }
 
     /** Stores the card with [state]; fields in [pending] stay marked as changed here. */
-    @Suppress("LongParameterList")
     private suspend fun write(
-        accountId: Long,
-        boardId: Long,
+        scope: BoardScope,
         dto: CardDto,
         state: CardState,
-        pending: Set<CardField>,
-        modifiedAt: Instant?,
-        boardLabels: Set<Long>
+        marks: LocalMarks
     ) {
-        val card = dto.toEntity(accountId, boardId).copy(
+        val accountId = scope.accountId
+        val card = dto.toEntity(accountId, scope.boardId).copy(
             title = state.title,
             description = state.description,
             dueDate = state.dueDate,
@@ -110,11 +102,12 @@ internal class CardMerger(database: UltimateDeckDatabase, private val queue: Ope
             order = state.order,
             archived = state.archived,
             done = state.done,
-            dirtyFields = CardField.maskOf(pending),
-            localModifiedAt = modifiedAt.takeIf { pending.isNotEmpty() }
+            dirtyFields = CardField.maskOf(marks.pending),
+            localModifiedAt = marks.modifiedAt.takeIf { marks.pending.isNotEmpty() },
+            conflictFields = CardField.maskOf(marks.conflicts)
         )
         cards.upsert(listOf(card))
-        labels.setCardLabels(accountId, card.id, state.labelIds.filter { it in boardLabels })
+        labels.setCardLabels(accountId, card.id, state.labelIds.filter { it in scope.labels })
         users.setAssignees(accountId, card.id, state.assigneeUids.toList())
         snapshots.put(dto.toSnapshot(accountId))
     }
@@ -144,3 +137,24 @@ private fun CardField.operation(boardId: Long, serverStackId: Long, state: CardS
         CardField.ASSIGNEES ->
             QueuedOperation.SetAssignees(boardId, state.stackId, state.assigneeUids.toList())
     }
+
+/** What stays marked on a stored card: fields still to send, text conflicts, edit time. */
+private data class LocalMarks(
+    val pending: Set<CardField>,
+    val conflicts: Set<CardField>,
+    val modifiedAt: Instant?
+) {
+    companion object {
+        val NONE = LocalMarks(emptySet(), emptySet(), null)
+    }
+}
+
+/** The text of a title or description field; null for other fields. */
+internal fun CardField.textIn(state: CardState): String? = when (this) {
+    CardField.TITLE -> state.title
+    CardField.DESCRIPTION -> state.description
+    else -> null
+}
+
+/** The board being pulled: its account, id and the labels it has, which cards may use. */
+internal data class BoardScope(val accountId: Long, val boardId: Long, val labels: Set<Long>)

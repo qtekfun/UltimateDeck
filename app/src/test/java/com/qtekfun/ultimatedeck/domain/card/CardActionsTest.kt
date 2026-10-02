@@ -13,6 +13,7 @@ import com.qtekfun.ultimatedeck.sync.engine.STACK
 import com.qtekfun.ultimatedeck.sync.engine.SyncScheduler
 import com.qtekfun.ultimatedeck.sync.engine.card
 import com.qtekfun.ultimatedeck.sync.engine.seedBoard
+import com.qtekfun.ultimatedeck.sync.engine.snapshot
 import com.qtekfun.ultimatedeck.sync.queue.FixedRandom
 import com.qtekfun.ultimatedeck.sync.queue.MutableClock
 import com.qtekfun.ultimatedeck.sync.queue.OperationQueue
@@ -172,5 +173,80 @@ class CardActionsTest {
 
         assertEquals(emptyList<Any>(), queued())
         assertEquals(0, db.cardDao().get(ACCOUNT, 5)?.dirtyFields)
+    }
+
+    @Test
+    fun `edits are saved, marked and queued once, without syncing while typing`() = runTest {
+        signedIn()
+        db.cardDao().upsert(listOf(card(5)))
+
+        actions.editTitle(5, " New title ")
+        actions.editDescription(5, "- [ ] task")
+        actions.editTitle(5, "   ")
+        actions.editTitle(5, "New title")
+        actions.editDescription(5, "- [ ] task")
+
+        val saved = db.cardDao().get(ACCOUNT, 5)!!
+        assertEquals("New title" to "- [ ] task", saved.title to saved.description)
+        assertEquals(
+            setOf(CardField.TITLE, CardField.DESCRIPTION),
+            CardField.fromMask(saved.dirtyFields)
+        )
+        assertEquals(listOf(5L to QueuedOperation.UpdateCard(BOARD, STACK)), queued())
+        verify(exactly = 0) { scheduler.requestSync() }
+    }
+
+    @Test
+    fun `keeping my version ends the conflict and sends it`() = runTest {
+        signedIn()
+        val both = CardField.maskOf(listOf(CardField.TITLE, CardField.DESCRIPTION))
+        db.cardDao().upsert(
+            listOf(card(5, title = "Mine", dirty = both).copy(conflictFields = both))
+        )
+        db.cardSnapshotDao().put(snapshot(5, title = "Theirs"))
+
+        actions.resolveConflict(5, CardField.TITLE, keepMine = true)
+
+        val card = db.cardDao().get(ACCOUNT, 5)!!
+        assertEquals("Mine", card.title)
+        assertEquals(CardField.DESCRIPTION.bit, card.conflictFields)
+        assertEquals(both, card.dirtyFields)
+        assertEquals(listOf(5L to QueuedOperation.UpdateCard(BOARD, STACK)), queued())
+        verify { scheduler.requestSync() }
+    }
+
+    @Test
+    fun `using the server version replaces mine and needs no sending`() = runTest {
+        signedIn()
+        val both = CardField.maskOf(listOf(CardField.TITLE, CardField.DESCRIPTION))
+        val mine = card(
+            5,
+            title = "Mine",
+            dirty = both
+        ).copy(description = "Mine", conflictFields = both)
+        db.cardDao().upsert(listOf(mine))
+        db.cardSnapshotDao().put(snapshot(5, title = "Theirs").copy(description = "Their notes"))
+
+        actions.resolveConflict(5, CardField.DESCRIPTION, keepMine = false)
+        actions.resolveConflict(5, CardField.TITLE, keepMine = false)
+
+        val card = db.cardDao().get(ACCOUNT, 5)!!
+        assertEquals("Theirs" to "Their notes", card.title to card.description)
+        assertEquals(0 to 0, card.conflictFields to card.dirtyFields)
+        assertEquals(emptyList<Any>(), queued())
+    }
+
+    @Test
+    fun `edits and resolutions of unknown cards do nothing`() = runTest {
+        signedIn()
+        db.cardDao().upsert(listOf(card(5)))
+
+        actions.editTitle(9, "Title")
+        actions.resolveConflict(5, CardField.TITLE, keepMine = true)
+        every { session.activeAccount } returns flowOf(null)
+        actions.editDescription(5, "Text")
+        actions.resolveConflict(5, CardField.TITLE, keepMine = false)
+
+        assertEquals(emptyList<Any>(), queued())
     }
 }
