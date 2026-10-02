@@ -158,4 +158,6 @@
     <string name="card_due_time">Time</string>
     <string name="settings_reminders_normal">Normal: the system may delay it a few minutes to save battery</string>
     <string name="settings_reminders_aggressive">Aggressive: rings on time like an alarm clock (shows the alarm icon)</string>
+    <string name="settings_reminders_battery">Battery optimization may delay or block reminders.</string>
+    <string name="settings_reminders_allow_battery">Allow running in the background</string>
 </resources>
