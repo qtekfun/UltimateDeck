@@ -39,4 +39,8 @@ interface CardDao {
 
     @Query("SELECT * FROM card WHERE accountId = :accountId AND id = :id")
     suspend fun get(accountId: Long, id: Long): CardEntity?
+
+    /** Deletes a card and, through foreign keys, its labels, assignees and attachments. */
+    @Query("DELETE FROM card WHERE accountId = :accountId AND id = :id")
+    suspend fun delete(accountId: Long, id: Long)
 }

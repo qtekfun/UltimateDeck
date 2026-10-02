@@ -7,12 +7,20 @@ import androidx.room3.ColumnTypeConverters
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import com.qtekfun.ultimatedeck.data.local.dao.AccountDao
+import com.qtekfun.ultimatedeck.data.local.dao.AttachmentDao
 import com.qtekfun.ultimatedeck.data.local.dao.BoardDao
 import com.qtekfun.ultimatedeck.data.local.dao.CardDao
+import com.qtekfun.ultimatedeck.data.local.dao.LabelDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
+import com.qtekfun.ultimatedeck.data.local.dao.UserDao
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
+import com.qtekfun.ultimatedeck.data.local.entity.AttachmentEntity
 import com.qtekfun.ultimatedeck.data.local.entity.BoardEntity
+import com.qtekfun.ultimatedeck.data.local.entity.CardAssigneeCrossRef
 import com.qtekfun.ultimatedeck.data.local.entity.CardEntity
+import com.qtekfun.ultimatedeck.data.local.entity.CardLabelCrossRef
+import com.qtekfun.ultimatedeck.data.local.entity.DeckUserEntity
+import com.qtekfun.ultimatedeck.data.local.entity.LabelEntity
 import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 
 /** Local source of truth (SPEC RF-08). Schemas are exported to app/schemas and versioned. */
@@ -21,7 +29,12 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         AccountEntity::class,
         BoardEntity::class,
         StackEntity::class,
-        CardEntity::class
+        CardEntity::class,
+        LabelEntity::class,
+        CardLabelCrossRef::class,
+        DeckUserEntity::class,
+        CardAssigneeCrossRef::class,
+        AttachmentEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -35,4 +48,10 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun stackDao(): StackDao
 
     abstract fun cardDao(): CardDao
+
+    abstract fun labelDao(): LabelDao
+
+    abstract fun userDao(): UserDao
+
+    abstract fun attachmentDao(): AttachmentDao
 }

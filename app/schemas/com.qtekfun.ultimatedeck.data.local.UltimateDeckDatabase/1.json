@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "9425bc481828a54d782680f1aad07fe3",
+    "identityHash": "46cefb42bc5cc890d5bbad81f005fe37",
     "entities": [
       {
         "tableName": "account",
@@ -339,11 +339,360 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "label",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `id` INTEGER NOT NULL, `boardId` INTEGER NOT NULL, `title` TEXT NOT NULL, `color` TEXT NOT NULL, PRIMARY KEY(`accountId`, `id`), FOREIGN KEY(`accountId`, `boardId`) REFERENCES `board`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boardId",
+            "columnName": "boardId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_label_accountId_boardId",
+            "unique": false,
+            "columnNames": [
+              "accountId",
+              "boardId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_label_accountId_boardId` ON `${TABLE_NAME}` (`accountId`, `boardId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "board",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "boardId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "card_label",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, `labelId` INTEGER NOT NULL, PRIMARY KEY(`accountId`, `cardId`, `labelId`), FOREIGN KEY(`accountId`, `cardId`) REFERENCES `card`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`accountId`, `labelId`) REFERENCES `label`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardId",
+            "columnName": "cardId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "labelId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "cardId",
+            "labelId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_card_label_accountId_labelId",
+            "unique": false,
+            "columnNames": [
+              "accountId",
+              "labelId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_label_accountId_labelId` ON `${TABLE_NAME}` (`accountId`, `labelId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "card",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "cardId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          },
+          {
+            "table": "label",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "labelId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "deck_user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `uid` TEXT NOT NULL, `displayName` TEXT NOT NULL, PRIMARY KEY(`accountId`, `uid`), FOREIGN KEY(`accountId`) REFERENCES `account`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "uid"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "account",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "accountId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "card_assignee",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, `uid` TEXT NOT NULL, PRIMARY KEY(`accountId`, `cardId`, `uid`), FOREIGN KEY(`accountId`, `cardId`) REFERENCES `card`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE , FOREIGN KEY(`accountId`, `uid`) REFERENCES `deck_user`(`accountId`, `uid`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardId",
+            "columnName": "cardId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uid",
+            "columnName": "uid",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "cardId",
+            "uid"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_card_assignee_accountId_uid",
+            "unique": false,
+            "columnNames": [
+              "accountId",
+              "uid"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_card_assignee_accountId_uid` ON `${TABLE_NAME}` (`accountId`, `uid`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "card",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "cardId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          },
+          {
+            "table": "deck_user",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "uid"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "uid"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "attachment",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`accountId` INTEGER NOT NULL, `id` INTEGER NOT NULL, `cardId` INTEGER NOT NULL, `fileName` TEXT NOT NULL, `mimeType` TEXT, `size` INTEGER NOT NULL, `createdAt` INTEGER, `localUri` TEXT, `uploadState` TEXT NOT NULL, PRIMARY KEY(`accountId`, `id`), FOREIGN KEY(`accountId`, `cardId`) REFERENCES `card`(`accountId`, `id`) ON UPDATE CASCADE ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "accountId",
+            "columnName": "accountId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardId",
+            "columnName": "cardId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "fileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mimeType",
+            "columnName": "mimeType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "localUri",
+            "columnName": "localUri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "uploadState",
+            "columnName": "uploadState",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "accountId",
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_attachment_accountId_cardId",
+            "unique": false,
+            "columnNames": [
+              "accountId",
+              "cardId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_attachment_accountId_cardId` ON `${TABLE_NAME}` (`accountId`, `cardId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "card",
+            "onDelete": "CASCADE",
+            "onUpdate": "CASCADE",
+            "columns": [
+              "accountId",
+              "cardId"
+            ],
+            "referencedColumns": [
+              "accountId",
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9425bc481828a54d782680f1aad07fe3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '46cefb42bc5cc890d5bbad81f005fe37')"
     ]
   }
 }
