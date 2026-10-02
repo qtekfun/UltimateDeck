@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,13 +51,14 @@ fun BoardListScreen(
     viewModel: BoardListViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val syncing by viewModel.syncing.collectAsStateWithLifecycle()
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.boards_title)) },
                 actions = {
-                    IconButton(onClick = viewModel::reload) {
+                    IconButton(onClick = viewModel::refresh) {
                         Icon(Icons.Filled.Refresh, stringResource(R.string.boards_refresh))
                     }
                     topBarActions()
@@ -63,15 +67,25 @@ fun BoardListScreen(
         }
     ) { padding ->
         RemoteContent(state, viewModel::reload, Modifier.padding(padding)) { boards ->
-            if (boards.isEmpty()) {
-                Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.boards_empty), textAlign = TextAlign.Center)
-                }
-            } else {
-                LazyColumn(Modifier.fillMaxSize()) {
-                    items(boards, key = { it.id }) { board ->
-                        BoardRow(board, onClick = { onOpenBoard(board) })
-                        HorizontalDivider()
+            PullToRefreshBox(
+                isRefreshing = syncing,
+                onRefresh = viewModel::refresh,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (boards.isEmpty()) {
+                    // Scrollable so that the pull gesture also works on an empty list.
+                    Box(
+                        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(stringResource(R.string.boards_empty), textAlign = TextAlign.Center)
+                    }
+                } else {
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(boards, key = { it.id }) { board ->
+                            BoardRow(board, onClick = { onOpenBoard(board) })
+                            HorizontalDivider()
+                        }
                     }
                 }
             }
