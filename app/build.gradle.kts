@@ -22,6 +22,26 @@ plugins {
     alias(libs.plugins.room)
 }
 
+/**
+ * The app version lives in one place, `appVersion` in gradle.properties (SemVer, optionally
+ * `-rc.N`). The version code is derived from it, so it never depends on dates or the machine:
+ * MAJOR.MINOR.PATCH-rc.N -> (MAJOR*10000 + MINOR*100 + PATCH) * 100 + N, and 99 for a final
+ * release, which therefore sorts after its release candidates.
+ */
+val appVersion = providers.gradleProperty("appVersion").get()
+
+fun versionCodeOf(version: String): Int {
+    val match = Regex("""(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?""").matchEntire(version)
+        ?: error("appVersion must be MAJOR.MINOR.PATCH or MAJOR.MINOR.PATCH-rc.N: $version")
+    val (major, minor, patch, rc) = match.destructured
+    require(minor.toInt() < 100 && patch.toInt() < 100 && (rc.isEmpty() || rc.toInt() in 1..98))
+    val base = major.toInt() * 10_000 + minor.toInt() * 100 + patch.toInt()
+    return base * 100 + (rc.toIntOrNull() ?: 99)
+}
+
+/** Release signing from the environment (CI secrets); without it the release APK is unsigned. */
+val releaseKeystore: String? = System.getenv("UD_KEYSTORE_FILE")
+
 android {
     namespace = "com.qtekfun.ultimatedeck"
     compileSdk = 37
@@ -30,14 +50,34 @@ android {
         applicationId = "com.qtekfun.ultimatedeck"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = versionCodeOf(appVersion)
+        versionName = appVersion
         // Hilt replaces the app in UI tests (T20).
         testInstrumentationRunner = "com.qtekfun.ultimatedeck.HiltTestRunner"
     }
 
+    signingConfigs {
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = file(releaseKeystore)
+                storePassword = System.getenv("UD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("UD_KEY_ALIAS")
+                keyPassword = System.getenv("UD_KEY_PASSWORD")
+            }
+        }
+    }
+
+    // Reproducible builds (F-Droid): no Google-encrypted dependency blob in the APK.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
+            // The git commit is not part of the APK: a build from a source tarball must match.
+            vcsInfo.include = false
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(

@@ -160,7 +160,7 @@ Medido en el móvil de pruebas (gama alta, pantalla de 120 Hz) con la **build de
 - ~~Librería/estrategia para el editor WYSIWYG (ver riesgo 1).~~ Decidido en T03; ver "Decisiones tomadas".
 - ~~Versión mínima de Deck soportada.~~ Provisional: Deck ≥ 1.3 (API v1.1), fijada en T05; se confirma al probar contra servidores reales (T06).
 - ~~Si crear/renombrar columnas entra en el MVP.~~ Crear columnas y tableros entra (T15c); renombrar, no por ahora.
-- Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).
+- ~~Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).~~ Decidido en T21a: firma propia y builds reproducibles (F-Droid compila, comprueba que su APK coincide y publica el nuestro); versión SemVer en `gradle.properties`, código de versión derivado; releases por tag `vX.Y.Z`. Ver `RELEASING.md`.
 
 ### Decisiones tomadas
 - **Drag & drop del tablero (T02, prototipo validado en dispositivo):** implementación propia sobre Compose Foundation, sin librerías externas.
