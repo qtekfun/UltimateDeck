@@ -1,6 +1,7 @@
 Categories:
   - Task
 License: GPL-3.0-or-later
+AuthorName: qtekfun
 SourceCode: https://github.com/qtekfun/UltimateDeck
 IssueTracker: https://github.com/qtekfun/UltimateDeck/issues
 Changelog: https://github.com/qtekfun/UltimateDeck/blob/HEAD/CHANGELOG.md
@@ -14,7 +15,7 @@ Binaries: https://github.com/qtekfun/UltimateDeck/releases/download/v%v/Ultimate
 Builds:
   - versionName: 1.0.0-rc.1
     versionCode: 1000001
-    commit: v1.0.0-rc.1
+    commit: 3602b28e43d6e9770a095504a8557abd11e763c5
     subdir: app
     sudo:
       - apt-get update
