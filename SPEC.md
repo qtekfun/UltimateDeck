@@ -38,6 +38,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 ### RF-02 Lista de tableros
 - Muestra tableros no archivados de la cuenta activa, con color y título.
 - **Criterio:** funciona sin conexión mostrando lo último sincronizado.
+- Crear tableros (nombre y color) desde el menú lateral. Necesita conexión (ver RF-03).
 
 ### RF-03 Vista de tablero (estilo Jira móvil)
 - Una columna ocupa casi toda la pantalla y **la siguiente asoma por el borde** (~columna y media).
@@ -48,6 +49,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
   - Desplazamiento fluido (sin saltos perceptibles) con el volumen de referencia.
   - El estado de columna y scroll se conserva al rotar o volver atrás.
 
+- Añadir columnas al final del tablero. Crear tableros y columnas **necesita conexión**: sin ella, las operaciones encoladas que apuntan a ese tablero o columna llevarían ids provisionales que habría que reescribir al sincronizar; al ser algo poco frecuente, se pide conexión en lugar de arriesgar esa reescritura.
 ### RF-04 Mover y reordenar tarjetas
 - Arrastrar con **pulsación larga**, entre columnas y dentro de la misma columna.
 - **Autoscroll horizontal** al acercar la tarjeta al borde de la pantalla.
@@ -107,7 +109,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - Websockets o tiempo real (se usa polling/sync periódica).
 - Multicuenta completo en la interfaz.
 - Tablet/apaisado optimizado (solo arquitectura preparada).
-- Gestión avanzada de tableros (crear, compartir, permisos).
+- Gestión avanzada de tableros (compartir, permisos). Crear tableros y columnas sí entra (RF-02, RF-03).
 - Cualquier servicio de Google, telemetría o analíticas.
 
 ## 5. Política de conflictos de sincronización
@@ -156,7 +158,7 @@ Medido en el móvil de pruebas (gama alta, pantalla de 120 Hz) con la **build de
 ## 9. Decisiones abiertas (a confirmar durante la implementación)
 - ~~Librería/estrategia para el editor WYSIWYG (ver riesgo 1).~~ Decidido en T03; ver "Decisiones tomadas".
 - ~~Versión mínima de Deck soportada.~~ Provisional: Deck ≥ 1.3 (API v1.1), fijada en T05; se confirma al probar contra servidores reales (T06).
-- Si crear/renombrar columnas entra en el MVP.
+- ~~Si crear/renombrar columnas entra en el MVP.~~ Crear columnas y tableros entra (T15c); renombrar, no por ahora.
 - Estrategia de builds reproducibles (firma, versión de Gradle/AGP fijadas).
 
 ### Decisiones tomadas

@@ -36,3 +36,9 @@ data class LabelIdRequest(val labelId: Long)
 
 @Serializable
 data class UserIdRequest(val userId: String)
+
+@Serializable
+data class CreateBoardRequest(val title: String, val color: String)
+
+@Serializable
+data class CreateStackRequest(val title: String, val order: Int)

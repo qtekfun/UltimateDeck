@@ -3,6 +3,7 @@
 
 package com.qtekfun.ultimatedeck.ui.navigation
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
@@ -20,14 +21,17 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
 import com.qtekfun.ultimatedeck.notify.CardLink
+import com.qtekfun.ultimatedeck.ui.board.BoardActions
 import com.qtekfun.ultimatedeck.ui.board.BoardScreen
 import com.qtekfun.ultimatedeck.ui.board.BoardViewModel
+import com.qtekfun.ultimatedeck.ui.board.NameDialog
 import com.qtekfun.ultimatedeck.ui.boards.BoardListScreen
 import com.qtekfun.ultimatedeck.ui.boards.BoardListViewModel
 import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
@@ -110,6 +114,9 @@ private fun SignedIn(
     val boards by boardsViewModel.state.collectAsStateWithLifecycle()
     val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
     var started by rememberSaveable { mutableStateOf(false) }
+    var creating by rememberSaveable { mutableStateOf<Creating?>(null) }
+    val creation: CreationViewModel = viewModel()
+    CreationDialogs(creating, place, creation) { creating = null }
     LaunchedEffect(Unit) {
         if (started) return@LaunchedEffect
         val favorite = settingsViewModel.storedFavorite()
@@ -142,12 +149,15 @@ private fun SignedIn(
                 callbacks = DrawerCallbacks(
                     onOpenBoard = { board -> closeThen { place.open(board) } },
                     onFavorite = settingsViewModel::setFavoriteBoard,
-                    onSettings = { closeThen { place.settings = true } }
+                    onSettings = { closeThen { place.settings = true } },
+                    onNewBoard = { closeThen { creating = Creating.BOARD } }
                 )
             )
         }
     ) {
-        SignedInContent(account, place, onLogOut) { scope.launch { drawer.open() } }
+        SignedInContent(account, place, onLogOut, { creating = Creating.COLUMN }) {
+            scope.launch { drawer.open() }
+        }
     }
 }
 
@@ -156,6 +166,7 @@ private fun SignedInContent(
     account: AccountEntity,
     place: Place,
     onLogOut: () -> Unit,
+    onAddColumn: () -> Unit,
     onMenu: () -> Unit
 ) {
     val boardViewModel: BoardViewModel = viewModel()
@@ -185,9 +196,12 @@ private fun SignedInContent(
             BoardScreen(
                 title = place.boardTitle,
                 viewModel = boardViewModel,
-                onMenu = onMenu,
-                onOpenCard = { place.cardId = it },
-                onShowArchived = { place.archived = true }
+                actions = BoardActions(
+                    onMenu = onMenu,
+                    onOpenCard = { place.cardId = it },
+                    onShowArchived = { place.archived = true },
+                    onAddColumn = onAddColumn
+                )
             )
         }
 
@@ -203,5 +217,54 @@ private fun SignedInContent(
                 place.cardId = null
             }
         )
+    }
+}
+
+/** What is being created from the menu or the board (T15c). */
+private enum class Creating { BOARD, COLUMN }
+
+/** The dialogs to create a board or a column, and what follows: open it, or say what failed. */
+@Composable
+private fun CreationDialogs(
+    creating: Creating?,
+    place: Place,
+    creation: CreationViewModel,
+    onDone: () -> Unit
+) {
+    val context = LocalContext.current
+    LaunchedEffect(creation) {
+        creation.events.collect { event ->
+            when (event) {
+                is CreationEvent.BoardCreated -> place.open(event.board)
+
+                is CreationEvent.Failed -> Toast.makeText(
+                    context,
+                    event.message,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                CreationEvent.ColumnCreated -> Unit
+            }
+        }
+    }
+    when (creating) {
+        Creating.BOARD -> NewBoardDialog(
+            onCreate = { title, color ->
+                creation.createBoard(title, color)
+                onDone()
+            },
+            onDismiss = onDone
+        )
+
+        Creating.COLUMN -> NameDialog(
+            title = R.string.column_new_title,
+            onCreate = { title ->
+                place.boardId?.let { creation.createColumn(it, title) }
+                onDone()
+            },
+            onDismiss = onDone
+        )
+
+        null -> Unit
     }
 }
