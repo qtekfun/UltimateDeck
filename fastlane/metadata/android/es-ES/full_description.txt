@@ -1,0 +1,32 @@
+UltimateDeck es un cliente moderno de <b>Nextcloud Deck</b>: tus tableros Kanban en una app móvil rápida, al estilo de Trello o Jira, que sigue funcionando sin conexión y sincroniza cuando puede.
+
+<b>Sin conexión primero</b>
+<ul>
+<li>Tableros, columnas y tarjetas viven en tu móvil; cada cambio se guarda al momento y se sincroniza después, aunque cierres la app.</li>
+<li>Los cambios hechos en los dos lados se combinan campo a campo. Si un título o descripción cambió aquí y en el servidor, eliges qué versión quedarte: nunca se pisa nada en silencio.</li>
+</ul>
+
+<b>Tableros y tarjetas</b>
+<ul>
+<li>Columnas lado a lado con desplazamiento por pasos, arrastrar y soltar, y acciones de accesibilidad para mover tarjetas.</li>
+<li>Crea tableros y columnas; bórralos solo si lo activas en Ajustes.</li>
+<li>Edita títulos y descripciones en el sitio con un editor Markdown WYSIWYG.</li>
+<li>Fecha y hora de vencimiento, etiquetas, asignados, tarjetas archivadas que se pueden restaurar.</li>
+<li>Adjuntos desde la cámara, la galería o cualquier archivo, subidos en segundo plano con reintentos.</li>
+<li>Un tablero favorito que se abre al iniciar y un menú lateral para cambiar de tablero.</li>
+</ul>
+
+<b>Recordatorios</b>
+<ul>
+<li>Notificaciones locales cuando vencen las tarjetas, a la hora exacta, con un modo despertador opcional para móviles que retrasan las alarmas.</li>
+</ul>
+
+<b>Tuyo</b>
+<ul>
+<li>Temas claro, oscuro y negro puro (AMOLED), colores Material You, inglés y español.</li>
+<li>Exporta tus ajustes, y si quieres tus sesiones protegidas con contraseña, para pasar a un móvil nuevo.</li>
+<li>Solo HTTPS, inicio de sesión con el Login Flow de Nextcloud, contraseña de aplicación cifrada con el Android Keystore.</li>
+<li>Software libre (GPL-3.0-or-later). Sin servicios de Google, sin anuncios, sin rastreo: tus datos solo van a tu propio Nextcloud.</li>
+</ul>
+
+Necesita Nextcloud con Deck 1.3 o posterior.

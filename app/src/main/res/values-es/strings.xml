@@ -203,4 +203,5 @@
     <string name="backup_restore_password_title">Esta copia tiene sesiones</string>
     <string name="backup_restore_password_text">Escribe la contraseña que elegiste al exportarla para iniciar sesión, o restaura solo los ajustes.</string>
     <string name="backup_skip_sessions">Solo ajustes</string>
+    <string name="settings_version">UltimateDeck %1$s</string>
 </resources>

@@ -5,6 +5,9 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # UltimateDeck
 
+[<img src="https://img.shields.io/badge/Get%20it%20on-GitHub-181717?style=for-the-badge&logo=github" alt="Get it on GitHub" height="40">](https://github.com/qtekfun/UltimateDeck/releases/latest)
+<!-- The F-Droid badge goes next to this one once the app is published there. -->
+
 A modern, offline-first Android client for [Nextcloud Deck](https://apps.nextcloud.com/apps/deck): your Kanban boards in a Trello/Jira-like mobile app that keeps working without a connection and syncs when it can.
 
 Free software (GPL-3.0-or-later), with no Google services, no ads and no telemetry. Built for [F-Droid](https://f-droid.org).

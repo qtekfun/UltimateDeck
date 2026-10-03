@@ -39,9 +39,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.qtekfun.ultimatedeck.BuildConfig
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.SettingFlag
@@ -106,8 +108,21 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(Modifier.padding(horizontal = 8.dp)) { LogoutAction(accountName, onLogOut) }
+            AppVersion()
         }
     }
+}
+
+/** Which version is installed, at the foot of Settings. */
+@Composable
+private fun AppVersion() {
+    Text(
+        stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = Modifier.fillMaxWidth().padding(16.dp)
+    )
 }
 
 @Composable

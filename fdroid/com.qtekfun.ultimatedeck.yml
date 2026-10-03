@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2026 UltimateDeck contributors
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Draft of the F-Droid metadata, to submit to https://gitlab.com/fdroid/fdroiddata as
+# metadata/com.qtekfun.ultimatedeck.yml. Texts and changelogs come from fastlane/metadata/android
+# in this repository. See RELEASING.md.
+Categories:
+  - Productivity
+License: GPL-3.0-or-later
+SourceCode: https://github.com/qtekfun/UltimateDeck
+IssueTracker: https://github.com/qtekfun/UltimateDeck/issues
+Changelog: https://github.com/qtekfun/UltimateDeck/blob/master/CHANGELOG.md
+
+AutoName: UltimateDeck
+
+RepoType: git
+Repo: https://github.com/qtekfun/UltimateDeck.git
+
+Builds:
+  - versionName: 0.9.0
+    versionCode: 90099
+    commit: v0.9.0
+    subdir: app
+    gradle:
+      - yes
+
+# Reproducible builds: F-Droid builds the same source and publishes the developer-signed APK
+# when both match. The fingerprint is the SHA-256 of the release certificate (RELEASING.md).
+AllowedAPKSigningKeys: dbd2f74b203b2227ce6e2593ac86065e47d5bb78538237a985dcac57f8fcd4f7
+Binaries: https://github.com/qtekfun/UltimateDeck/releases/download/v%v/UltimateDeck-%v.apk
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 0.9.0
+CurrentVersionCode: 90099
