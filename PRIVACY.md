@@ -16,6 +16,7 @@ UltimateDeck is a client for your own Nextcloud Deck. It has no servers of its o
 - **Your app password** (created by Nextcloud's Login Flow v2, never your real password) is encrypted with a key stored in the Android Keystore. It never appears in logs or backups.
 - **Backups are disabled**, so none of this is copied by Android's cloud backup.
 - **Settings** (theme, language, favorite board, reminders) stay on the device.
+- **Backups you export** are files you choose where to keep. They only include your signed-in sessions if you ask; then the app passwords inside are encrypted with a password you choose (AES-256-GCM, key derived with PBKDF2). Anyone with the file *and* that password could sign in as you, so keep both safe.
 
 ## Permissions and why
 
@@ -48,6 +49,7 @@ UltimateDeck es un cliente para tu propio Nextcloud Deck. No tiene servidores pr
 - **Tu contraseña de aplicación** (la crea el Login Flow v2 de Nextcloud; nunca es tu contraseña real) se cifra con una clave guardada en el Android Keystore. Nunca aparece en registros ni copias de seguridad.
 - **Las copias de seguridad están desactivadas**: nada de esto lo copia la copia en la nube de Android.
 - **Los ajustes** (tema, idioma, tablero favorito, recordatorios) se quedan en el dispositivo.
+- **Las copias que exportas** son archivos que guardas donde quieras. Solo incluyen tus sesiones iniciadas si lo pides; entonces las contraseñas de aplicación van cifradas con una contraseña que eliges (AES-256-GCM, clave derivada con PBKDF2). Quien tenga el archivo *y* esa contraseña podría entrar como tú: guarda bien ambos.
 
 ## Permisos y por qué
 
