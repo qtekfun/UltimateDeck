@@ -1,1 +1,0 @@
-First release on the way to 1.0: offline-first sync, boards, cards, attachments, reminders and settings.
