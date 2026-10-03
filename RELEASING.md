@@ -39,4 +39,8 @@ Without these variables, `./gradlew assembleRelease` builds an unsigned APK, whi
    git tag vX.Y.Z && git push origin vX.Y.Z
    ```
 4. The **Release** workflow checks that the tag matches `appVersion`, runs `./gradlew check`, builds the signed APK and publishes a GitHub Release with the notes of that version. Release candidates (`-rc.N`) are marked as pre-releases.
-5. F-Droid picks the new tag up by itself (`UpdateCheckMode: Tags`).
+5. F-Droid picks the new tag up by itself (`UpdateCheckMode: Tags`, final versions only: release candidates are not offered there).
+
+## F-Droid
+
+`fdroid/com.qtekfun.ultimatedeck.yml` is the app's metadata as submitted to [fdroiddata](https://gitlab.com/fdroid/fdroiddata) (`metadata/com.qtekfun.ultimatedeck.yml`). It has no comments because fdroiddata's tools remove them. F-Droid builds each tagged version with JDK 21, like CI, checks that its APK matches ours (`Binaries`, `AllowedAPKSigningKeys`) and then publishes ours.
