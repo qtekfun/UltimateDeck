@@ -4,7 +4,10 @@
 package com.qtekfun.ultimatedeck
 
 import android.content.Context
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -118,7 +121,12 @@ class UiTests {
         compose.waitUntil(TIMEOUT) {
             compose.onAllNodesWithText("Team board").fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithText("Team board").performClick()
+        // The side menu lists the board too, even closed (off screen, as a tab): open it from the list.
+        compose.onNode(
+            hasText("Team board") and
+                !SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Tab)
+        )
+            .performClick()
         compose.waitUntil(TIMEOUT) {
             compose.onAllNodesWithText("Write tests").fetchSemanticsNodes().isNotEmpty()
         }
@@ -169,14 +177,16 @@ class UiTests {
             hasSetTextAction() and hasText("Write tests")
         ).performTextReplacement("Write UI tests")
         compose.onNodeWithText(text(R.string.editor_empty)).performClick()
-        compose.onAllNodes(hasSetTextAction())[1].performTextInput("Login, move and edit")
+        // The description editor: the text field that is not the title.
+        compose.onNode(hasSetTextAction() and !hasText("Write UI tests"))
+            .performTextInput("Login, move and edit")
+        // Let Compose apply the typing before leaving, as a person would.
+        compose.waitForIdle()
         scenario?.onActivity { it.onBackPressedDispatcher.onBackPressed() }
         scenario?.onActivity { it.onBackPressedDispatcher.onBackPressed() }
 
-        compose.waitUntil(TIMEOUT) {
-            card().title == "Write UI tests" &&
-                card().description.isNotEmpty()
-        }
+        compose.waitUntil(TIMEOUT) { card().title == "Write UI tests" }
+        compose.waitUntil(TIMEOUT) { card().description.isNotEmpty() }
         assertEquals("Login, move and edit", card().description.trim())
         assertEquals(
             setOf(CardField.TITLE, CardField.DESCRIPTION),
