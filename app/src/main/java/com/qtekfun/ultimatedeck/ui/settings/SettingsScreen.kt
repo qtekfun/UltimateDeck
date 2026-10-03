@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
+import com.qtekfun.ultimatedeck.data.settings.SettingFlag
 import com.qtekfun.ultimatedeck.data.settings.ThemeMode
 import com.qtekfun.ultimatedeck.ui.session.LogoutAction
 
@@ -82,6 +83,14 @@ fun SettingsScreen(
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
             RemindersSection(settings, viewModel)
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            Section(R.string.settings_management)
+            Toggle(
+                stringResource(R.string.settings_allow_deleting),
+                stringResource(R.string.settings_allow_deleting_hint),
+                settings.allowDeleting,
+                onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
+            )
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Section(R.string.settings_account)
             Text(
                 accountName,
@@ -113,14 +122,14 @@ private fun AppearanceSection(settings: AppSettings, viewModel: SettingsViewMode
         stringResource(R.string.settings_amoled_hint),
         settings.amoled,
         enabled = dark,
-        onChange = viewModel::setAmoled
+        onChange = { viewModel.setFlag(SettingFlag.AMOLED, it) }
     )
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         Toggle(
             stringResource(R.string.settings_dynamic_color),
             stringResource(R.string.settings_dynamic_color_hint),
             settings.dynamicColor,
-            onChange = viewModel::setDynamicColor
+            onChange = { viewModel.setFlag(SettingFlag.DYNAMIC_COLOR, it) }
         )
     }
 }

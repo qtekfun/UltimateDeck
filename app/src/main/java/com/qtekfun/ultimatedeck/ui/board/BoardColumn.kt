@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -77,7 +79,7 @@ fun BoardColumn(
         color = MaterialTheme.colorScheme.surfaceContainer
     ) {
         Column {
-            ColumnHeader(column.title, column.cards.size)
+            ColumnTop(column, callbacks.onDeleteColumn)
             LazyColumn(
                 state = listState,
                 userScrollEnabled = !dragState.isDragging,
@@ -108,6 +110,19 @@ fun BoardColumn(
                         Text(stringResource(R.string.card_add))
                     }
                 }
+            }
+        }
+    }
+}
+
+/** The column header, with a delete button when deleting is turned on in Settings. */
+@Composable
+private fun ColumnTop(column: ColumnUi, onDelete: ((columnId: Long) -> Unit)?) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.weight(1f)) { ColumnHeader(column.title, column.cards.size) }
+        onDelete?.let { delete ->
+            IconButton(onClick = { delete(column.id) }) {
+                Icon(Icons.Outlined.Delete, stringResource(R.string.column_delete, column.title))
             }
         }
     }

@@ -175,6 +175,15 @@
     <string name="column_new_title">Nueva columna</string>
     <string name="create_name_label">Nombre</string>
     <string name="create_confirm">Crear</string>
-    <string name="create_needs_connection">Crear tableros y columnas necesita conexión.</string>
-    <string name="create_failed">No se pudo crear. Inténtalo de nuevo.</string>
+    <string name="manage_needs_connection">Crear o borrar tableros y columnas necesita conexión.</string>
+    <string name="manage_failed">No se pudo hacer. Inténtalo de nuevo.</string>
+    <string name="board_delete">Eliminar tablero</string>
+    <string name="board_delete_title">¿Eliminar este tablero?</string>
+    <string name="board_delete_text">El tablero, sus columnas y todas sus tarjetas se eliminarán también en el servidor.</string>
+    <string name="column_delete">Eliminar la columna %1$s</string>
+    <string name="column_delete_title">¿Eliminar esta columna?</string>
+    <string name="column_delete_text">La columna y todas sus tarjetas se eliminarán también en el servidor.</string>
+    <string name="settings_management">Tableros y columnas</string>
+    <string name="settings_allow_deleting">Permitir borrar tableros y columnas</string>
+    <string name="settings_allow_deleting_hint">Desactivado por defecto, para no borrar nada sin querer. Cada borrado pide confirmación.</string>
 </resources>

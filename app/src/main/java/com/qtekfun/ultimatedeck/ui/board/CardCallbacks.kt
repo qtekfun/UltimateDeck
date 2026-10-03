@@ -7,5 +7,7 @@ package com.qtekfun.ultimatedeck.ui.board
 data class CardCallbacks(
     val onMoveToColumn: (cardId: Long, column: Int) -> Unit,
     val onOpen: (cardId: Long) -> Unit,
-    val onAddCard: (columnId: Long) -> Unit
+    val onAddCard: (columnId: Long) -> Unit,
+    /** Null unless deleting is turned on in Settings (T15d). */
+    val onDeleteColumn: ((columnId: Long) -> Unit)? = null
 )
