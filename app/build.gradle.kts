@@ -32,6 +32,8 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "0.1.0"
+        // Hilt replaces the app in UI tests (T20).
+        testInstrumentationRunner = "com.qtekfun.ultimatedeck.HiltTestRunner"
     }
 
     buildTypes {
@@ -265,6 +267,15 @@ dependencies {
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    // UI tests (T20), run on a device with connectedDebugAndroidTest.
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
