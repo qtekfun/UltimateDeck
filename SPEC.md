@@ -109,7 +109,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - Websockets o tiempo real (se usa polling/sync periódica).
 - Multicuenta completo en la interfaz.
 - Tablet/apaisado optimizado (solo arquitectura preparada).
-- Gestión avanzada de tableros (compartir, permisos). Crear tableros y columnas sí entra (RF-02, RF-03).
+- Gestión avanzada de tableros (compartir, permisos). Crear tableros y columnas sí entra (RF-02, RF-03), y borrarlos también, desactivado por defecto: se activa en Ajustes y cada borrado pide confirmación.
 - Cualquier servicio de Google, telemetría o analíticas.
 
 ## 5. Política de conflictos de sincronización

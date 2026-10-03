@@ -7,15 +7,19 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -117,6 +121,11 @@ private fun SignedIn(
     var creating by rememberSaveable { mutableStateOf<Creating?>(null) }
     val creation: CreationViewModel = viewModel()
     CreationDialogs(creating, place, creation) { creating = null }
+    var deleting by remember { mutableStateOf<DeleteTarget?>(null) }
+    DeleteDialogs(deleting, place, creation) { deleting = null }
+    val management = boardManagement(settings.allowDeleting, { creating = Creating.COLUMN }) {
+        deleting = it
+    }
     LaunchedEffect(Unit) {
         if (started) return@LaunchedEffect
         val favorite = settingsViewModel.storedFavorite()
@@ -155,7 +164,7 @@ private fun SignedIn(
             )
         }
     ) {
-        SignedInContent(account, place, onLogOut, { creating = Creating.COLUMN }) {
+        SignedInContent(account, place, onLogOut, management) {
             scope.launch { drawer.open() }
         }
     }
@@ -166,7 +175,7 @@ private fun SignedInContent(
     account: AccountEntity,
     place: Place,
     onLogOut: () -> Unit,
-    onAddColumn: () -> Unit,
+    management: BoardManagement,
     onMenu: () -> Unit
 ) {
     val boardViewModel: BoardViewModel = viewModel()
@@ -200,7 +209,9 @@ private fun SignedInContent(
                     onMenu = onMenu,
                     onOpenCard = { place.cardId = it },
                     onShowArchived = { place.archived = true },
-                    onAddColumn = onAddColumn
+                    onAddColumn = management.onAddColumn,
+                    onDeleteBoard = management.onDeleteBoard,
+                    onDeleteColumn = management.onDeleteColumn
                 )
             )
         }
@@ -244,6 +255,8 @@ private fun CreationDialogs(
                 ).show()
 
                 CreationEvent.ColumnCreated -> Unit
+
+                CreationEvent.BoardDeleted -> place.boardId = null
             }
         }
     }
@@ -267,4 +280,61 @@ private fun CreationDialogs(
 
         null -> Unit
     }
+}
+
+/** Adding and (when turned on in Settings) deleting columns and the board. */
+private data class BoardManagement(
+    val onAddColumn: () -> Unit,
+    val onDeleteBoard: (() -> Unit)?,
+    val onDeleteColumn: ((columnId: Long) -> Unit)?
+)
+
+private fun boardManagement(
+    allowDeleting: Boolean,
+    onAddColumn: () -> Unit,
+    onDelete: (DeleteTarget) -> Unit
+) = BoardManagement(
+    onAddColumn = onAddColumn,
+    onDeleteBoard = { onDelete(DeleteTarget.Board) }.takeIf { allowDeleting },
+    onDeleteColumn = { id: Long -> onDelete(DeleteTarget.Column(id)) }.takeIf { allowDeleting }
+)
+
+/** What is about to be deleted (T15d). */
+private sealed interface DeleteTarget {
+    data object Board : DeleteTarget
+
+    data class Column(val id: Long) : DeleteTarget
+}
+
+/** Deleting takes everything inside with it, so it is always confirmed. */
+@Composable
+private fun DeleteDialogs(
+    target: DeleteTarget?,
+    place: Place,
+    creation: CreationViewModel,
+    onDone: () -> Unit
+) {
+    val board = place.boardId ?: return
+    val (title, text) = when (target) {
+        DeleteTarget.Board -> R.string.board_delete_title to R.string.board_delete_text
+        is DeleteTarget.Column -> R.string.column_delete_title to R.string.column_delete_text
+        null -> return
+    }
+    AlertDialog(
+        onDismissRequest = onDone,
+        title = { Text(stringResource(title)) },
+        text = { Text(stringResource(text)) },
+        confirmButton = {
+            TextButton(onClick = {
+                when (target) {
+                    DeleteTarget.Board -> creation.deleteBoard(board)
+                    is DeleteTarget.Column -> creation.deleteColumn(board, target.id)
+                }
+                onDone()
+            }) { Text(stringResource(R.string.card_delete)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDone) { Text(stringResource(R.string.dialog_cancel)) }
+        }
+    )
 }

@@ -25,5 +25,7 @@ data class AppSettings(
     val reminderLead: ReminderLead = ReminderLead.AT_DUE,
     val reminderScope: ReminderScope = ReminderScope.ASSIGNED_TO_ME,
     /** Aggressive mode: reminders are set like an alarm clock, which no battery saver delays. */
-    val reminderAlarmClock: Boolean = false
+    val reminderAlarmClock: Boolean = false,
+    /** Deleting boards and columns is hidden until turned on here, so it is never done by accident. */
+    val allowDeleting: Boolean = false
 )

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.board.BoardCreation
+import com.qtekfun.ultimatedeck.data.board.BoardDeletion
 import com.qtekfun.ultimatedeck.data.remote.ApiResult
 import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 import com.qtekfun.ultimatedeck.ui.boards.deckColor
@@ -24,11 +25,16 @@ sealed interface CreationEvent {
     data class Failed(val message: Int) : CreationEvent
 
     data object ColumnCreated : CreationEvent
+
+    data object BoardDeleted : CreationEvent
 }
 
 /** Creates boards and columns; both need a connection (T15c). */
 @HiltViewModel
-class CreationViewModel @Inject constructor(private val creation: BoardCreation) : ViewModel() {
+class CreationViewModel @Inject constructor(
+    private val creation: BoardCreation,
+    private val deletion: BoardDeletion
+) : ViewModel() {
     private val mutableEvents = MutableSharedFlow<CreationEvent>(extraBufferCapacity = 1)
     val events: SharedFlow<CreationEvent> = mutableEvents.asSharedFlow()
 
@@ -60,10 +66,26 @@ class CreationViewModel @Inject constructor(private val creation: BoardCreation)
         }
     }
 
+    fun deleteBoard(boardId: Long) {
+        viewModelScope.launch {
+            val result = deletion.deleteBoard(boardId)
+            mutableEvents.tryEmit(
+                if (result is ApiResult.Success) CreationEvent.BoardDeleted else result.failure()
+            )
+        }
+    }
+
+    fun deleteColumn(boardId: Long, columnId: Long) {
+        viewModelScope.launch {
+            val result = deletion.deleteColumn(boardId, columnId)
+            if (result !is ApiResult.Success) mutableEvents.tryEmit(result.failure())
+        }
+    }
+
     private fun ApiResult<*>.failure() = CreationEvent.Failed(
         when (this) {
-            is ApiResult.NetworkError -> R.string.create_needs_connection
-            else -> R.string.create_failed
+            is ApiResult.NetworkError -> R.string.manage_needs_connection
+            else -> R.string.manage_failed
         }
     )
 }

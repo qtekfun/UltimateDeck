@@ -80,9 +80,9 @@ class SettingsRepositoryTest {
             assertEquals(AppSettings(), awaitItem())
             repository.setTheme(ThemeMode.DARK)
             assertEquals(AppSettings(theme = ThemeMode.DARK), awaitItem())
-            repository.setAmoled(true)
+            repository.setFlag(SettingFlag.AMOLED, true)
             assertEquals(AppSettings(theme = ThemeMode.DARK, amoled = true), awaitItem())
-            repository.setDynamicColor(false)
+            repository.setFlag(SettingFlag.DYNAMIC_COLOR, false)
             assertEquals(
                 AppSettings(ThemeMode.DARK, amoled = true, dynamicColor = false),
                 awaitItem()
@@ -116,7 +116,7 @@ class SettingsRepositoryTest {
     fun `reminder preferences are kept`() = runTest {
         repository.settings.test {
             assertEquals(AppSettings(), awaitItem())
-            repository.setReminders(true)
+            repository.setFlag(SettingFlag.REMINDERS, true)
             awaitItem()
             repository.setReminderLead(ReminderLead.ONE_DAY)
             awaitItem()
@@ -136,8 +136,17 @@ class SettingsRepositoryTest {
     fun `the aggressive reminder mode is kept`() = runTest {
         repository.settings.test {
             assertEquals(false, awaitItem().reminderAlarmClock)
-            repository.setReminderAlarmClock(true)
+            repository.setFlag(SettingFlag.REMINDER_ALARM_CLOCK, true)
             assertEquals(true, awaitItem().reminderAlarmClock)
+        }
+    }
+
+    @Test
+    fun `deleting boards and columns is off until turned on`() = runTest {
+        repository.settings.test {
+            assertEquals(false, awaitItem().allowDeleting)
+            repository.setFlag(SettingFlag.ALLOW_DELETING, true)
+            assertEquals(true, awaitItem().allowDeleting)
         }
     }
 }

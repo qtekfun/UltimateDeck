@@ -183,6 +183,15 @@
     <string name="column_new_title">New column</string>
     <string name="create_name_label">Name</string>
     <string name="create_confirm">Create</string>
-    <string name="create_needs_connection">Creating boards and columns needs a connection.</string>
-    <string name="create_failed">It could not be created. Try again.</string>
+    <string name="manage_needs_connection">Creating or deleting boards and columns needs a connection.</string>
+    <string name="manage_failed">It could not be done. Try again.</string>
+    <string name="board_delete">Delete board</string>
+    <string name="board_delete_title">Delete this board?</string>
+    <string name="board_delete_text">The board, its columns and all its cards will be deleted on the server too.</string>
+    <string name="column_delete">Delete column %1$s</string>
+    <string name="column_delete_title">Delete this column?</string>
+    <string name="column_delete_text">The column and all its cards will be deleted on the server too.</string>
+    <string name="settings_management">Boards and columns</string>
+    <string name="settings_allow_deleting">Allow deleting boards and columns</string>
+    <string name="settings_allow_deleting_hint">Off by default, so nothing is deleted by accident. Each deletion still asks first.</string>
 </resources>

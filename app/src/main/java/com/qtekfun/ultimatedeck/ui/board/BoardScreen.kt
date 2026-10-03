@@ -119,7 +119,7 @@ fun BoardScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { BoardTopBar(title, actions.onMenu, actions.onShowArchived) }
+        topBar = { BoardTopBar(title, actions) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -149,7 +149,8 @@ fun BoardScreen(
                         callbacks = CardCallbacks(
                             viewModel::moveCardToColumn,
                             onOpenCard,
-                            onAddCard = { addingTo = it }
+                            onAddCard = { addingTo = it },
+                            onDeleteColumn = actions.onDeleteColumn
                         )
                     )
                 }
@@ -160,13 +161,13 @@ fun BoardScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BoardTopBar(title: String, onMenu: () -> Unit, onShowArchived: () -> Unit) {
+private fun BoardTopBar(title: String, actions: BoardActions) {
     var menu by remember { mutableStateOf(false) }
     TopAppBar(
         // One line: with a large font a long title would otherwise wrap letter by letter.
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
-            IconButton(onClick = onMenu) {
+            IconButton(onClick = actions.onMenu) {
                 Icon(Icons.Filled.Menu, stringResource(R.string.drawer_menu))
             }
         },
@@ -179,9 +180,18 @@ private fun BoardTopBar(title: String, onMenu: () -> Unit, onShowArchived: () ->
                     text = { Text(stringResource(R.string.archived_title)) },
                     onClick = {
                         menu = false
-                        onShowArchived()
+                        actions.onShowArchived()
                     }
                 )
+                actions.onDeleteBoard?.let { delete ->
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.board_delete)) },
+                        onClick = {
+                            menu = false
+                            delete()
+                        }
+                    )
+                }
             }
         }
     )

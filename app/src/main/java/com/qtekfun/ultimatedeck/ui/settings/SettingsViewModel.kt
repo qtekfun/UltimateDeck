@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.ReminderLead
 import com.qtekfun.ultimatedeck.data.settings.ReminderScope
+import com.qtekfun.ultimatedeck.data.settings.SettingFlag
 import com.qtekfun.ultimatedeck.data.settings.SettingsRepository
 import com.qtekfun.ultimatedeck.data.settings.ThemeMode
 import com.qtekfun.ultimatedeck.notify.ReminderScheduler
@@ -31,19 +32,13 @@ class SettingsViewModel @Inject constructor(
 
     fun setTheme(theme: ThemeMode) = repository.setTheme(theme)
 
-    fun setAmoled(amoled: Boolean) = repository.setAmoled(amoled)
-
-    fun setDynamicColor(enabled: Boolean) = repository.setDynamicColor(enabled)
+    fun setFlag(flag: SettingFlag, value: Boolean) = repository.setFlag(flag, value)
 
     fun setFavoriteBoard(boardId: Long?) = repository.setFavoriteBoard(boardId)
-
-    fun setReminders(enabled: Boolean) = repository.setReminders(enabled)
 
     fun setReminderLead(lead: ReminderLead) = repository.setReminderLead(lead)
 
     fun setReminderScope(scope: ReminderScope) = repository.setReminderScope(scope)
-
-    fun setReminderAlarmClock(enabled: Boolean) = repository.setReminderAlarmClock(enabled)
 
     /** Whether reminders can ring at the exact time (Android 12+ asks the user). */
     fun canScheduleExact() = reminderScheduler.canScheduleExact()

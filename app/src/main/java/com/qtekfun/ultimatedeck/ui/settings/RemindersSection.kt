@@ -35,6 +35,7 @@ import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.ReminderLead
 import com.qtekfun.ultimatedeck.data.settings.ReminderScope
+import com.qtekfun.ultimatedeck.data.settings.SettingFlag
 
 /** Due date reminders (RF-10): on/off, how long before, which cards, exact alarms. */
 @Composable
@@ -42,7 +43,7 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
     val context = LocalContext.current
     val askNotifications = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted -> viewModel.setReminders(granted) }
+    ) { granted -> viewModel.setFlag(SettingFlag.REMINDERS, granted) }
     Section(R.string.settings_reminders)
     Toggle(
         stringResource(R.string.settings_reminders_enable),
@@ -52,7 +53,7 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
         if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
-            viewModel.setReminders(enabled)
+            viewModel.setFlag(SettingFlag.REMINDERS, enabled)
         }
     }
     if (!settings.reminders) return
@@ -67,10 +68,10 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
         }
     }
     Choice(stringResource(R.string.settings_reminders_normal), !settings.reminderAlarmClock) {
-        viewModel.setReminderAlarmClock(false)
+        viewModel.setFlag(SettingFlag.REMINDER_ALARM_CLOCK, false)
     }
     Choice(stringResource(R.string.settings_reminders_aggressive), settings.reminderAlarmClock) {
-        viewModel.setReminderAlarmClock(true)
+        viewModel.setFlag(SettingFlag.REMINDER_ALARM_CLOCK, true)
     }
     SystemPermissions(viewModel)
 }

@@ -8,5 +8,8 @@ data class BoardActions(
     val onMenu: () -> Unit,
     val onOpenCard: (cardId: Long) -> Unit,
     val onShowArchived: () -> Unit,
-    val onAddColumn: () -> Unit
+    val onAddColumn: () -> Unit,
+    /** Null unless deleting is turned on in Settings (T15d). */
+    val onDeleteBoard: (() -> Unit)? = null,
+    val onDeleteColumn: ((columnId: Long) -> Unit)? = null
 )
