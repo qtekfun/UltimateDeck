@@ -25,8 +25,8 @@ Builds:
       - yes
 
 # Reproducible builds: F-Droid builds the same source and publishes the developer-signed APK
-# when both match. Fill in the SHA-256 fingerprint of the release certificate (RELEASING.md).
-AllowedAPKSigningKeys: TODO-sha256-of-the-release-certificate
+# when both match. The fingerprint is the SHA-256 of the release certificate (RELEASING.md).
+AllowedAPKSigningKeys: dbd2f74b203b2227ce6e2593ac86065e47d5bb78538237a985dcac57f8fcd4f7
 Binaries: https://github.com/qtekfun/UltimateDeck/releases/download/v%v/UltimateDeck-%v.apk
 
 AutoUpdateMode: Version
