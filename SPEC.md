@@ -95,6 +95,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 ### RF-09 Ajustes e internacionalización
 - Inglés y español; sigue el idioma del sistema.
 - Tema claro/oscuro/sistema y colores dinámicos (Material You).
+- Exportar los ajustes a un archivo y restaurarlos (también desde la pantalla de inicio de sesión de un móvil nuevo). Opcionalmente incluye las sesiones iniciadas, cifradas con AES-256-GCM y una clave derivada (PBKDF2) de una contraseña que elige el usuario: la clave del Keystore no puede salir del móvil.
 
 ### RF-10 Recordatorios de vencimiento
 - Notificaciones **locales** cuando vence una tarjeta: sin servidor de push ni servicios de Google, funcionan sin conexión.

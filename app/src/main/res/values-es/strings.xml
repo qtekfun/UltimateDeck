@@ -186,4 +186,21 @@
     <string name="settings_management">Tableros y columnas</string>
     <string name="settings_allow_deleting">Permitir borrar tableros y columnas</string>
     <string name="settings_allow_deleting_hint">Desactivado por defecto, para no borrar nada sin querer. Cada borrado pide confirmación.</string>
+    <string name="settings_backup">Copia de seguridad</string>
+    <string name="backup_export">Exportar ajustes</string>
+    <string name="backup_restore">Restaurar una copia</string>
+    <string name="backup_file_name">ultimatedeck-ajustes.json</string>
+    <string name="backup_include_sessions">Incluir las sesiones iniciadas</string>
+    <string name="backup_sessions_warning">Quien tenga este archivo y su contraseña puede entrar en tu Nextcloud como tú. Guárdalo bien y elige una contraseña fuerte.</string>
+    <string name="backup_password">Contraseña</string>
+    <string name="backup_password_repeat">Repite la contraseña (mínimo 8 caracteres)</string>
+    <string name="backup_exported">Ajustes exportados.</string>
+    <string name="backup_failed">No se pudo escribir el archivo.</string>
+    <string name="backup_invalid">Ese archivo no es una copia de UltimateDeck.</string>
+    <string name="backup_restored">Ajustes restaurados.</string>
+    <string name="backup_restored_with_session">Ajustes restaurados y sesión iniciada.</string>
+    <string name="backup_wrong_password">Contraseña incorrecta.</string>
+    <string name="backup_restore_password_title">Esta copia tiene sesiones</string>
+    <string name="backup_restore_password_text">Escribe la contraseña que elegiste al exportarla para iniciar sesión, o restaura solo los ajustes.</string>
+    <string name="backup_skip_sessions">Solo ajustes</string>
 </resources>

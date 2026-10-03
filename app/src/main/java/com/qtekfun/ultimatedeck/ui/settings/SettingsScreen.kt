@@ -91,6 +91,8 @@ fun SettingsScreen(
                 onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
             )
             HorizontalDivider(Modifier.padding(vertical = 8.dp))
+            BackupSection()
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
             Section(R.string.settings_account)
             Text(
                 accountName,

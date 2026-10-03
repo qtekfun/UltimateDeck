@@ -54,6 +54,23 @@ class SettingsRepository @Inject constructor(
     fun setReminderScope(scope: ReminderScope) =
         preferences.edit { putString(KEY_REMINDER_SCOPE, scope.name) }
 
+    /** Applies every setting at once, from a backup (T18d). */
+    fun restore(restored: AppSettings) = preferences.edit {
+        putString(KEY_THEME, restored.theme.name)
+        putBoolean(SettingFlag.AMOLED.key, restored.amoled)
+        putBoolean(SettingFlag.DYNAMIC_COLOR.key, restored.dynamicColor)
+        if (restored.favoriteBoardId == null) {
+            remove(KEY_FAVORITE_BOARD)
+        } else {
+            putLong(KEY_FAVORITE_BOARD, restored.favoriteBoardId)
+        }
+        putBoolean(SettingFlag.REMINDERS.key, restored.reminders)
+        putString(KEY_REMINDER_LEAD, restored.reminderLead.name)
+        putString(KEY_REMINDER_SCOPE, restored.reminderScope.name)
+        putBoolean(SettingFlag.REMINDER_ALARM_CLOCK.key, restored.reminderAlarmClock)
+        putBoolean(SettingFlag.ALLOW_DELETING.key, restored.allowDeleting)
+    }
+
     private fun read(): AppSettings {
         val defaults = AppSettings()
         val theme = preferences.getString(KEY_THEME, null)
