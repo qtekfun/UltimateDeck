@@ -169,4 +169,12 @@
     <string name="attachments_delete_title">¿Eliminar este adjunto?</string>
     <string name="attachments_delete_text">%1$s también se eliminará en el servidor.</string>
     <string name="board_more">Más opciones</string>
+    <string name="board_new_title">Nuevo tablero</string>
+    <string name="board_color_option">Color %1$d</string>
+    <string name="column_add">Añadir columna</string>
+    <string name="column_new_title">Nueva columna</string>
+    <string name="create_name_label">Nombre</string>
+    <string name="create_confirm">Crear</string>
+    <string name="create_needs_connection">Crear tableros y columnas necesita conexión.</string>
+    <string name="create_failed">No se pudo crear. Inténtalo de nuevo.</string>
 </resources>

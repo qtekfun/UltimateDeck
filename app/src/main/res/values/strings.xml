@@ -177,4 +177,12 @@
     <string name="attachments_delete_title">Delete this attachment?</string>
     <string name="attachments_delete_text">%1$s will be deleted on the server too.</string>
     <string name="board_more">More options</string>
+    <string name="board_new_title">New board</string>
+    <string name="board_color_option">Color %1$d</string>
+    <string name="column_add">Add column</string>
+    <string name="column_new_title">New column</string>
+    <string name="create_name_label">Name</string>
+    <string name="create_confirm">Create</string>
+    <string name="create_needs_connection">Creating boards and columns needs a connection.</string>
+    <string name="create_failed">It could not be created. Try again.</string>
 </resources>

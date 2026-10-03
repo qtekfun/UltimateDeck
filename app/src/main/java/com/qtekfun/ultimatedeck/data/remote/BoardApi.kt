@@ -4,10 +4,14 @@
 package com.qtekfun.ultimatedeck.data.remote
 
 import com.qtekfun.ultimatedeck.data.remote.dto.BoardDto
+import com.qtekfun.ultimatedeck.data.remote.dto.CreateBoardRequest
+import com.qtekfun.ultimatedeck.data.remote.dto.CreateStackRequest
 import com.qtekfun.ultimatedeck.data.remote.dto.StackDto
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -38,4 +42,13 @@ interface BoardApi {
     /** The columns of a board with only their archived cards. */
     @GET("boards/{boardId}/stacks/archived")
     suspend fun getArchivedStacks(@Path("boardId") boardId: Long): Response<List<StackDto>>
+
+    @POST("boards")
+    suspend fun createBoard(@Body request: CreateBoardRequest): Response<BoardDto>
+
+    @POST("boards/{boardId}/stacks")
+    suspend fun createStack(
+        @Path("boardId") boardId: Long,
+        @Body request: CreateStackRequest
+    ): Response<StackDto>
 }

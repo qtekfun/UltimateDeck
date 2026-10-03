@@ -9,5 +9,6 @@ import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 data class DrawerCallbacks(
     val onOpenBoard: (BoardSummary) -> Unit,
     val onFavorite: (boardId: Long?) -> Unit,
-    val onSettings: () -> Unit
+    val onSettings: () -> Unit,
+    val onNewBoard: () -> Unit
 )

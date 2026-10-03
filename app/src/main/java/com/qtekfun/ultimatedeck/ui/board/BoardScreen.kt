@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenu
@@ -32,6 +33,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -96,11 +98,11 @@ private val AutoScrollMinEdge = 48.dp
 fun BoardScreen(
     title: String,
     viewModel: BoardViewModel,
-    onMenu: () -> Unit,
-    onOpenCard: (cardId: Long) -> Unit,
-    onShowArchived: () -> Unit,
+    actions: BoardActions,
     modifier: Modifier = Modifier
 ) {
+    val onOpenCard = actions.onOpenCard
+    val onAddColumn = actions.onAddColumn
     val state by viewModel.state.collectAsStateWithLifecycle()
     var addingTo by rememberSaveable { mutableStateOf<Long?>(null) }
     val snackbar = remember { SnackbarHostState() }
@@ -117,7 +119,7 @@ fun BoardScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { BoardTopBar(title, onMenu, onShowArchived) }
+        topBar = { BoardTopBar(title, actions.onMenu, actions.onShowArchived) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -134,11 +136,15 @@ fun BoardScreen(
                         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(stringResource(R.string.board_empty), textAlign = TextAlign.Center)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(stringResource(R.string.board_empty), textAlign = TextAlign.Center)
+                            AddColumnButton(onAddColumn)
+                        }
                     }
 
                     else -> Board(
                         columns = state.columns,
+                        onAddColumn = onAddColumn,
                         onMove = viewModel::moveCard,
                         callbacks = CardCallbacks(
                             viewModel::moveCardToColumn,
@@ -197,6 +203,7 @@ private fun ArchivedSnackbar(viewModel: BoardViewModel, snackbar: SnackbarHostSt
 @Composable
 private fun Board(
     columns: List<ColumnUi>,
+    onAddColumn: () -> Unit,
     onMove: (from: CardPosition, to: CardPosition) -> Unit,
     callbacks: CardCallbacks,
     modifier: Modifier = Modifier
@@ -250,6 +257,11 @@ private fun Board(
                     callbacks = callbacks,
                     modifier = Modifier.width(columnWidth)
                 )
+            }
+            item(key = "add-column") {
+                Box(Modifier.width(columnWidth), contentAlignment = Alignment.TopCenter) {
+                    AddColumnButton(onAddColumn)
+                }
             }
         }
         FloatingCard(dragState, LocalDensity.current.run { 1.dp.toPx() })
@@ -346,5 +358,13 @@ private suspend fun PointerInputScope.detectCardDrag(
         }
     } finally {
         if (!finished) onCancel()
+    }
+}
+
+@Composable
+private fun AddColumnButton(onClick: () -> Unit) {
+    OutlinedButton(onClick = onClick, modifier = Modifier.padding(top = 8.dp)) {
+        Icon(Icons.Filled.Add, contentDescription = null)
+        Text(stringResource(R.string.column_add), Modifier.padding(start = 8.dp))
     }
 }
