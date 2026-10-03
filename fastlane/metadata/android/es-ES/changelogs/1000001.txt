@@ -1,0 +1,1 @@
+Primera release candidate de la 1.0.0: sincronización sin conexión, tableros y columnas, tarjetas, adjuntos, recordatorios, ajustes y copias de seguridad.

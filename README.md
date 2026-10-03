@@ -3,10 +3,26 @@ SPDX-FileCopyrightText: 2026 UltimateDeck contributors
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
+<div align="center">
+
+<img src="fastlane/metadata/android/en-US/images/icon.png" alt="UltimateDeck icon" width="112">
+
 # UltimateDeck
+
+**Your Nextcloud Deck boards, offline first.**
+
+[![CI](https://github.com/qtekfun/UltimateDeck/actions/workflows/ci.yml/badge.svg)](https://github.com/qtekfun/UltimateDeck/actions/workflows/ci.yml)
+[![License: GPL v3+](https://img.shields.io/badge/license-GPL--3.0--or--later-blue)](LICENSE)
+[![Android 8.0+](https://img.shields.io/badge/Android-8.0%2B-3DDC84?logo=android&logoColor=white)](#requirements)
 
 [<img src="https://img.shields.io/badge/Get%20it%20on-GitHub-181717?style=for-the-badge&logo=github" alt="Get it on GitHub" height="40">](https://github.com/qtekfun/UltimateDeck/releases/latest)
 <!-- The F-Droid badge goes next to this one once the app is published there. -->
+
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="A board with its columns and cards" width="30%">&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="A card being edited, with due date, assignee and an attachment" width="30%">&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="Settings: themes, AMOLED black, language and reminders" width="30%">
+
+</div>
 
 A modern, offline-first Android client for [Nextcloud Deck](https://apps.nextcloud.com/apps/deck): your Kanban boards in a Trello/Jira-like mobile app that keeps working without a connection and syncs when it can.
 

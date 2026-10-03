@@ -1,1 +1,0 @@
-Primera versión camino de la 1.0: sincronización sin conexión, tableros, tarjetas, adjuntos, recordatorios y ajustes.

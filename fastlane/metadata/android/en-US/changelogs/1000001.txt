@@ -1,0 +1,1 @@
+First release candidate of 1.0.0: offline-first sync, boards and columns, cards, attachments, reminders, settings and backups.
