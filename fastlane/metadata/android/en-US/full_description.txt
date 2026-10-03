@@ -1,0 +1,32 @@
+UltimateDeck is a modern client for <b>Nextcloud Deck</b>: your Kanban boards in a fast, Trello/Jira-like mobile app that keeps working without a connection and syncs when it can.
+
+<b>Offline first</b>
+<ul>
+<li>Boards, columns and cards live on your phone; every change is saved at once and synced later, even if you close the app.</li>
+<li>Changes made on both sides are merged field by field. If a title or description changed both here and on the server, you choose which version to keep: nothing is overwritten silently.</li>
+</ul>
+
+<b>Boards and cards</b>
+<ul>
+<li>Columns side by side with snap scrolling, drag and drop, and accessibility actions to move cards.</li>
+<li>Create boards and columns; delete them only if you turn that on in Settings.</li>
+<li>Edit titles and descriptions in place with a WYSIWYG Markdown editor.</li>
+<li>Due date and time, labels, assignees, archived cards with restore.</li>
+<li>Attachments from the camera, the gallery or any file, uploaded in the background with retries.</li>
+<li>A favorite board that opens at start, and a side menu to switch boards.</li>
+</ul>
+
+<b>Reminders</b>
+<ul>
+<li>Local notifications when cards fall due, at the exact time, with an optional alarm-clock mode for phones that delay alarms.</li>
+</ul>
+
+<b>Yours</b>
+<ul>
+<li>Light, dark and pure black (AMOLED) themes, Material You colors, English and Spanish.</li>
+<li>Export your settings, and optionally your sessions protected by a password, to move to a new phone.</li>
+<li>HTTPS only, sign in through Nextcloud's Login Flow, app password encrypted with the Android Keystore.</li>
+<li>Free software (GPL-3.0-or-later). No Google services, no ads, no tracking: your data only goes to your own Nextcloud.</li>
+</ul>
+
+Requires Nextcloud with Deck 1.3 or newer.

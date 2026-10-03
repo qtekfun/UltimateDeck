@@ -211,4 +211,5 @@
     <string name="backup_restore_password_title">This backup has sessions</string>
     <string name="backup_restore_password_text">Enter the password chosen when exporting it to sign in, or restore only the settings.</string>
     <string name="backup_skip_sessions">Only settings</string>
+    <string name="settings_version">UltimateDeck %1$s</string>
 </resources>

@@ -1,0 +1,1 @@
+Cliente de Nextcloud Deck sin conexión: tableros Kanban que funcionan offline
