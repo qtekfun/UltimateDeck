@@ -40,7 +40,7 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 - [x] **T19 Accesibilidad y rendimiento**: TalkBack, tamaños táctiles, fuente grande; medir arranque y scroll con el volumen de referencia.
 - [ ] **T20 Tests de UI clave (Compose)**: login, mover tarjeta, editar título/descripción offline.
 - [ ] **T21 Metadatos F-Droid**: `fastlane/metadata/android/{en-US,es-ES}/`, iconos, capturas, descripciones; revisar builds reproducibles y ausencia de dependencias no libres.
-- [ ] **T22 Documentación**: `README.md`, `CONTRIBUTING.md`, política de privacidad, `CHANGELOG.md`. Explicar en la política de privacidad/términos cada permiso y decisión y por qué (notificaciones, alarmas exactas y modo despertador, exclusión de la optimización de batería, arranque del móvil, Keystore), para que se entienda lo que hay detrás.
+- [x] **T22 Documentación**: `README.md`, `CONTRIBUTING.md`, política de privacidad, `CHANGELOG.md`. Explicar en la política de privacidad/términos cada permiso y decisión y por qué (notificaciones, alarmas exactas y modo despertador, exclusión de la optimización de batería, arranque del móvil, Keystore), para que se entienda lo que hay detrás.
 
 ## Después del MVP (backlog, no implementar aún)
 - Multicuenta completo en la UI.
