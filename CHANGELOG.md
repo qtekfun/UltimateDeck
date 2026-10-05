@@ -9,6 +9,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.2] - 2026-10-05
+
+Second release candidate: reminders that reach phones that stop background apps.
+
 ### Added
 
 - Reminders guide in Settings → Reminders: tells if notifications are blocked and opens your phone maker's auto-start screens (ColorOS/OxygenOS, Xiaomi, Huawei/Honor, vivo, Samsung), with the app info page as fallback; robust mode is recommended on those phones.
@@ -33,5 +37,6 @@ First release candidate of 1.0.0.
 - Settings: theme, AMOLED black, dynamic colors, language, account; export and restore them, optionally with the sessions sealed by a password.
 - English and Spanish.
 
-[Unreleased]: https://github.com/qtekfun/UltimateDeck/compare/v1.0.0-rc.1...HEAD
+[Unreleased]: https://github.com/qtekfun/UltimateDeck/compare/v1.0.0-rc.2...HEAD
+[1.0.0-rc.2]: https://github.com/qtekfun/UltimateDeck/compare/v1.0.0-rc.1...v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/qtekfun/UltimateDeck/releases/tag/v1.0.0-rc.1

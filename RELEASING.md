@@ -39,7 +39,7 @@ Without these variables, `./gradlew assembleRelease` builds an unsigned APK, whi
    git tag vX.Y.Z && git push origin vX.Y.Z
    ```
 4. The **Release** workflow checks that the tag matches `appVersion`, runs `./gradlew check`, builds the signed APK and publishes a GitHub Release with the notes of that version. Release candidates (`-rc.N`) are marked as pre-releases.
-5. F-Droid picks the new tag up by itself (`UpdateCheckMode: Tags`, final versions only: release candidates are not offered there).
+5. F-Droid picks the new tag up by itself (`UpdateCheckMode: Tags`, release candidates included while there is no final version).
 
 ## F-Droid
 
