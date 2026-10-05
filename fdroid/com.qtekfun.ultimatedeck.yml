@@ -10,7 +10,8 @@ AutoName: UltimateDeck
 
 RepoType: git
 Repo: https://github.com/qtekfun/UltimateDeck.git
-Binaries: https://github.com/qtekfun/UltimateDeck/releases/download/v%v/UltimateDeck-%v.apk
+Binaries: 
+  https://github.com/qtekfun/UltimateDeck/releases/download/v%v/UltimateDeck-%v.apk
 
 Builds:
   - versionName: 1.0.0-rc.1
@@ -27,6 +28,6 @@ Builds:
 AllowedAPKSigningKeys: dbd2f74b203b2227ce6e2593ac86065e47d5bb78538237a985dcac57f8fcd4f7
 
 AutoUpdateMode: Version
-UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+$
+UpdateCheckMode: Tags ^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$
 CurrentVersion: 1.0.0-rc.1
 CurrentVersionCode: 1000001
