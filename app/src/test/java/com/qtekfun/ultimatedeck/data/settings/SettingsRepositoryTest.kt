@@ -81,6 +81,15 @@ class SettingsRepositoryTest {
     }
 
     @Test
+    fun `robust mode is off until turned on`() = runTest {
+        repository.settings.test {
+            assertEquals(false, awaitItem().robustMode)
+            repository.setFlag(SettingFlag.ROBUST_MODE, true)
+            assertEquals(true, awaitItem().robustMode)
+        }
+    }
+
+    @Test
     fun `deleting boards and columns is off until turned on`() = runTest {
         repository.settings.test {
             assertEquals(false, awaitItem().allowDeleting)

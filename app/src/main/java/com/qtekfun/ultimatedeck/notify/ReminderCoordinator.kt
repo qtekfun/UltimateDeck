@@ -5,6 +5,8 @@ package com.qtekfun.ultimatedeck.notify
 
 import com.qtekfun.ultimatedeck.data.auth.AccountSession
 import com.qtekfun.ultimatedeck.data.local.UltimateDeckDatabase
+import com.qtekfun.ultimatedeck.data.local.entity.AccountEntity
+import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.SettingsRepository
 import com.qtekfun.ultimatedeck.domain.reminders.ReminderPlanner
 import java.time.Clock
@@ -13,6 +15,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -36,21 +39,24 @@ class ReminderCoordinator @Inject constructor(
     fun start(scope: CoroutineScope) {
         scope.launch {
             combine(session.activeAccount, settings.settings) { account, settings ->
-                account to
-                    settings
+                account to settings
             }
-                .flatMapLatest { (account, settings) ->
-                    val cards = if (account == null || !settings.reminders) {
-                        flowOf(emptyList())
-                    } else {
-                        dao.observeDueCards(account.id, account.userId)
-                    }
-                    cards.map {
-                        ReminderPlanner.plan(it, settings, clock.instant()) to
-                            settings.reminderAlarmClock
-                    }
-                }
+                .flatMapLatest { (account, settings) -> planned(account, settings) }
                 .collect { (reminders, alarmClock) -> scheduler.schedule(reminders, alarmClock) }
         }
     }
+
+    /** Sets every reminder again from the current cards and settings (robust mode's beat). */
+    suspend fun replan() {
+        val settings = settings.settings.first()
+        val (reminders, alarmClock) = planned(session.activeAccount.first(), settings).first()
+        scheduler.schedule(reminders, alarmClock)
+    }
+
+    private fun planned(account: AccountEntity?, settings: AppSettings) =
+        if (account == null || !settings.reminders) {
+            flowOf(emptyList())
+        } else {
+            dao.observeDueCards(account.id, account.userId)
+        }.map { ReminderPlanner.plan(it, settings, clock.instant()) to settings.reminderAlarmClock }
 }

@@ -103,6 +103,7 @@ Cliente Android para **Nextcloud Deck** con una experiencia moderna al estilo de
 - A la hora exacta cuando el sistema lo permite (permiso de alarmas exactas); si no, con unos minutos de margen.
 - No avisan de tarjetas archivadas, borradas ni hechas; se reprograman tras cada sincronización o cambio y al reiniciar el móvil.
 - Tocar la notificación abre la tarjeta.
+  - **Modo robusto (T26):** opcional, desactivado por defecto, en Ajustes → Recordatorios. Un servicio en primer plano (`specialUse`) con una notificación fija de importancia mínima mantiene vivo el proceso para que las ROM agresivas (ColorOS, MIUI, OriginOS, MagicOS) no maten la app y no se pierdan las alarmas; la notificación explica para qué sirve y permite desactivarlo. Cada 30 min ejecuta `ReminderBeat` (por ahora, reprogramar los avisos); **no usa la red**. Funciona mientras el modo esté activo, los recordatorios estén activados y haya sesión, y arranca tras reiniciar o actualizar la app si lo está.
 
 ## 4. Fuera de alcance (MVP)
 - Comentarios, notificaciones push de servidor (los recordatorios locales son RF-10), widgets.
@@ -200,3 +201,4 @@ Medido en el móvil de pruebas (gama alta, pantalla de 120 Hz) con la **build de
     - **Código:** solo el contenido, con las vallas y el lenguaje conservados.
     - **HTML:** tal cual.
   - **Pendiente para T14:** autoguardado, diálogo de conflictos, edición de enlaces e imágenes.
+- **Modo robusto (T26, 2026-10-05):** servicio en primer plano de tipo `specialUse` porque ninguno de los tipos con nombre encaja (no reproduce, no sincroniza datos, no usa ubicación); la justificación va en `PROPERTY_SPECIAL_USE_FGS_SUBTYPE`. F-Droid no tiene la revisión de tipos de Play. Límite conocido: si la ROM fuerza la detención de la app (`stopped=true`), Android borra todas sus alarmas y el servicio; ahí ayuda reabrir la app, que reprograma todo. En Android 12+ el servicio no puede arrancar desde segundo plano, salvo tras el arranque o la actualización, y si falla arranca al abrir la app.

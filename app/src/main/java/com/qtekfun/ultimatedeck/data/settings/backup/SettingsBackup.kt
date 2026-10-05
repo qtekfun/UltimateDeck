@@ -40,7 +40,8 @@ data class BackupSettings(
     val reminderLead: String,
     val reminderScope: String,
     val reminderAlarmClock: Boolean,
-    val allowDeleting: Boolean
+    val allowDeleting: Boolean,
+    val robustMode: Boolean = false
 )
 
 @Serializable
@@ -140,7 +141,8 @@ private fun AppSettings.toBackup() = BackupSettings(
     reminderLead = reminderLead.name,
     reminderScope = reminderScope.name,
     reminderAlarmClock = reminderAlarmClock,
-    allowDeleting = allowDeleting
+    allowDeleting = allowDeleting,
+    robustMode = robustMode
 )
 
 private fun BackupSettings.toSettings(): AppSettings {
@@ -158,6 +160,7 @@ private fun BackupSettings.toSettings(): AppSettings {
                 it.name == reminderScope
             } ?: defaults.reminderScope,
         reminderAlarmClock = reminderAlarmClock,
-        allowDeleting = allowDeleting
+        allowDeleting = allowDeleting,
+        robustMode = robustMode
     )
 }
