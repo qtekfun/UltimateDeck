@@ -171,6 +171,12 @@
     <string name="settings_reminders_guide_vivo">vivo / iQOO: allow auto-start and high background power consumption, and remove the app from the restricted list.</string>
     <string name="settings_reminders_open_maker">Open the maker\'s settings</string>
     <string name="settings_reminders_open_app_info">Open app info</string>
+    <string name="settings_robust">Robust mode</string>
+    <string name="settings_robust_hint">Keeps a small permanent notification and the app running in the background so phones that stop apps (ColorOS, MIUI, OriginOS…) do not lose your reminders. Recommended if reminders do not arrive. Uses no network.</string>
+    <string name="robust_title">Reminders keep running</string>
+    <string name="robust_text">Keeps due date reminders working on phones that stop background apps. It uses no network.</string>
+    <string name="robust_turn_off">Turn off</string>
+    <string name="robust_channel">Robust mode</string>
     <string name="attachments_title">Attachments</string>
     <string name="attachments_camera">Camera</string>
     <string name="attachments_gallery">Gallery</string>

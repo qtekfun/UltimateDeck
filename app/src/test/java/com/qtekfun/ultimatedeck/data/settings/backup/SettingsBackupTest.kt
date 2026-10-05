@@ -44,6 +44,7 @@ class SettingsBackupTest {
         coEvery { store.load(1) } returns Credentials("ana", "app-password")
         oldPhone.setTheme(ThemeMode.DARK)
         oldPhone.setFlag(SettingFlag.AMOLED, true)
+        oldPhone.setFlag(SettingFlag.ROBUST_MODE, true)
         oldPhone.setReminderLead(ReminderLead.ONE_DAY)
         oldPhone.setFavoriteBoard(19)
         return SettingsBackup(
@@ -72,6 +73,7 @@ class SettingsBackupTest {
             AppSettings(
                 theme = ThemeMode.DARK,
                 amoled = true,
+                robustMode = true,
                 favoriteBoardId = 19,
                 reminderLead = ReminderLead.ONE_DAY
             ),

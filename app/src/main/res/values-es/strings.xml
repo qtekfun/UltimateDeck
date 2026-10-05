@@ -163,6 +163,12 @@
     <string name="settings_reminders_guide_vivo">vivo / iQOO: permite el autoinicio y el alto consumo en segundo plano, y quita la app de la lista restringida.</string>
     <string name="settings_reminders_open_maker">Abrir los ajustes del fabricante</string>
     <string name="settings_reminders_open_app_info">Abrir la ficha de la app</string>
+    <string name="settings_robust">Modo robusto</string>
+    <string name="settings_robust_hint">Mantiene una pequeña notificación fija y la app en segundo plano para que los móviles que detienen apps (ColorOS, MIUI, OriginOS…) no pierdan tus avisos. Recomendado si los avisos no llegan. No usa la red.</string>
+    <string name="robust_title">Los avisos siguen activos</string>
+    <string name="robust_text">Mantiene los avisos de vencimiento en móviles que detienen las apps en segundo plano. No usa la red.</string>
+    <string name="robust_turn_off">Desactivar</string>
+    <string name="robust_channel">Modo robusto</string>
     <string name="attachments_title">Adjuntos</string>
     <string name="attachments_camera">Cámara</string>
     <string name="attachments_gallery">Galería</string>
