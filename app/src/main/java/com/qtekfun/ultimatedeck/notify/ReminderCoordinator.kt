@@ -31,6 +31,7 @@ class ReminderCoordinator @Inject constructor(
     database: UltimateDeckDatabase,
     private val settings: SettingsRepository,
     private val scheduler: ReminderScheduler,
+    private val recovery: MissedReminderRecovery,
     private val clock: Clock
 ) {
     private val dao = database.reminderDao()
@@ -42,15 +43,19 @@ class ReminderCoordinator @Inject constructor(
                 account to settings
             }
                 .flatMapLatest { (account, settings) -> planned(account, settings) }
-                .collect { (reminders, alarmClock) -> scheduler.schedule(reminders, alarmClock) }
+                .collect { (reminders, alarmClock) ->
+                    scheduler.schedule(reminders, alarmClock)
+                    recovery.recover()
+                }
         }
     }
 
-    /** Sets every reminder again from the current cards and settings (robust mode's beat). */
+    /** Sets every reminder again from the current cards and settings (robust mode's beat), and brings back what was missed.*/
     suspend fun replan() {
         val settings = settings.settings.first()
         val (reminders, alarmClock) = planned(session.activeAccount.first(), settings).first()
         scheduler.schedule(reminders, alarmClock)
+        recovery.recover()
     }
 
     private fun planned(account: AccountEntity?, settings: AppSettings) =

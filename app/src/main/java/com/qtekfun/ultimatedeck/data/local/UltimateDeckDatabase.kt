@@ -21,6 +21,7 @@ import com.qtekfun.ultimatedeck.data.local.dao.LocalIdDao
 import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationDao
 import com.qtekfun.ultimatedeck.data.local.dao.PendingOperationRetryDao
 import com.qtekfun.ultimatedeck.data.local.dao.ReminderDao
+import com.qtekfun.ultimatedeck.data.local.dao.ShownReminderDao
 import com.qtekfun.ultimatedeck.data.local.dao.StackDao
 import com.qtekfun.ultimatedeck.data.local.dao.UserDao
 import com.qtekfun.ultimatedeck.data.local.entity.AccountCredentialsEntity
@@ -36,6 +37,7 @@ import com.qtekfun.ultimatedeck.data.local.entity.DeckUserEntity
 import com.qtekfun.ultimatedeck.data.local.entity.LabelEntity
 import com.qtekfun.ultimatedeck.data.local.entity.LocalIdSequenceEntity
 import com.qtekfun.ultimatedeck.data.local.entity.PendingOperationEntity
+import com.qtekfun.ultimatedeck.data.local.entity.ShownReminderEntity
 import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 
 /** Local source of truth (SPEC RF-08). Schemas are exported to app/schemas and versioned. */
@@ -54,7 +56,8 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
         PendingOperationEntity::class,
         LocalIdSequenceEntity::class,
         AccountCredentialsEntity::class,
-        BoardMemberCrossRef::class
+        BoardMemberCrossRef::class,
+        ShownReminderEntity::class
     ],
     version = UltimateDeckDatabase.VERSION,
     exportSchema = true
@@ -62,7 +65,7 @@ import com.qtekfun.ultimatedeck.data.local.entity.StackEntity
 @ColumnTypeConverters(Converters::class)
 abstract class UltimateDeckDatabase : RoomDatabase() {
     companion object {
-        const val VERSION = 9
+        const val VERSION = 10
 
         /**
          * Migrations from each released version to the next. There is no destructive fallback:
@@ -77,7 +80,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
                 Migration5To6,
                 Migration6To7,
                 Migration7To8,
-                Migration8To9
+                Migration8To9,
+                Migration9To10
             )
     }
 
@@ -104,6 +108,8 @@ abstract class UltimateDeckDatabase : RoomDatabase() {
     abstract fun boardMemberDao(): BoardMemberDao
 
     abstract fun reminderDao(): ReminderDao
+
+    abstract fun shownReminderDao(): ShownReminderDao
 
     abstract fun pendingOperationDao(): PendingOperationDao
 

@@ -12,6 +12,7 @@ import java.time.Instant
 
 /** A notification to show at [at] about a card due at [dueDate]. */
 data class Reminder(
+    val accountId: Long,
     val cardId: Long,
     val boardId: Long,
     val boardTitle: String,
@@ -22,13 +23,19 @@ data class Reminder(
 
 /** Which due date reminders to schedule (RF-10): a pure decision, the alarms are elsewhere. */
 object ReminderPlanner {
-    fun plan(cards: List<DueCardRow>, settings: AppSettings, now: Instant): List<Reminder> {
+    /** The reminders still to come. */
+    fun plan(cards: List<DueCardRow>, settings: AppSettings, now: Instant): List<Reminder> =
+        planAll(cards, settings).filter { it.at.isAfter(now) }
+
+    /** Every reminder of the cards, past ones included, so missed ones can be told apart. */
+    fun planAll(cards: List<DueCardRow>, settings: AppSettings): List<Reminder> {
         if (!settings.reminders) return emptyList()
         val lead = settings.reminderLead.duration
         return cards
             .filter { settings.reminderScope == ReminderScope.ALL || it.assignedToMe }
             .map {
                 Reminder(
+                    it.accountId,
                     it.cardId,
                     it.boardId,
                     it.boardTitle,
@@ -37,7 +44,6 @@ object ReminderPlanner {
                     it.dueDate.minus(lead)
                 )
             }
-            .filter { it.at.isAfter(now) }
     }
 
     private val ReminderLead.duration: Duration

@@ -11,12 +11,14 @@ import java.time.Instant
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
+private const val ACCOUNT = 7L
+
 class ReminderPlannerTest {
     private val now = Instant.parse("2026-10-02T10:00:00Z")
     private val on = AppSettings(reminders = true)
 
     private fun due(id: Long, at: String, mine: Boolean = true) =
-        DueCardRow(id, 1, "Board", "Card $id", Instant.parse(at), mine)
+        DueCardRow(ACCOUNT, id, 1, "Board", "Card $id", Instant.parse(at), mine)
 
     @Test
     fun `nothing is planned while reminders are off`() {
@@ -70,6 +72,7 @@ class ReminderPlannerTest {
         )
         assertEquals(
             Reminder(
+                ACCOUNT,
                 2,
                 1,
                 "Board",
@@ -96,5 +99,18 @@ class ReminderPlannerTest {
                 it.cardId
             }
         )
+    }
+
+    @Test
+    fun `planAll keeps the reminders already past, still honoring the settings`() {
+        val cards = listOf(
+            due(1, "2026-10-01T10:00:00Z"),
+            due(2, "2026-10-03T10:00:00Z"),
+            due(3, "2026-10-01T10:00:00Z", mine = false)
+        )
+
+        assertEquals(listOf(1L, 2L), ReminderPlanner.planAll(cards, on).map { it.cardId })
+        assertEquals(emptyList<Reminder>(), ReminderPlanner.planAll(cards, AppSettings()))
+        assertEquals(listOf(2L), ReminderPlanner.plan(cards, on, now).map { it.cardId })
     }
 }

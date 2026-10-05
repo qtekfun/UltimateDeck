@@ -69,6 +69,7 @@ class SettingsRepository @Inject constructor(
         putString(KEY_REMINDER_SCOPE, restored.reminderScope.name)
         putBoolean(SettingFlag.REMINDER_ALARM_CLOCK.key, restored.reminderAlarmClock)
         putBoolean(SettingFlag.ROBUST_MODE.key, restored.robustMode)
+        putBoolean(SettingFlag.RECOVER_MISSED.key, restored.recoverMissed)
         putBoolean(SettingFlag.ALLOW_DELETING.key, restored.allowDeleting)
     }
 
@@ -93,6 +94,10 @@ class SettingsRepository @Inject constructor(
                     defaults.reminderAlarmClock
                 ),
             robustMode = preferences.getBoolean(SettingFlag.ROBUST_MODE.key, defaults.robustMode),
+            recoverMissed = preferences.getBoolean(
+                SettingFlag.RECOVER_MISSED.key,
+                defaults.recoverMissed
+            ),
             allowDeleting = preferences.getBoolean(
                 SettingFlag.ALLOW_DELETING.key,
                 defaults.allowDeleting
@@ -117,5 +122,6 @@ enum class SettingFlag(internal val key: String) {
     REMINDERS("reminders"),
     REMINDER_ALARM_CLOCK("reminder_alarm_clock"),
     ROBUST_MODE("robust_mode"),
+    RECOVER_MISSED("recover_missed"),
     ALLOW_DELETING("allow_deleting")
 }

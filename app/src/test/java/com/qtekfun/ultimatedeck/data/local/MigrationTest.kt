@@ -7,6 +7,7 @@ import android.content.Context
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import com.qtekfun.ultimatedeck.data.local.entity.ShownReminderEntity
 import io.mockk.every
 import io.mockk.mockk
 import java.io.File
@@ -257,5 +258,26 @@ class MigrationTest {
         db.close()
 
         assertEquals("file", attachment.type)
+    }
+
+    @Test
+    fun `migrates version 9 to the latest with a table for shown reminders`() = runTest {
+        val file = File(dir, "v9.db")
+        createFromSchema(
+            file,
+            version = 9,
+            extraSql = listOf(
+                "INSERT INTO account (id, serverUrl, userId, displayName) " +
+                    "VALUES (1, 'https://c.example/', 'ana', 'Ana')"
+            )
+        )
+
+        val db = open(file)
+        val at = Instant.ofEpochMilli(5000)
+        db.shownReminderDao().insert(ShownReminderEntity(1, 100, at))
+        val shown = db.shownReminderDao().all(1)
+        db.close()
+
+        assertEquals(listOf(ShownReminderEntity(1, 100, at)), shown)
     }
 }

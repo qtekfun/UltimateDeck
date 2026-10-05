@@ -3,82 +3,72 @@
 
 package com.qtekfun.ultimatedeck.notify
 
-import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
-import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.reminders.Reminder
-import com.qtekfun.ultimatedeck.ui.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
-private const val CHANNEL = "due_dates"
 private const val EXTRA_TITLE = "title"
 private const val EXTRA_DUE = "due"
+private const val EXTRA_AT = "at"
+private const val EXTRA_ACCOUNT = "account"
 
-/** Shows a due date reminder; tapping it opens the card (RF-10). */
+/**
+ * Shows a due date reminder, notes that it was shown, and brings back any other that did not
+ * come in time (RF-10).
+ */
+@AndroidEntryPoint
 class ReminderReceiver : BroadcastReceiver() {
+    @Inject
+    lateinit var notifier: ReminderNotifier
+
+    @Inject
+    lateinit var recovery: MissedReminderRecovery
+
     override fun onReceive(context: Context, intent: Intent) {
-        val link = CardLink.from(intent) ?: return
-        // Before Android 13 notifications need no permission.
-        val granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-            PackageManager.PERMISSION_GRANTED
-        if (!granted) return
-        createChannel(context)
-        val due = Instant.ofEpochMilli(intent.getLongExtra(EXTRA_DUE, 0))
-        val open = PendingIntent.getActivity(
-            context,
-            link.cardId.hashCode(),
-            link.putInto(Intent(context, MainActivity::class.java))
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val notification = NotificationCompat.Builder(context, CHANNEL)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(intent.getStringExtra(EXTRA_TITLE))
-            .setContentText(
-                context.getString(R.string.reminder_text, link.boardTitle, formatDue(due))
-            )
-            .setContentIntent(open)
-            .setAutoCancel(true)
-            .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .build()
-        NotificationManagerCompat.from(context).notify(link.cardId.hashCode(), notification)
+        val reminder = read(intent) ?: return
+        val pending = goAsync()
+        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+            try {
+                if (notifier.show(reminder, missed = false)) recovery.markShown(reminder)
+                recovery.recover()
+            } finally {
+                pending.finish()
+            }
+        }
     }
-
-    private fun createChannel(context: Context) {
-        val channel = NotificationChannel(
-            CHANNEL,
-            context.getString(R.string.reminder_channel),
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-    }
-
-    private fun formatDue(due: Instant) = DateTimeFormatter.ofLocalizedDateTime(
-        FormatStyle.SHORT
-    ).format(due.atZone(ZoneId.systemDefault()))
 
     companion object {
         /** What the notification needs, carried by the alarm. */
         fun describe(intent: Intent, reminder: Reminder) {
             CardLink(reminder.boardId, reminder.boardTitle, reminder.cardId).putInto(intent)
-            intent.putExtra(
-                EXTRA_TITLE,
-                reminder.title
-            ).putExtra(EXTRA_DUE, reminder.dueDate.toEpochMilli())
+            intent.putExtra(EXTRA_TITLE, reminder.title)
+                .putExtra(EXTRA_DUE, reminder.dueDate.toEpochMilli())
+                .putExtra(EXTRA_AT, reminder.at.toEpochMilli())
+                .putExtra(EXTRA_ACCOUNT, reminder.accountId)
+        }
+
+        /** The reminder an alarm carries; null if it is not one of ours. */
+        fun read(intent: Intent): Reminder? {
+            val link = CardLink.from(intent) ?: return null
+            val due = Instant.ofEpochMilli(intent.getLongExtra(EXTRA_DUE, 0))
+            return Reminder(
+                accountId = intent.getLongExtra(EXTRA_ACCOUNT, NO_ACCOUNT),
+                cardId = link.cardId,
+                boardId = link.boardId,
+                boardTitle = link.boardTitle,
+                title = intent.getStringExtra(EXTRA_TITLE).orEmpty(),
+                dueDate = due,
+                // Alarms set by an earlier version carry no time of their own.
+                at = Instant.ofEpochMilli(intent.getLongExtra(EXTRA_AT, due.toEpochMilli()))
+            )
         }
     }
 }

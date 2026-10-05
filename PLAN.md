@@ -49,6 +49,8 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 ## Fase 5 — Fiabilidad de avisos
 Móviles que matan las apps en segundo plano (ColorOS, MIUI, OriginOS, MagicOS). Solo local: sin servidores ni push. Basado en UltimateTasks.
 - [x] **T23 Guía por fabricante**: `PhoneMaker`/`MakerScreens` (domain), aviso de notificaciones bloqueadas y botón a las pantallas de autoarranque del fabricante (con la ficha de la app como alternativa) en Ajustes → Recordatorios.
+- [x] **T24 Recuperación de avisos vencidos** (RF-10): registrar qué avisos se mostraron y mostrar los que pasaron sin mostrarse (ventana de 24 h), al arrancar, tras cada sync y al recibir cualquier aviso.
+  - *Resultado:* `MissedReminders` y `ReminderPlanner.planAll` en domain, tabla `shown_reminder` (Room v10), `ReminderNotifier` y `MissedReminderRecovery` en `notify`, notificación «No llegó a su hora», ajuste «Recuperar avisos perdidos» incluido en la copia; sin avalancha al actualizar (solo cuenta lo posterior a la activación).
 - [x] **T26 Modo robusto**: servicio en primer plano `specialUse` opcional que mantiene vivo el proceso y ejecuta `ReminderBeat` cada 30 min; arranque en boot/actualización si está activo; explicado en `PRIVACY.md`.
   - *Resultado:* `KeepAliveService` (notificación fija mínima con «Desactivar»), `KeepAliveController` y `KeepAlivePolicy` (domain, testeada); ajuste en Ajustes → Recordatorios, incluido en la copia; `ReminderBeat` solo reprograma por ahora.
 
