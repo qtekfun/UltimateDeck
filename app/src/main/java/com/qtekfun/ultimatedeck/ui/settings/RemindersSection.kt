@@ -36,6 +36,7 @@ import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.ReminderLead
 import com.qtekfun.ultimatedeck.data.settings.ReminderScope
 import com.qtekfun.ultimatedeck.data.settings.SettingFlag
+import com.qtekfun.ultimatedeck.domain.reminders.PhoneMaker
 
 /** Due date reminders (RF-10): on/off, how long before, which cards, exact alarms. */
 @Composable
@@ -73,9 +74,16 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
     Choice(stringResource(R.string.settings_reminders_aggressive), settings.reminderAlarmClock) {
         viewModel.setFlag(SettingFlag.REMINDER_ALARM_CLOCK, true)
     }
+    val recommended = PhoneMaker.of(Build.MANUFACTURER) != PhoneMaker.OTHER
     Toggle(
         stringResource(R.string.settings_robust),
-        stringResource(R.string.settings_robust_hint),
+        stringResource(
+            if (recommended) {
+                R.string.settings_robust_hint_recommended
+            } else {
+                R.string.settings_robust_hint
+            }
+        ),
         settings.robustMode
     ) { viewModel.setFlag(SettingFlag.ROBUST_MODE, it) }
     SystemPermissions(viewModel)

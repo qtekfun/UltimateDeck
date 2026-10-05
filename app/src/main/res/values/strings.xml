@@ -173,6 +173,7 @@
     <string name="settings_reminders_open_app_info">Open app info</string>
     <string name="settings_robust">Robust mode</string>
     <string name="settings_robust_hint">Keeps a small permanent notification and the app running in the background so phones that stop apps (ColorOS, MIUI, OriginOS…) do not lose your reminders. Recommended if reminders do not arrive. Uses no network.</string>
+    <string name="settings_robust_hint_recommended">Recommended on this phone: its system stops apps in the background and loses their alarms. Keeps a small permanent notification and the app running so your reminders arrive. Uses no network.</string>
     <string name="robust_title">Reminders keep running</string>
     <string name="robust_text">Keeps due date reminders working on phones that stop background apps. It uses no network.</string>
     <string name="robust_turn_off">Turn off</string>
