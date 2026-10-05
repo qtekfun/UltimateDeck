@@ -46,6 +46,10 @@ Reglas: una tarea cada vez, en su rama `feat/<tarea>`, con `./gradlew check` en 
 - [x] **T21 Metadatos F-Droid**: `fastlane/metadata/android/{en-US,es-ES}/`, iconos, capturas, descripciones; revisar builds reproducibles y ausencia de dependencias no libres.
 - [x] **T22 Documentación**: `README.md`, `CONTRIBUTING.md`, política de privacidad, `CHANGELOG.md`. Explicar en la política de privacidad/términos cada permiso y decisión y por qué (notificaciones, alarmas exactas y modo despertador, exclusión de la optimización de batería, arranque del móvil, Keystore), para que se entienda lo que hay detrás.
 
+## Fase 5 — Fiabilidad de avisos
+Móviles que matan las apps en segundo plano (ColorOS, MIUI, OriginOS, MagicOS). Solo local: sin servidores ni push. Basado en UltimateTasks.
+- [x] **T23 Guía por fabricante**: `PhoneMaker`/`MakerScreens` (domain), aviso de notificaciones bloqueadas y botón a las pantallas de autoarranque del fabricante (con la ficha de la app como alternativa) en Ajustes → Recordatorios.
+
 ## Después del MVP (backlog, no implementar aún)
 - Multicuenta completo en la UI.
 - Tablet y apaisado.

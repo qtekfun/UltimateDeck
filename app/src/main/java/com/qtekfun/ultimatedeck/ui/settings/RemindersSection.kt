@@ -74,6 +74,7 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
         viewModel.setFlag(SettingFlag.REMINDER_ALARM_CLOCK, true)
     }
     SystemPermissions(viewModel)
+    ReminderGuide()
 }
 
 /** Exact alarms and no battery restrictions, so reminders arrive on time. */
@@ -107,7 +108,7 @@ private fun SystemPermissions(viewModel: SettingsViewModel) {
  * screen. Checked again when coming back to the app.
  */
 @Composable
-private fun PermissionNotice(
+internal fun PermissionNotice(
     granted: () -> Boolean,
     message: Int,
     action: Int,

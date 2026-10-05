@@ -152,6 +152,17 @@
     <string name="settings_reminders_aggressive">Agresivo: suena a su hora como un despertador (muestra el icono de alarma)</string>
     <string name="settings_reminders_battery">La optimización de batería puede retrasar o bloquear los avisos.</string>
     <string name="settings_reminders_allow_battery">Permitir en segundo plano</string>
+    <string name="settings_reminders_blocked">Las notificaciones de UltimateDeck están bloqueadas: no se pueden mostrar avisos.</string>
+    <string name="settings_reminders_allow_notifications">Abrir ajustes de notificaciones</string>
+    <string name="settings_reminders_guide_title">¿No llegan los avisos?</string>
+    <string name="settings_reminders_guide_generic">Algunos móviles detienen las apps en segundo plano y pierden sus alarmas. En la ficha de la app, permite el autoinicio y la actividad en segundo plano y pon la batería en «Sin restricciones».</string>
+    <string name="settings_reminders_guide_coloros">ColorOS / OxygenOS: permite el autoinicio y la actividad en segundo plano, pon la batería en «Permitir actividad en segundo plano» y desactiva «Pausar actividad si no se usa».</string>
+    <string name="settings_reminders_guide_xiaomi">Xiaomi / Redmi / POCO: activa Autoinicio, pon el ahorro de batería en «Sin restricciones» y bloquea la app en la lista de recientes.</string>
+    <string name="settings_reminders_guide_huawei">Huawei / Honor: en inicio de aplicaciones, desactiva la gestión automática y permite inicio automático, secundario y ejecución en segundo plano.</string>
+    <string name="settings_reminders_guide_samsung">Samsung: pon la batería en «Sin restricciones» y quita la app de «Apps en suspensión».</string>
+    <string name="settings_reminders_guide_vivo">vivo / iQOO: permite el autoinicio y el alto consumo en segundo plano, y quita la app de la lista restringida.</string>
+    <string name="settings_reminders_open_maker">Abrir los ajustes del fabricante</string>
+    <string name="settings_reminders_open_app_info">Abrir la ficha de la app</string>
     <string name="attachments_title">Adjuntos</string>
     <string name="attachments_camera">Cámara</string>
     <string name="attachments_gallery">Galería</string>
