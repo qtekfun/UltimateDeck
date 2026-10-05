@@ -50,7 +50,10 @@ class ReminderCoordinator @Inject constructor(
         }
     }
 
-    /** Sets every reminder again from the current cards and settings (robust mode's beat), and brings back what was missed.*/
+    /**
+     * Sets every reminder again from the current cards and settings, and brings back the missed
+     * ones (robust mode's beat).
+     */
     suspend fun replan() {
         val settings = settings.settings.first()
         val (reminders, alarmClock) = planned(session.activeAccount.first(), settings).first()
