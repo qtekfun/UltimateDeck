@@ -11,6 +11,9 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ### Added
 
+- Reminders guide in Settings → Reminders: tells if notifications are blocked and opens your phone maker's auto-start screens (ColorOS/OxygenOS, Xiaomi, Huawei/Honor, vivo, Samsung), with the app info page as fallback; robust mode is recommended on those phones.
+- Heartbeat: while a reminder is pending, a silent alarm every 30 minutes sets the reminders again and brings back missed ones, for phones that freeze the app.
+- Real test reminder: a button sends a reminder through the same path as real ones a minute later and tells whether it arrived on time, late or not at all.
 - Robust mode (optional, in Settings → Reminders): a foreground service keeps the app alive on phones that stop background apps, so reminders are not lost. It uses no network.
 - Missed reminders: when the system stops the app and its alarms never ring, reminders of the last 24 hours are shown late as "Did not arrive on time" when the app starts, after a sync and when any reminder comes in. Can be turned off in Settings → Reminders; it is part of the settings backup.
 

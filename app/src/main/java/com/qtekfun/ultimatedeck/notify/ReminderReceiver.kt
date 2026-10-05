@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.qtekfun.ultimatedeck.domain.reminders.Reminder
+import com.qtekfun.ultimatedeck.domain.reminders.isTest
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.Instant
 import javax.inject.Inject
@@ -32,12 +33,20 @@ class ReminderReceiver : BroadcastReceiver() {
     @Inject
     lateinit var recovery: MissedReminderRecovery
 
+    @Inject
+    lateinit var testReminder: TestReminder
+
     override fun onReceive(context: Context, intent: Intent) {
         val reminder = read(intent) ?: return
         val pending = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             try {
-                if (notifier.show(reminder, missed = false)) recovery.markShown(reminder)
+                if (reminder.isTest) {
+                    testReminder.arrived()
+                    notifier.show(reminder, missed = false)
+                } else if (notifier.show(reminder, missed = false)) {
+                    recovery.markShown(reminder)
+                }
                 recovery.recover()
             } finally {
                 pending.finish()

@@ -177,6 +177,13 @@
     <string name="settings_robust">Robust mode</string>
     <string name="settings_robust_hint">Keeps a small permanent notification and the app running in the background so phones that stop apps (ColorOS, MIUI, OriginOS…) do not lose your reminders. Recommended if reminders do not arrive. Uses no network.</string>
     <string name="settings_robust_hint_recommended">Recommended on this phone: its system stops apps in the background and loses their alarms. Keeps a small permanent notification and the app running so your reminders arrive. Uses no network.</string>
+    <string name="reminder_test_title">Test reminder</string>
+    <string name="reminder_test_text">It works: this reminder reached you.</string>
+    <string name="settings_reminders_test">Send a test reminder in 1 minute</string>
+    <string name="settings_reminders_test_waiting">Waiting for the test reminder… keep the app closed and the screen off to test it for real.</string>
+    <string name="settings_reminders_test_on_time">The test reminder arrived on time.</string>
+    <string name="settings_reminders_test_late">The test reminder arrived %1$d min late. Follow the steps above or turn on robust mode.</string>
+    <string name="settings_reminders_test_missing">The test reminder did not arrive: your phone is holding reminders back. Follow the steps above and turn on robust mode.</string>
     <string name="robust_title">Reminders keep running</string>
     <string name="robust_text">Keeps due date reminders working on phones that stop background apps. It uses no network.</string>
     <string name="robust_turn_off">Turn off</string>

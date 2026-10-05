@@ -169,6 +169,13 @@
     <string name="settings_robust">Modo robusto</string>
     <string name="settings_robust_hint">Mantiene una pequeña notificación fija y la app en segundo plano para que los móviles que detienen apps (ColorOS, MIUI, OriginOS…) no pierdan tus avisos. Recomendado si los avisos no llegan. No usa la red.</string>
     <string name="settings_robust_hint_recommended">Recomendado en este móvil: su sistema detiene las apps en segundo plano y pierde sus alarmas. Mantiene una pequeña notificación fija y la app en marcha para que lleguen tus avisos. No usa la red.</string>
+    <string name="reminder_test_title">Aviso de prueba</string>
+    <string name="reminder_test_text">Funciona: este aviso ha llegado.</string>
+    <string name="settings_reminders_test">Enviar un aviso de prueba en 1 minuto</string>
+    <string name="settings_reminders_test_waiting">Esperando el aviso de prueba… deja la app cerrada y la pantalla apagada para probarlo de verdad.</string>
+    <string name="settings_reminders_test_on_time">El aviso de prueba llegó a tiempo.</string>
+    <string name="settings_reminders_test_late">El aviso de prueba llegó con %1$d min de retraso. Sigue los pasos de arriba o activa el modo robusto.</string>
+    <string name="settings_reminders_test_missing">El aviso de prueba no llegó: tu móvil retiene los avisos. Sigue los pasos de arriba y activa el modo robusto.</string>
     <string name="robust_title">Los avisos siguen activos</string>
     <string name="robust_text">Mantiene los avisos de vencimiento en móviles que detienen las apps en segundo plano. No usa la red.</string>
     <string name="robust_turn_off">Desactivar</string>

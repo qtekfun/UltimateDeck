@@ -24,7 +24,10 @@ private const val KEY_SCHEDULED = "scheduled"
  * previous plan that are no longer wanted are cancelled.
  */
 @Singleton
-class ReminderScheduler @Inject constructor(@ApplicationContext private val context: Context) {
+class ReminderScheduler @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val heartbeat: HeartbeatScheduler
+) {
     private val alarms = context.getSystemService(AlarmManager::class.java)
     private val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
@@ -39,26 +42,31 @@ class ReminderScheduler @Inject constructor(@ApplicationContext private val cont
             it.toLongOrNull()
         }
         (previous - wanted.keys).forEach { alarms.cancel(pendingIntent(it, null)) }
-        val exact = canScheduleExact()
-        wanted.values.forEach { reminder ->
-            val intent = pendingIntent(reminder.cardId, reminder)
-            val at = reminder.at.toEpochMilli()
-            when {
-                // An alarm clock is never deferred, not even by battery savers that delay other
-                // exact alarms with the screen off (seen on ColorOS); it shows the alarm icon.
-                exact && alarmClock ->
-                    alarms.setAlarmClock(
-                        AlarmManager.AlarmClockInfo(at, openCard(reminder)),
-                        intent
-                    )
-
-                exact -> alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
-
-                else ->
-                    alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
-            }
-        }
+        wanted.values.forEach { set(it, alarmClock) }
+        heartbeat.update(reminders)
         preferences.edit { putStringSet(KEY_SCHEDULED, wanted.keys.map(Long::toString).toSet()) }
+    }
+
+    /**
+     * Sets the test reminder the same way as real ones. It is kept out of the scheduled set, so
+     * planning real reminders never cancels it.
+     */
+    fun scheduleTest(reminder: Reminder, alarmClock: Boolean) = set(reminder, alarmClock)
+
+    private fun set(reminder: Reminder, alarmClock: Boolean) {
+        val intent = pendingIntent(reminder.cardId, reminder)
+        val at = reminder.at.toEpochMilli()
+        when {
+            // An alarm clock is never deferred, not even by battery savers that delay other
+            // exact alarms with the screen off (seen on ColorOS); it shows the alarm icon.
+            canScheduleExact() && alarmClock ->
+                alarms.setAlarmClock(AlarmManager.AlarmClockInfo(at, openCard(reminder)), intent)
+
+            canScheduleExact() ->
+                alarms.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
+
+            else -> alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, intent)
+        }
     }
 
     /** What the system opens from its "next alarm" display: the card. */

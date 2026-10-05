@@ -16,6 +16,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.reminders.Reminder
+import com.qtekfun.ultimatedeck.domain.reminders.isTest
 import com.qtekfun.ultimatedeck.ui.MainActivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.ZoneId
@@ -41,18 +42,24 @@ class ReminderNotifier @Inject constructor(@ApplicationContext private val conte
         if (!granted) return false
         createChannel()
         val link = CardLink(reminder.boardId, reminder.boardTitle, reminder.cardId)
+        val opening = Intent(context, MainActivity::class.java)
         val open = PendingIntent.getActivity(
             context,
             reminder.cardId.hashCode(),
-            link.putInto(Intent(context, MainActivity::class.java))
+            // The test reminder has no card to open.
+            (if (reminder.isTest) opening else link.putInto(opening))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val text = context.getString(
-            if (missed) R.string.reminder_missed_text else R.string.reminder_text,
-            reminder.boardTitle,
-            formatDue(reminder)
-        )
+        val text = if (reminder.isTest) {
+            context.getString(R.string.reminder_test_text)
+        } else {
+            context.getString(
+                if (missed) R.string.reminder_missed_text else R.string.reminder_text,
+                reminder.boardTitle,
+                formatDue(reminder)
+            )
+        }
         val notification = NotificationCompat.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(reminder.title)
