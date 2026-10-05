@@ -93,6 +93,7 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
     ) { viewModel.setFlag(SettingFlag.RECOVER_MISSED, it) }
     SystemPermissions(viewModel)
     ReminderGuide()
+    TestReminderButton()
 }
 
 /** Exact alarms and no battery restrictions, so reminders arrive on time. */
