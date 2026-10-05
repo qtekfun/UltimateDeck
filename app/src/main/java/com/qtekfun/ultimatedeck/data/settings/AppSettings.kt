@@ -28,6 +28,8 @@ data class AppSettings(
     val reminderAlarmClock: Boolean = false,
     /** Robust mode: a foreground service keeps the process alive so the system keeps its alarms. */
     val robustMode: Boolean = false,
+    /** Reminders whose time passed without showing are shown late, flagged as missed. */
+    val recoverMissed: Boolean = true,
     /** Deleting boards and columns is hidden until turned on here, so it is never done by accident. */
     val allowDeleting: Boolean = false
 )

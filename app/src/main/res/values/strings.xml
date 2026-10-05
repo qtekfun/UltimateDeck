@@ -144,6 +144,7 @@
     <string name="drawer_unfavorite">Stop opening %1$s at start</string>
     <string name="reminder_channel">Due dates</string>
     <string name="reminder_text">%1$s · due %2$s</string>
+    <string name="reminder_missed_text">Did not arrive on time · %1$s · due %2$s</string>
     <string name="settings_reminders">Reminders</string>
     <string name="settings_reminders_enable">Due date reminders</string>
     <string name="settings_reminders_hint">A notification when a card falls due.</string>
@@ -158,6 +159,8 @@
     <string name="card_due_time">Time</string>
     <string name="settings_reminders_normal">Normal: the system may delay it a few minutes to save battery</string>
     <string name="settings_reminders_aggressive">Aggressive: rings on time like an alarm clock (shows the alarm icon)</string>
+    <string name="settings_reminders_recover">Recover missed reminders</string>
+    <string name="settings_reminders_recover_hint">Reminders that did not arrive on time, because the system stopped the app, are shown late for up to 24 hours.</string>
     <string name="settings_reminders_battery">Battery optimization may delay or block reminders.</string>
     <string name="settings_reminders_allow_battery">Allow running in the background</string>
     <string name="settings_reminders_blocked">Notifications are blocked for UltimateDeck: reminders cannot be shown.</string>

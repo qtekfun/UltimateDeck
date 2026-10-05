@@ -97,4 +97,13 @@ class SettingsRepositoryTest {
             assertEquals(true, awaitItem().allowDeleting)
         }
     }
+
+    @Test
+    fun `missed reminders are recovered unless turned off`() = runTest {
+        repository.settings.test {
+            assertEquals(true, awaitItem().recoverMissed)
+            repository.setFlag(SettingFlag.RECOVER_MISSED, false)
+            assertEquals(false, awaitItem().recoverMissed)
+        }
+    }
 }

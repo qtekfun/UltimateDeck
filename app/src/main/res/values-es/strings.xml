@@ -136,6 +136,7 @@
     <string name="drawer_unfavorite">Dejar de abrir %1$s al iniciar</string>
     <string name="reminder_channel">Vencimientos</string>
     <string name="reminder_text">%1$s · vence %2$s</string>
+    <string name="reminder_missed_text">No llegó a su hora · %1$s · vence %2$s</string>
     <string name="settings_reminders">Recordatorios</string>
     <string name="settings_reminders_enable">Avisos de vencimiento</string>
     <string name="settings_reminders_hint">Una notificación cuando vence una tarjeta.</string>
@@ -150,6 +151,8 @@
     <string name="card_due_time">Hora</string>
     <string name="settings_reminders_normal">Normal: el sistema puede retrasarlo unos minutos para ahorrar batería</string>
     <string name="settings_reminders_aggressive">Agresivo: suena a su hora como un despertador (muestra el icono de alarma)</string>
+    <string name="settings_reminders_recover">Recuperar avisos perdidos</string>
+    <string name="settings_reminders_recover_hint">Los avisos que no llegaron a su hora porque el sistema detuvo la app se muestran con retraso, hasta 24 horas después.</string>
     <string name="settings_reminders_battery">La optimización de batería puede retrasar o bloquear los avisos.</string>
     <string name="settings_reminders_allow_battery">Permitir en segundo plano</string>
     <string name="settings_reminders_blocked">Las notificaciones de UltimateDeck están bloqueadas: no se pueden mostrar avisos.</string>

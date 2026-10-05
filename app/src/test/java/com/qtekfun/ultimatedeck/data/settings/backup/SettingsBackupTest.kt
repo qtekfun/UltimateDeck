@@ -46,6 +46,7 @@ class SettingsBackupTest {
         oldPhone.setFlag(SettingFlag.AMOLED, true)
         oldPhone.setFlag(SettingFlag.ROBUST_MODE, true)
         oldPhone.setReminderLead(ReminderLead.ONE_DAY)
+        oldPhone.setFlag(SettingFlag.RECOVER_MISSED, false)
         oldPhone.setFavoriteBoard(19)
         return SettingsBackup(
             oldPhone,
@@ -75,7 +76,8 @@ class SettingsBackupTest {
                 amoled = true,
                 robustMode = true,
                 favoriteBoardId = 19,
-                reminderLead = ReminderLead.ONE_DAY
+                reminderLead = ReminderLead.ONE_DAY,
+                recoverMissed = false
             ),
             newPhone.settings.first()
         )
@@ -99,6 +101,15 @@ class SettingsBackupTest {
                 }
             )
         }
+    }
+
+    @Test
+    fun `a backup from before missed reminders came back restores them as on`() = runTest {
+        val backup = exported(withSessions = false).replace(",\"recoverMissed\":false", "")
+
+        restorer(signedIn = false).restore(backup, null)
+
+        assertTrue(newPhone.settings.first().recoverMissed)
     }
 
     @Test

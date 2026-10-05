@@ -6,8 +6,10 @@ package com.qtekfun.ultimatedeck.sync.engine
 import android.content.Context
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import com.qtekfun.ultimatedeck.notify.MissedReminderRecovery
 import com.qtekfun.ultimatedeck.sync.queue.ProcessResult
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -17,7 +19,8 @@ import org.junit.jupiter.api.Test
 
 class SyncWorkerTest {
     private val engine = mockk<SyncEngine>()
-    private val factory = SyncWorkerFactory { engine }
+    private val recovery = mockk<MissedReminderRecovery>(relaxed = true)
+    private val factory = SyncWorkerFactory({ engine }, { recovery })
     private val context = mockk<Context>(relaxed = true)
     private val params = mockk<WorkerParameters>(relaxed = true)
 
@@ -35,6 +38,17 @@ class SyncWorkerTest {
     fun `a finished sync or no account succeeds`() = runTest {
         assertEquals(ListenableWorker.Result.success(), resultFor(SyncOutcome.Ok(ProcessResult())))
         assertEquals(ListenableWorker.Result.success(), resultFor(SyncOutcome.NoAccount))
+    }
+
+    @Test
+    fun `missed reminders are brought back after a finished sync only`() = runTest {
+        resultFor(SyncOutcome.Offline)
+        resultFor(SyncOutcome.NoAccount)
+        coVerify(exactly = 0) { recovery.recover() }
+
+        resultFor(SyncOutcome.Ok(ProcessResult()))
+
+        coVerify(exactly = 1) { recovery.recover() }
     }
 
     @Test

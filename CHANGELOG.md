@@ -12,6 +12,7 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 ### Added
 
 - Robust mode (optional, in Settings → Reminders): a foreground service keeps the app alive on phones that stop background apps, so reminders are not lost. It uses no network.
+- Missed reminders: when the system stops the app and its alarms never ring, reminders of the last 24 hours are shown late as "Did not arrive on time" when the app starts, after a sync and when any reminder comes in. Can be turned off in Settings → Reminders; it is part of the settings backup.
 
 ## [1.0.0-rc.1] - 2026-10-03
 

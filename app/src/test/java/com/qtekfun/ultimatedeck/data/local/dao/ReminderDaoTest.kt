@@ -45,11 +45,12 @@ class ReminderDaoTest {
         db.userDao().setAssignees(ACCOUNT, 1, listOf("bob"))
 
         val due = db.reminderDao().observeDueCards(ACCOUNT, "ana").first()
+        assertEquals(due, db.reminderDao().dueCards(ACCOUNT, "ana"))
 
         assertEquals(
             listOf(
-                DueCardRow(2, 1, "Board", "Card", soon, assignedToMe = true),
-                DueCardRow(1, 1, "Board", "Card", later, assignedToMe = false)
+                DueCardRow(ACCOUNT, 2, 1, "Board", "Card", soon, assignedToMe = true),
+                DueCardRow(ACCOUNT, 1, 1, "Board", "Card", later, assignedToMe = false)
             ),
             due
         )

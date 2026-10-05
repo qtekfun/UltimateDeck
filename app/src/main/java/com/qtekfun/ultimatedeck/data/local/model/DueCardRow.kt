@@ -7,6 +7,7 @@ import java.time.Instant
 
 /** An open card with a due date, as reminders need it (RF-10). */
 data class DueCardRow(
+    val accountId: Long,
     val cardId: Long,
     val boardId: Long,
     val boardTitle: String,

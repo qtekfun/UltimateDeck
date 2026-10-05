@@ -86,6 +86,11 @@ fun RemindersSection(settings: AppSettings, viewModel: SettingsViewModel) {
         ),
         settings.robustMode
     ) { viewModel.setFlag(SettingFlag.ROBUST_MODE, it) }
+    Toggle(
+        stringResource(R.string.settings_reminders_recover),
+        stringResource(R.string.settings_reminders_recover_hint),
+        settings.recoverMissed
+    ) { viewModel.setFlag(SettingFlag.RECOVER_MISSED, it) }
     SystemPermissions(viewModel)
     ReminderGuide()
 }
