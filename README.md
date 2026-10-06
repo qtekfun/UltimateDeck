@@ -20,7 +20,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" alt="A board with its columns and cards" width="30%">&nbsp;
 <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" alt="A card being edited, with due date, assignee and an attachment" width="30%">&nbsp;
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="Settings: themes, AMOLED black, language and reminders" width="30%">
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" alt="Another column of the same board, with labels, due dates and assignees" width="30%">
 
 </div>
 
