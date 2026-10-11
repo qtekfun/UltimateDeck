@@ -7,11 +7,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -52,6 +55,9 @@ import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
 
+/** From this width the editor shows its fields and the description in two panes. */
+private val TwoPaneMinWidth = 600.dp
+
 /**
  * Card description editor (T03, T14): the Markdown shown rendered, Jira style. Tapping it (or
  * the edit button) switches to the block editor; the stored Markdown can be checked at the foot.
@@ -73,52 +79,90 @@ fun CardEditor(
     BackHandler { if (editing) editing = false else onBack() }
     LaunchedEffect(source) { onSourceChange(source) }
 
-    Scaffold(
-        // The whole screen rides above the keyboard, bottom bar included: padding only the
-        // content left a bar-sized gap, because Scaffold reserves the bar's height itself.
-        modifier = modifier.fillMaxSize().imePadding(),
-        topBar = {
-            EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
-        },
-        // Saved Markdown at the foot of the screen, out of the way of the text.
-        bottomBar = {
-            StoredMarkdown(source, original, showMarkdown) { showMarkdown = !showMarkdown }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            header()
-            if (editing) {
-                EditorToolbar(
-                    editorActions(activeText) {
-                        source = withTable(source, tableTemplate)
+    val storedMarkdown: @Composable () -> Unit = {
+        StoredMarkdown(source, original, showMarkdown) { showMarkdown = !showMarkdown }
+    }
+    val description: @Composable () -> Unit = {
+        val callbacks = MarkdownBlocksCallbacks(
+            onSourceChange = { source = it },
+            onActiveText = { activeText = it },
+            onTap = { editing = true }
+        )
+        DescriptionSection(source, editing, activeText, callbacks, tableTemplate)
+    }
+
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        // Wide screens (landscape, tablets) show the card's fields and the description side by
+        // side, so the description is not far below the fold and stays visible with the keyboard.
+        val twoPane = maxWidth >= TwoPaneMinWidth
+        Scaffold(
+            // The whole screen rides above the keyboard, bottom bar included: padding only the
+            // content left a bar-sized gap, because Scaffold reserves the bar's height itself.
+            modifier = Modifier.fillMaxSize().imePadding(),
+            topBar = {
+                EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
+            },
+            // Saved Markdown at the foot of the screen, out of the way of the text.
+            bottomBar = { if (!twoPane) storedMarkdown() }
+        ) { padding ->
+            if (twoPane) {
+                Row(Modifier.padding(padding).fillMaxSize()) {
+                    EditorPane(Modifier.weight(1f)) {
+                        header()
+                        storedMarkdown()
                     }
-                )
-            }
-            if (!editing && source.isBlank()) {
-                TextButton(onClick = {
-                    editing = true
-                }) { Text(stringResource(R.string.editor_empty)) }
-            }
-            DescriptionFrame(editing) {
-                MarkdownBlocks(
-                    source = source,
-                    editable = editing,
-                    callbacks = MarkdownBlocksCallbacks(
-                        onSourceChange = { source = it },
-                        onActiveText = { activeText = it },
-                        onTap = { editing = true }
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                    EditorPane(Modifier.weight(1f)) { description() }
+                }
+            } else {
+                EditorPane(Modifier.padding(padding)) {
+                    header()
+                    description()
+                }
             }
         }
     }
+}
+
+/** The format toolbar while editing, the empty-state button and the framed description. */
+@Composable
+private fun DescriptionSection(
+    source: String,
+    editing: Boolean,
+    activeText: TextCommandTarget?,
+    callbacks: MarkdownBlocksCallbacks,
+    tableTemplate: String
+) {
+    if (editing) {
+        EditorToolbar(
+            editorActions(activeText) {
+                callbacks.onSourceChange(withTable(source, tableTemplate))
+            }
+        )
+    }
+    if (!editing && source.isBlank()) {
+        TextButton(onClick = callbacks.onTap) { Text(stringResource(R.string.editor_empty)) }
+    }
+    DescriptionFrame(editing) {
+        MarkdownBlocks(
+            source = source,
+            editable = editing,
+            callbacks = callbacks,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+/** A scrolling column of the editor: one pane on a phone, each side of the two on wide screens. */
+@Composable
+private fun EditorPane(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = modifier
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        content = content
+    )
 }
 
 /** Framed like the title field, so it is clear where the description starts and ends. */
