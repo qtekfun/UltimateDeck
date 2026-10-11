@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -42,6 +43,7 @@ fun TableGrid(
     editable: Boolean,
     onChange: (MarkdownTable) -> Unit,
     onActive: (TextCommandTarget) -> Unit,
+    onRemove: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -68,7 +70,7 @@ fun TableGrid(
                     }
                 }
         }
-        if (editable) TableControls(table, onChange)
+        if (editable) TableControls(table, onChange, onRemove)
     }
 }
 
@@ -102,7 +104,11 @@ private fun TableCell(
 }
 
 @Composable
-private fun TableControls(table: MarkdownTable, onChange: (MarkdownTable) -> Unit) {
+private fun TableControls(
+    table: MarkdownTable,
+    onChange: (MarkdownTable) -> Unit,
+    onRemove: () -> Unit
+) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(onClick = { onChange(table.withRowAdded()) }) {
             Text(stringResource(R.string.table_add_row))
@@ -118,5 +124,11 @@ private fun TableControls(table: MarkdownTable, onChange: (MarkdownTable) -> Uni
             onClick = { onChange(table.withColumnRemoved(table.columnCount - 1)) },
             enabled = table.columnCount > 1
         ) { Text(stringResource(R.string.table_remove_column)) }
+        OutlinedButton(
+            onClick = onRemove,
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = MaterialTheme.colorScheme.error
+            )
+        ) { Text(stringResource(R.string.table_remove)) }
     }
 }

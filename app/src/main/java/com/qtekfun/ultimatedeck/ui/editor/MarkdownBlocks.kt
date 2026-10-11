@@ -35,9 +35,17 @@ fun MarkdownBlocks(
             val visible = text.isNotBlank() || (editable && index == segments.lastIndex)
             if (visible) {
                 key(index, segment.kind) {
-                    Segment(segment, text, editable, callbacks) { edited ->
-                        callbacks.onSourceChange(DocumentSegments.replace(source, segment, edited))
-                    }
+                    val edits = SegmentEdits(
+                        replace = { edited ->
+                            callbacks.onSourceChange(
+                                DocumentSegments.replace(source, segment, edited)
+                            )
+                        },
+                        remove = {
+                            callbacks.onSourceChange(DocumentSegments.remove(source, segment))
+                        }
+                    )
+                    Segment(segment, text, editable, callbacks, edits)
                 }
             }
         }
@@ -53,14 +61,18 @@ fun MarkdownBlocks(
     }
 }
 
+/** What a segment can do to the source: rewrite itself or disappear. */
+private class SegmentEdits(val replace: (String) -> Unit, val remove: () -> Unit)
+
 @Composable
 private fun Segment(
     segment: DocumentSegment,
     text: String,
     editable: Boolean,
     callbacks: MarkdownBlocksCallbacks,
-    replace: (String) -> Unit
+    edits: SegmentEdits
 ) {
+    val replace = edits.replace
     when (segment.kind) {
         SegmentKind.TEXT -> {
             // Blank lines around the text are kept in the source but not shown.
@@ -84,7 +96,8 @@ private fun Segment(
             table = remember(text) { MarkdownTable.parse(text) },
             editable = editable,
             onChange = { replace(it.serialize()) },
-            onActive = callbacks.onActiveText
+            onActive = callbacks.onActiveText,
+            onRemove = edits.remove
         )
 
         SegmentKind.CODE -> CodeSegment(text, editable, replace)

@@ -35,6 +35,13 @@ object DocumentSegments {
     fun replace(source: String, segment: DocumentSegment, text: String): String =
         source.substring(0, segment.range.start) + text + source.substring(segment.range.end)
 
+    /** The source without [segment] and the line break that ends it, so no blank line is left behind. */
+    fun remove(source: String, segment: DocumentSegment): String {
+        val end = segment.range.end
+        val lineBreak = if (source.getOrNull(end) == '\n') 1 else 0
+        return source.substring(0, segment.range.start) + source.substring(end + lineBreak)
+    }
+
     private fun segmentKind(kind: BlockKind): SegmentKind = when (kind) {
         BlockKind.TABLE -> SegmentKind.TABLE
         BlockKind.CODE -> SegmentKind.CODE
