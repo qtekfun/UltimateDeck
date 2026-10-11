@@ -1,0 +1,1 @@
+Landscape and tablets: the card editor now shows the fields on the left and the description on the right, so it stays visible with the keyboard open. Settings are capped in width on wide screens.

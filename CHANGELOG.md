@@ -9,6 +9,15 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.5] - 2026-10-11
+
+Fifth release candidate: the card editor on wide screens.
+
+### Changed
+
+- Landscape and tablets: the card editor shows the card's fields and attachments on the left and the description with its toolbar on the right, each with its own scroll, so the description stays visible with the keyboard open.
+- Settings are centred and capped in width on wide screens.
+
 ## [1.0.0-rc.4] - 2026-10-11
 
 Fourth release candidate: one more keyboard fix.

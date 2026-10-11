@@ -1,0 +1,1 @@
+Horizontal y tabletas: el editor de tarjeta muestra los campos a la izquierda y la descripción a la derecha, y esta sigue visible con el teclado abierto. Los ajustes se limitan en ancho en pantallas anchas.
