@@ -36,6 +36,7 @@ internal class LiveMarkdownTransformation(
     override fun filter(text: AnnotatedString): TransformedText {
         val doc = if (text.text == document.source) document else MarkdownDocument.parse(text.text)
         val hidden = mutableListOf<SourceRange>()
+        val skipped = mutableListOf<SourceRange>()
         val replacements = mutableMapOf<Int, Char>()
         val styled = buildAnnotatedString {
             append(doc.source)
@@ -43,11 +44,11 @@ internal class LiveMarkdownTransformation(
             doc.quotes.forEach { addStyle(styles.quote, it.start, it.end) }
             hidden += doc.quoteMarkers
             styleHeadingsAndSpans(doc, hidden)
-            styleTasks(doc, hidden, replacements)
+            styleTasks(doc, hidden, replacements, skipped)
             styleBullets(doc, hidden, replacements)
         }
         val merged = mergeRanges(hidden)
-        mapping = HiddenRangesOffsetMapping(merged, doc.source.length)
+        mapping = HiddenRangesOffsetMapping(merged, doc.source.length, skipped)
         return TransformedText(
             withoutHidden(withReplacements(styled, replacements), merged),
             mapping
@@ -74,10 +75,14 @@ internal class LiveMarkdownTransformation(
     private fun AnnotatedString.Builder.styleTasks(
         doc: MarkdownDocument,
         hidden: MutableList<SourceRange>,
-        replacements: MutableMap<Int, Char>
+        replacements: MutableMap<Int, Char>,
+        skipped: MutableList<SourceRange>
     ) {
         doc.tasks.forEach { task ->
             val inner = task.range.start + 1
+            // The caret beside the box goes after `]` and the space that follows it.
+            val space = if (doc.source.getOrNull(task.range.end) == ' ') 1 else 0
+            skipped += SourceRange(task.range.end - 1, task.range.end + space)
             if (!touchesSelection(task.range)) {
                 hidden += SourceRange(task.range.start, inner)
                 hidden += SourceRange(task.range.end - 1, task.range.end)

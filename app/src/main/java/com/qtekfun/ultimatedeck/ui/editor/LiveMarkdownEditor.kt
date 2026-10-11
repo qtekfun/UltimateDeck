@@ -16,17 +16,22 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.domain.editor.EditResult
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownDocument
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
 import com.qtekfun.ultimatedeck.domain.editor.SourceRange
 import com.qtekfun.ultimatedeck.domain.editor.TaskMarker
+
+/** Extra touch area to the left of a checkbox; to its right a tap places the cursor. */
+private val TaskSlop = 16.dp
 
 /**
  * A text field whose content is the markdown source, displayed rendered by
@@ -52,12 +57,17 @@ fun LiveMarkdownEditor(
     // its offset mapping depends on the cursor position.
     val currentTransformation by rememberUpdatedState(transformation)
 
-    fun taskAt(position: Offset): TaskMarker? {
+    // Hit-tested on the drawn box, not on offsets: the caret beside it must place the cursor.
+    fun taskAt(position: Offset, slop: Float): TaskMarker? {
         val textLayout = layout ?: return null
-        val original = currentTransformation.mapping.transformedToOriginal(
-            textLayout.getOffsetForPosition(position)
-        )
-        return currentDocument.tasks.firstOrNull { original in it.range.start..it.range.end }
+        val mapping = currentTransformation.mapping
+        return currentDocument.tasks.firstOrNull { task ->
+            val box = mapping.originalToTransformed(task.range.start + 1)
+            box < textLayout.layoutInput.text.length &&
+                textLayout.getBoundingBox(box).let {
+                    Rect(it.left - slop, it.top, it.right, it.bottom).contains(position)
+                }
+        }
     }
 
     BasicTextField(
@@ -73,7 +83,7 @@ fun LiveMarkdownEditor(
         modifier = modifier.pointerInput(Unit) {
             awaitEachGesture {
                 val down = awaitFirstDown(pass = PointerEventPass.Initial)
-                val task = taskAt(down.position) ?: return@awaitEachGesture
+                val task = taskAt(down.position, TaskSlop.toPx()) ?: return@awaitEachGesture
                 down.consume()
                 val up =
                     waitForUpOrCancellation(PointerEventPass.Initial) ?: return@awaitEachGesture
