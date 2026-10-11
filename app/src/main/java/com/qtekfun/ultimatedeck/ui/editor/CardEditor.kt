@@ -74,7 +74,9 @@ fun CardEditor(
     LaunchedEffect(source) { onSourceChange(source) }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        // The whole screen rides above the keyboard, bottom bar included: padding only the
+        // content left a bar-sized gap, because Scaffold reserves the bar's height itself.
+        modifier = modifier.fillMaxSize().imePadding(),
         topBar = {
             EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
         },
@@ -86,7 +88,6 @@ fun CardEditor(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
