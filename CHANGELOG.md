@@ -9,6 +9,14 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.4] - 2026-10-11
+
+Fourth release candidate: one more keyboard fix.
+
+### Fixed
+
+- The card editor no longer leaves a black gap above the keyboard: the "Saved Markdown" bar now rides right above it and the description uses all the space left.
+
 ## [1.0.0-rc.3] - 2026-10-11
 
 Third release candidate: editor fixes.

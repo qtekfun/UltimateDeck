@@ -1,0 +1,1 @@
+Arreglo: el editor de tarjetas ya no deja un hueco negro sobre el teclado.
