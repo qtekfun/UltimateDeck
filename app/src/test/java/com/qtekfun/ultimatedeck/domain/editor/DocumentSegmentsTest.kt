@@ -72,4 +72,28 @@ class DocumentSegmentsTest {
         @JvmStatic
         fun corpus(): List<String> = MarkdownCorpus.names
     }
+
+    @Test
+    fun `deleting a table segment removes it with its line break and keeps the rest`() {
+        val before = "Intro\n\n"
+        val after = "\nAfter\n"
+        val source = before + "| a | b |\n|---|---|\n| 1 | 2 |\n" + after
+        val table = segmentsOf(source).single { it.kind == SegmentKind.TABLE }
+
+        val result = DocumentSegments.remove(source, table)
+
+        assertEquals(before + "\nAfter\n", result)
+        assertEquals(
+            emptyList<SegmentKind>(),
+            segmentsOf(result).map { it.kind }.filter { it == SegmentKind.TABLE }
+        )
+    }
+
+    @Test
+    fun `removing a table at the end of the source without a final line break`() {
+        val source = "Intro\n\n| a |\n|---|\n| 1 |"
+        val table = segmentsOf(source).single { it.kind == SegmentKind.TABLE }
+
+        assertEquals("Intro\n\n", DocumentSegments.remove(source, table))
+    }
 }

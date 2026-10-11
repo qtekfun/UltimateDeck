@@ -49,6 +49,7 @@
     <string name="table_add_column">Añadir columna</string>
     <string name="table_remove_row">Quitar última fila</string>
     <string name="table_remove_column">Quitar última columna</string>
+    <string name="table_remove">Eliminar tabla</string>
 
     <string name="login_title">Inicia sesión en Nextcloud</string>
     <string name="login_server_label">Dirección del servidor</string>
