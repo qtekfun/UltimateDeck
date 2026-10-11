@@ -5,12 +5,14 @@ package com.qtekfun.ultimatedeck.ui.settings
 
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
@@ -76,42 +78,50 @@ fun SettingsScreen(
             )
         }
     ) { padding ->
-        Column(
-            Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            AppearanceSection(settings, viewModel)
-            if (AppLanguages.supported) LanguageSection()
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            RemindersSection(settings, viewModel)
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            Section(R.string.settings_management)
-            Toggle(
-                stringResource(R.string.settings_allow_deleting),
-                stringResource(R.string.settings_allow_deleting_hint),
-                settings.allowDeleting,
-                onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
-            )
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            BackupSection()
-            HorizontalDivider(Modifier.padding(vertical = 8.dp))
-            Section(R.string.settings_account)
-            Text(
-                accountName,
-                Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                server,
-                Modifier.padding(horizontal = 16.dp),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Row(Modifier.padding(horizontal = 8.dp)) { LogoutAction(accountName, onLogOut) }
-            AppVersion()
+        // Centred and capped, so on wide screens the rows do not stretch edge to edge.
+        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            Column(
+                Modifier
+                    .widthIn(max = SettingsMaxWidth)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                AppearanceSection(settings, viewModel)
+                if (AppLanguages.supported) LanguageSection()
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                RemindersSection(settings, viewModel)
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                Section(R.string.settings_management)
+                Toggle(
+                    stringResource(R.string.settings_allow_deleting),
+                    stringResource(R.string.settings_allow_deleting_hint),
+                    settings.allowDeleting,
+                    onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
+                )
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                BackupSection()
+                HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                Section(R.string.settings_account)
+                Text(
+                    accountName,
+                    Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    server,
+                    Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(Modifier.padding(horizontal = 8.dp)) { LogoutAction(accountName, onLogOut) }
+                AppVersion()
+            }
         }
     }
 }
+
+private val SettingsMaxWidth = 640.dp
 
 /** Which version is installed, at the foot of Settings. */
 @Composable
