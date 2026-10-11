@@ -8,11 +8,14 @@ import com.qtekfun.ultimatedeck.domain.editor.SourceRange
 
 /**
  * Offset mapping for a text where [hidden] ranges of the original are not displayed.
- * [hidden] must be sorted and non-overlapping; see [mergeRanges].
+ * [hidden] must be sorted and non-overlapping; see [mergeRanges]. A caret that would rest
+ * inside one of [skipped] is moved to its end: those ranges are not worth typing into, such
+ * as the closing bracket of a checkbox, where text would break it.
  */
 internal class HiddenRangesOffsetMapping(
     private val hidden: List<SourceRange>,
-    private val originalLength: Int
+    private val originalLength: Int,
+    private val skipped: List<SourceRange> = emptyList()
 ) : OffsetMapping {
     private val transformedLength = originalLength - hidden.sumOf { it.length }
 
@@ -30,7 +33,8 @@ internal class HiddenRangesOffsetMapping(
         for (range in hidden) {
             if (range.start < original) original += range.length else break
         }
-        return original.coerceIn(0, originalLength)
+        val caret = skipped.firstOrNull { original >= it.start && original < it.end }?.end
+        return (caret ?: original).coerceIn(0, originalLength)
     }
 }
 
