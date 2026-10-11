@@ -119,4 +119,21 @@ class LiveMarkdownTransformationTest {
         @JvmStatic
         fun corpus(): List<String> = MarkdownCorpus.names
     }
+
+    @Test
+    fun `the caret right after a checkbox is placed after its closing bracket`() {
+        val source = "- [ ] "
+        val document = MarkdownDocument.parse(source)
+        val transformation = LiveMarkdownTransformation(document, TextRange(0), styles)
+        val shown = transformation.filter(AnnotatedString(source))
+        val box = shown.text.text.indexOf('\u2610')
+        val task = document.tasks.single()
+
+        val caret = shown.offsetMapping.transformedToOriginal(box + 1)
+
+        // Typing at `caret` must land after `[ ]`, not between the box and its bracket.
+        assertTrue(caret >= task.range.end) {
+            "caret $caret is inside the task ${task.range}, so typed text breaks the checkbox"
+        }
+    }
 }
