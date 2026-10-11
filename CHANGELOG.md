@@ -9,6 +9,19 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.3] - 2026-10-11
+
+Third release candidate: editor fixes.
+
+### Added
+
+- Delete a whole table from the card editor with the new "Delete table" button.
+
+### Fixed
+
+- The editor is no longer squashed at the top with a keyboard-sized gap when the keyboard opens.
+- Text typed right after a task checkbox no longer lands inside its brackets and breaks the task; tapping beside the box places the cursor instead of ticking it.
+
 ## [1.0.0-rc.2] - 2026-10-05
 
 Second release candidate: reminders that reach phones that stop background apps.

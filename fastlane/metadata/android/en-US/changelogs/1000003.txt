@@ -1,0 +1,1 @@
+Delete a whole table from the card editor. Fixes: the editor is no longer squashed when the keyboard opens, and text typed after a task checkbox no longer breaks it.

@@ -1,0 +1,1 @@
+Eliminar una tabla entera desde el editor de tarjetas. Arreglos: el editor ya no se aplasta al abrir el teclado y el texto escrito tras una casilla de tarea ya no la rompe.
