@@ -23,6 +23,7 @@ UltimateDeck is a client for your own Nextcloud Deck. It has no servers of its o
 | Permission | Why |
 |---|---|
 | Internet (`INTERNET`) | To talk to your Nextcloud server. |
+| Local network (`ACCESS_LOCAL_NETWORK`, Android 17+) | Only if your server is on your local network, for example a home server reached through split DNS: without it Android blocks the connection. Asked only in that case, naming your server, and used for nothing but talking to it. |
 | Notifications (`POST_NOTIFICATIONS`) | Due date reminders. Only asked when you turn reminders on (Android 13+). |
 | Exact alarms (`SCHEDULE_EXACT_ALARM`) | So reminders arrive at the time you set, not minutes later. Without it they still work, with some delay. |
 | Alarm clock mode (optional setting) | Some phones delay even exact alarms to save battery. In the "aggressive" reminder mode they are set like an alarm clock, which no battery saver delays; Android then shows the alarm icon while one is pending. |
@@ -57,6 +58,7 @@ UltimateDeck es un cliente para tu propio Nextcloud Deck. No tiene servidores pr
 | Permiso | Por qué |
 |---|---|
 | Internet (`INTERNET`) | Para hablar con tu servidor Nextcloud. |
+| Red local (`ACCESS_LOCAL_NETWORK`, Android 17+) | Solo si tu servidor está en tu red local, por ejemplo un servidor en casa al que llegas con DNS dividido: sin él, Android bloquea la conexión. Solo se pide en ese caso, con el nombre de tu servidor, y no se usa para nada más que hablar con él. |
 | Notificaciones (`POST_NOTIFICATIONS`) | Avisos de vencimiento. Solo se pide al activarlos (Android 13+). |
 | Alarmas exactas (`SCHEDULE_EXACT_ALARM`) | Para que los avisos lleguen a la hora que pusiste y no minutos después. Sin él funcionan igual, con algo de retraso. |
 | Modo despertador (ajuste opcional) | Algunos móviles retrasan incluso las alarmas exactas para ahorrar batería. En el modo «agresivo» se programan como un despertador, que ningún ahorro de batería retrasa; Android muestra entonces el icono de alarma mientras haya uno pendiente. |

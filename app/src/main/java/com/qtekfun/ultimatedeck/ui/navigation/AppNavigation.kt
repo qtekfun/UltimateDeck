@@ -41,7 +41,10 @@ import com.qtekfun.ultimatedeck.ui.boards.BoardListViewModel
 import com.qtekfun.ultimatedeck.ui.boards.BoardSummary
 import com.qtekfun.ultimatedeck.ui.card.ArchivedCardsScreen
 import com.qtekfun.ultimatedeck.ui.card.CardDetailScreen
+import com.qtekfun.ultimatedeck.ui.localnet.LocalNetwork
+import com.qtekfun.ultimatedeck.ui.localnet.LocalNetworkAccess
 import com.qtekfun.ultimatedeck.ui.login.LoginScreen
+import com.qtekfun.ultimatedeck.ui.login.LoginViewModel
 import com.qtekfun.ultimatedeck.ui.navigation.AppDrawer
 import com.qtekfun.ultimatedeck.ui.navigation.DrawerCallbacks
 import com.qtekfun.ultimatedeck.ui.navigation.startBoard
@@ -63,11 +66,21 @@ fun AppNavigation(
 ) {
     val session by sessionViewModel.state.collectAsStateWithLifecycle()
     val account = session.account
+    val loginViewModel: LoginViewModel = viewModel()
+    val login by loginViewModel.state.collectAsStateWithLifecycle()
     when {
         !session.ready -> Unit
-        account == null -> LoginScreen()
+        account == null -> LoginScreen(viewModel = loginViewModel)
         else -> SignedIn(account, link, onLinkOpened, onLogOut = sessionViewModel::logOut)
     }
+    // The server the app talks to: the account's, or, while signing in, the one being polled.
+    val host = when {
+        !session.ready -> null
+        account != null -> LocalNetwork.hostOf(account.serverUrl)
+        login.step != null -> LocalNetwork.hostOf(login.server)
+        else -> null
+    }
+    LocalNetworkAccess(viewModel(), host)
 }
 
 /** Where the signed-in user is: a board, its archived cards, a card, or the settings. */

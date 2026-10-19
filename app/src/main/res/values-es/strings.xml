@@ -233,4 +233,11 @@
     <string name="backup_restore_password_text">Escribe la contraseña que elegiste al exportarla para iniciar sesión, o restaura solo los ajustes.</string>
     <string name="backup_skip_sessions">Solo ajustes</string>
     <string name="settings_version">UltimateDeck %1$s</string>
+
+    <string name="local_network_title">¿Permitir el acceso a tu red local?</string>
+    <string name="local_network_rationale">Tu servidor, %1$s, está en tu red local. Android impide que las apps lleguen a los dispositivos de esa red hasta que permites el acceso a «Dispositivos cercanos». UltimateDeck lo usa solo para hablar con tu propio servidor.</string>
+    <string name="local_network_denied">Android sigue bloqueando la conexión con %1$s. Abre Ajustes, entra en Permisos y permite «Dispositivos cercanos» para UltimateDeck; después vuelve.</string>
+    <string name="local_network_allow">Permitir</string>
+    <string name="local_network_open_settings">Abrir Ajustes</string>
+    <string name="local_network_not_now">Ahora no</string>
 </resources>
