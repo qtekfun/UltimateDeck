@@ -1,0 +1,1 @@
+Tras permitir el acceso a la red local, o después de varias sincronizaciones fallidas, abrir la app o deslizar para actualizar podía no hacer nada durante mucho rato, porque la app esperaba el plazo de reintento de las fallidas. Ahora sincroniza al momento.

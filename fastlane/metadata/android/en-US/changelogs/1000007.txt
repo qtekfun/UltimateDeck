@@ -1,0 +1,1 @@
+After you allowed local network access, or after a run of failed syncs, opening the app or pulling to refresh could do nothing for a long while, because the app waited for the retry delay of the failed syncs. Now it syncs at once.
