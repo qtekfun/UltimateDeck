@@ -129,7 +129,7 @@
     <string name="settings_amoled">Pure black (AMOLED)</string>
     <string name="settings_amoled_hint">Black background in dark theme, saves battery on OLED screens.</string>
     <string name="settings_dynamic_color">Dynamic colors</string>
-    <string name="settings_dynamic_color_hint">Colors taken from your wallpaper.</string>
+    <string name="settings_dynamic_color_hint">Buttons and accents take the colors of your wallpaper.</string>
     <string name="settings_language">Language</string>
     <string name="settings_language_system">Follow the system</string>
     <string name="settings_language_english">English</string>

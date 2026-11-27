@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.qtekfun.ultimatedeck.ui.theme.contentColorOn
+import com.qtekfun.ultimatedeck.ui.theme.personColor
 
 private const val MAX_AVATARS = 3
 private val AvatarSize = 24.dp
@@ -28,17 +30,12 @@ private val AvatarTextSize = 10.sp
 @Composable
 fun CardAvatars(names: List<String>, modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
-    val containers = listOf(
-        colors.primaryContainer to colors.onPrimaryContainer,
-        colors.tertiaryContainer to colors.onTertiaryContainer,
-        colors.secondaryContainer to colors.onSecondaryContainer
-    )
     val shown = names.take(MAX_AVATARS)
     val hidden = names.size - shown.size
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(AvatarSpacing)) {
-        shown.forEachIndexed { index, name ->
-            val (container, content) = containers[index % containers.size]
-            AvatarBubble(initials(name), container, content)
+        shown.forEach { name ->
+            val container = personColor(name)
+            AvatarBubble(initials(name), container, contentColorOn(container))
         }
         if (hidden > 0) {
             AvatarBubble("+$hidden", colors.surfaceContainerHighest, colors.onSurfaceVariant)

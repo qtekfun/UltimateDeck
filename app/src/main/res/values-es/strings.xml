@@ -121,7 +121,7 @@
     <string name="settings_amoled">Negro puro (AMOLED)</string>
     <string name="settings_amoled_hint">Fondo negro en el tema oscuro, ahorra batería en pantallas OLED.</string>
     <string name="settings_dynamic_color">Colores dinámicos</string>
-    <string name="settings_dynamic_color_hint">Colores tomados de tu fondo de pantalla.</string>
+    <string name="settings_dynamic_color_hint">Botones y acentos con los colores de tu fondo de pantalla.</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Según el sistema</string>
     <string name="settings_language_english">English</string>
