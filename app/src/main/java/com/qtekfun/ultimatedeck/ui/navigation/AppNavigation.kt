@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -197,6 +198,8 @@ private fun SignedInContent(
     val color = boards.boards.firstOrNull { it.id == place.boardId }?.color ?: Color.Unspecified
     val board = place.boardId
     val card = place.cardId
+    // Keeps the column and scroll position of a board while one of its cards is open.
+    val boardPositions = rememberSaveableStateHolder()
     when {
         place.settings -> {
             BackHandler { place.settings = false }
@@ -218,19 +221,21 @@ private fun SignedInContent(
         card == null -> {
             BackHandler { place.boardId = null }
             LaunchedEffect(board) { boardViewModel.open(board) }
-            BoardScreen(
-                title = place.boardTitle,
-                viewModel = boardViewModel,
-                color = color,
-                actions = BoardActions(
-                    onMenu = onMenu,
-                    onOpenCard = { place.cardId = it },
-                    onShowArchived = { place.archived = true },
-                    onAddColumn = management.onAddColumn,
-                    onDeleteBoard = management.onDeleteBoard,
-                    onDeleteColumn = management.onDeleteColumn
+            boardPositions.SaveableStateProvider(board) {
+                BoardScreen(
+                    title = place.boardTitle,
+                    viewModel = boardViewModel,
+                    color = color,
+                    actions = BoardActions(
+                        onMenu = onMenu,
+                        onOpenCard = { place.cardId = it },
+                        onShowArchived = { place.archived = true },
+                        onAddColumn = management.onAddColumn,
+                        onDeleteBoard = management.onDeleteBoard,
+                        onDeleteColumn = management.onDeleteColumn
+                    )
                 )
-            )
+            }
         }
 
         else -> CardDetailScreen(

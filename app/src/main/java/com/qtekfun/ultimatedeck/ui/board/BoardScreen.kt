@@ -131,7 +131,7 @@ fun BoardScreen(
         topBar = { BoardTopBar(title, color, actions) }
     ) { padding ->
         PullToRefreshBox(
-            isRefreshing = state.syncing,
+            isRefreshing = state.refreshing,
             onRefresh = viewModel::refresh,
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {

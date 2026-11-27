@@ -26,14 +26,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /** What the board shows. [loading] is true until Room first answers. */
 data class BoardState(
     val loading: Boolean = true,
     val columns: List<ColumnUi> = emptyList(),
-    val syncing: Boolean = false,
+    /** A sync asked for by pulling is on its way; automatic syncs are not shown. */
+    val refreshing: Boolean = false,
     val problem: SyncProblem? = null
 )
 
@@ -41,6 +44,8 @@ data class BoardState(
  * A board read from Room (T12): it shows offline and updates after each sync. Moving cards only
  * changes the copy on screen until T13 saves the moves; the next update from Room resets them.
  */
+private const val START_TIMEOUT_MS = 5_000L
+
 @HiltViewModel
 class BoardViewModel @Inject constructor(
     private val repository: BoardContentRepository,
@@ -52,6 +57,8 @@ class BoardViewModel @Inject constructor(
     val state: StateFlow<BoardState> = mutableState.asStateFlow()
     private var boardId: Long? = null
     private var observing: Job? = null
+    private val refreshing = MutableStateFlow(false)
+    private var awaiting: Job? = null
 
     /** Shows [id]; opening the same board again (e.g. after rotation) keeps the state. */
     fun open(id: Long) {
@@ -61,10 +68,10 @@ class BoardViewModel @Inject constructor(
         observing = viewModelScope.launch {
             combine(
                 repository.observeBoard(id),
-                scheduler.syncing(),
+                refreshing,
                 engine.lastOutcome
-            ) { columns, syncing, outcome ->
-                BoardState(false, columns.map { it.toUi() }, syncing, outcome.toProblem())
+            ) { columns, refreshing, outcome ->
+                BoardState(false, columns.map { it.toUi() }, refreshing, outcome.toProblem())
             }.collect { mutableState.value = it }
         }
     }
@@ -94,7 +101,18 @@ class BoardViewModel @Inject constructor(
     }
 
     /** Pull-to-refresh: syncs with the server; the board updates when Room changes. */
-    fun refresh() = scheduler.requestSync()
+    fun refresh() {
+        awaiting?.cancel()
+        awaiting = viewModelScope.launch {
+            refreshing.value = true
+            scheduler.requestSync()
+            val syncing = scheduler.syncing()
+            // Without network the sync does not start: the indicator must not stay forever.
+            withTimeoutOrNull(START_TIMEOUT_MS) { syncing.first { it } }
+                ?.let { syncing.first { running -> !running } }
+            refreshing.value = false
+        }
+    }
 
     fun card(cardId: Long): CardUi? =
         state.value.columns.flatMap { it.cards }.firstOrNull { it.id == cardId }
