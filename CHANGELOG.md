@@ -9,6 +9,8 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.9] - 2026-11-27
+
 ### Fixed
 - Going back to a board no longer shows the refresh indicator: it only appears when you pull to refresh.
 - Going back from a card keeps the column and scroll position of the board.

@@ -1,0 +1,1 @@
+Al volver de una tarjeta ya no aparece el indicador de refresco y el tablero se queda donde lo dejaste.
