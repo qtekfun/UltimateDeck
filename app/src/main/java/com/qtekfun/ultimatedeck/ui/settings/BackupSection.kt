@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2026 UltimateDeck contributors
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Compose 1.13 deprecated the value based text fields; moving to TextFieldState is in PLAN.md.
+@file:Suppress("DEPRECATION")
+
 package com.qtekfun.ultimatedeck.ui.settings
 
 import android.widget.Toast

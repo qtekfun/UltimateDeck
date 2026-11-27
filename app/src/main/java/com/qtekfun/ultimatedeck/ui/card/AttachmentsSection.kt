@@ -11,21 +11,23 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,41 +52,42 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.local.entity.AttachmentEntity
 import com.qtekfun.ultimatedeck.data.local.entity.UploadState
+import com.qtekfun.ultimatedeck.ui.components.Panel
 
 /** Attachments of a card: add from camera, gallery or files; open, retry or discard (RF-07). */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AttachmentsSection(cardId: Long, viewModel: AttachmentsViewModel = viewModel()) {
     LaunchedEffect(cardId) { viewModel.open(cardId) }
     val attachments by viewModel.attachments.collectAsStateWithLifecycle()
     val opening by viewModel.opening.collectAsStateWithLifecycle()
     OpenedFiles(viewModel)
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            stringResource(R.string.attachments_title),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { heading() }
-        )
-        attachments.forEach { attachment ->
-            AttachmentRow(attachment, attachment.id in opening, viewModel)
-        }
-        AddAttachmentButtons(viewModel)
-        if (attachments.isEmpty()) {
-            Text(
-                stringResource(R.string.attachments_empty),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
+    Panel {
+        Column(Modifier.padding(start = 14.dp, end = 6.dp, top = 4.dp, bottom = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.attachments_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    modifier = Modifier.weight(1f).semantics { heading() }
+                )
+                AddAttachmentMenu(viewModel)
+            }
+            attachments.forEach { attachment ->
+                AttachmentRow(attachment, attachment.id in opening, viewModel)
+            }
+            if (attachments.isEmpty()) {
+                Text(
+                    stringResource(R.string.attachments_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
 /** Camera, gallery and file pickers; whatever is picked is copied and queued for upload. */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun AddAttachmentButtons(viewModel: AttachmentsViewModel) {
+private fun AddAttachmentMenu(viewModel: AttachmentsViewModel) {
     var photo by remember { mutableStateOf<Uri?>(null) }
     val camera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { taken ->
         photo?.takeIf { taken }?.let(viewModel::add)
@@ -97,30 +100,36 @@ private fun AddAttachmentButtons(viewModel: AttachmentsViewModel) {
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             uri?.let(viewModel::add)
         }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        AssistChip(
-            onClick = {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        TextButton(onClick = { open = true }) {
+            Icon(Icons.Filled.Add, contentDescription = null)
+            Text(stringResource(R.string.attachments_add))
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            AddOption(R.string.attachments_camera) {
+                open = false
                 val target = viewModel.files.shareable(viewModel.files.newPhoto())
                 photo = target
                 camera.launch(target)
-            },
-            label = { Text(stringResource(R.string.attachments_camera)) }
-        )
-        AssistChip(
-            onClick = {
+            }
+            AddOption(R.string.attachments_gallery) {
+                open = false
                 gallery.launch(
-                    PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageAndVideo
-                    )
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
                 )
-            },
-            label = { Text(stringResource(R.string.attachments_gallery)) }
-        )
-        AssistChip(
-            onClick = { document.launch(arrayOf("*/*")) },
-            label = { Text(stringResource(R.string.attachments_file)) }
-        )
+            }
+            AddOption(R.string.attachments_file) {
+                open = false
+                document.launch(arrayOf("*/*"))
+            }
+        }
     }
+}
+
+@Composable
+private fun AddOption(@StringRes label: Int, onClick: () -> Unit) {
+    DropdownMenuItem(text = { Text(stringResource(label)) }, onClick = onClick)
 }
 
 /** Hands downloaded files to another app, or tells why it could not. */

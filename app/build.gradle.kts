@@ -44,7 +44,9 @@ val releaseKeystore: String? = System.getenv("UD_KEYSTORE_FILE")
 
 android {
     namespace = "com.qtekfun.ultimatedeck"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 1 }
+    }
 
     defaultConfig {
         applicationId = "com.qtekfun.ultimatedeck"

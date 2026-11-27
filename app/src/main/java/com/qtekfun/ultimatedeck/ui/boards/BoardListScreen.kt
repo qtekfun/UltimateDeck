@@ -8,23 +8,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.sync.engine.SyncProblem
+import com.qtekfun.ultimatedeck.ui.components.Panel
 
 /** "Your boards": the account's boards from Room, so they also show offline (T11). */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,8 +87,9 @@ fun BoardListScreen(
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     state.problem?.let { problem -> item { SyncProblemBanner(problem) } }
                     items(state.boards, key = { it.id }) { board ->
-                        BoardRow(board, onClick = { onOpenBoard(board) })
-                        HorizontalDivider()
+                        Panel(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
+                            BoardRow(board, onClick = { onOpenBoard(board) })
+                        }
                     }
                 }
             }
@@ -132,17 +135,17 @@ private fun BoardRow(board: BoardSummary, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .height(IntrinsicSize.Min)
+            .heightIn(min = 72.dp)
+            .clickable(onClick = onClick),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            Modifier
-                .size(16.dp)
-                .background(board.color, CircleShape)
+        Box(Modifier.width(12.dp).fillMaxHeight().background(board.color))
+        Text(
+            board.title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(vertical = 12.dp)
         )
-        Text(board.title, style = MaterialTheme.typography.titleMedium)
     }
 }

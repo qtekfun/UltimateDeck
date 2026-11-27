@@ -55,8 +55,19 @@ Móviles que matan las apps en segundo plano (ColorOS, MIUI, OriginOS, MagicOS).
 - [x] **T26 Modo robusto**: servicio en primer plano `specialUse` opcional que mantiene vivo el proceso y ejecuta `ReminderBeat` cada 30 min; arranque en boot/actualización si está activo; explicado en `PRIVACY.md`.
   - *Resultado:* `KeepAliveService` (notificación fija mínima con «Desactivar»), `KeepAliveController` y `KeepAlivePolicy` (domain, testeada); ajuste en Ajustes → Recordatorios, incluido en la copia; `ReminderBeat` solo reprograma por ahora.
 
+## Fase 6 — Rediseño visual (para la 1.1)
+Estilo «colorido» (SPEC.md, sección 9). Sin dependencias nuevas ni funciones que Deck no pueda guardar.
+- [x] **T27 Maquetas**: tres estilos en claro y oscuro para elegir.
+- [x] **T28 Sistema de diseño**: superficies neutras, tipografía, contraste automático, etiquetas y avatares.
+- [x] **T29 Detalle de tarjeta**: título y descripción sin cajas, propiedades, adjuntos al final y acciones en un menú.
+- [x] **T30 Tablero**: cabecera con el color del tablero, superficies de columna y tarjeta, vencimiento, checklist, posición entre columnas y estados vacíos.
+- [x] **T31 Menú, lista de tableros y archivadas.**
+- [x] **T32 Ajustes y login.**
+- [ ] **T33 Acabado**: transiciones, accesibilidad, rendimiento y capturas nuevas.
+
 ## Después del MVP (backlog, no implementar aún)
 - Multicuenta completo en la UI.
+- Migrar el editor y los campos de contraseña a `TextFieldState` (la API anterior quedó obsoleta en Compose 1.13; hoy se suprime el aviso en esos archivos).
 - Tablet y apaisado.
 - Comentarios, notificaciones, widgets.
 - Crear/renombrar/reordenar columnas y gestión avanzada de tableros.

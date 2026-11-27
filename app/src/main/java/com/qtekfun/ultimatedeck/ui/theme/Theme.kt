@@ -31,7 +31,7 @@ private val DarkColors = darkColorScheme(
 
 /**
  * The color scheme for [settings]. [dynamicLight] and [dynamicDark] are the wallpaper
- * colors (Android 12+), or null where they do not exist.
+ * colors (Android 12+), or null where they do not exist; they only change the accents.
  */
 fun colorSchemeFor(
     settings: AppSettings,
@@ -45,8 +45,9 @@ fun colorSchemeFor(
         ThemeMode.DARK -> true
     }
     val dynamic = if (dark) dynamicDark else dynamicLight
-    val scheme =
+    val accents =
         (if (settings.dynamicColor) dynamic else null) ?: if (dark) DarkColors else LightColors
+    val scheme = accents.withNeutralSurfaces(dark)
     return if (dark && settings.amoled) scheme.toAmoled() else scheme
 }
 

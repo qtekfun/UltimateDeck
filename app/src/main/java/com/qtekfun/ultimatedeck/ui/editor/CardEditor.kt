@@ -4,14 +4,12 @@
 package com.qtekfun.ultimatedeck.ui.editor
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,9 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,44 +39,43 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
+import com.qtekfun.ultimatedeck.ui.components.Panel
+import com.qtekfun.ultimatedeck.ui.components.boardBarColors
 
 /** From this width the editor shows its fields and the description in two panes. */
 private val TwoPaneMinWidth = 600.dp
 
 /**
  * Card description editor (T03, T14): the Markdown shown rendered, Jira style. Tapping it (or
- * the edit button) switches to the block editor; the stored Markdown can be checked at the foot.
+ * the edit button) switches to the block editor.
  */
 @Composable
 fun CardEditor(
     original: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    barColor: Color = Color.Unspecified,
     cardActions: @Composable RowScope.() -> Unit = {},
     onSourceChange: (String) -> Unit = {},
-    header: @Composable () -> Unit = {}
+    header: @Composable () -> Unit = {},
+    footer: @Composable () -> Unit = {}
 ) {
     var source by rememberSaveable { mutableStateOf(original) }
     var editing by rememberSaveable { mutableStateOf(false) }
-    var showMarkdown by rememberSaveable { mutableStateOf(false) }
     var activeText by remember { mutableStateOf<TextCommandTarget?>(null) }
     val tableTemplate = stringResource(R.string.editor_table_template)
     BackHandler { if (editing) editing = false else onBack() }
     LaunchedEffect(source) { onSourceChange(source) }
 
-    val storedMarkdown: @Composable () -> Unit = {
-        StoredMarkdown(source, original, showMarkdown) { showMarkdown = !showMarkdown }
-    }
     val description: @Composable () -> Unit = {
         val callbacks = MarkdownBlocksCallbacks(
             onSourceChange = { source = it },
@@ -100,16 +94,14 @@ fun CardEditor(
             // content left a bar-sized gap, because Scaffold reserves the bar's height itself.
             modifier = Modifier.fillMaxSize().imePadding(),
             topBar = {
-                EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
-            },
-            // Saved Markdown at the foot of the screen, out of the way of the text.
-            bottomBar = { if (!twoPane) storedMarkdown() }
+                EditorTopBar(barColor, editing, onBack, { editing = !editing }, cardActions)
+            }
         ) { padding ->
             if (twoPane) {
                 Row(Modifier.padding(padding).fillMaxSize()) {
                     EditorPane(Modifier.weight(1f)) {
                         header()
-                        storedMarkdown()
+                        footer()
                     }
                     EditorPane(Modifier.weight(1f)) { description() }
                 }
@@ -117,6 +109,7 @@ fun CardEditor(
                 EditorPane(Modifier.padding(padding)) {
                     header()
                     description()
+                    footer()
                 }
             }
         }
@@ -165,37 +158,26 @@ private fun EditorPane(modifier: Modifier = Modifier, content: @Composable Colum
     )
 }
 
-/** Framed like the title field, so it is clear where the description starts and ends. */
+/** A panel of its own, outlined while editing, so it is clear where the description is. */
 @Composable
 private fun DescriptionFrame(editing: Boolean, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            stringResource(R.string.editor_description_label),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { heading() }
-        )
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 120.dp)
-                .border(
-                    width = if (editing) 2.dp else 1.dp,
-                    color = if (editing) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.outline
-                    },
-                    shape = MaterialTheme.shapes.extraSmall
-                )
-                .padding(12.dp)
-        ) { content() }
+    val border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary).takeIf { editing }
+    Panel(border = border) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.editor_description_label),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.semantics { heading() }
+            )
+            Box(Modifier.fillMaxWidth().heightIn(min = 96.dp)) { content() }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditorTopBar(
+    barColor: Color,
     editing: Boolean,
     onBack: () -> Unit,
     onToggleEditing: () -> Unit,
@@ -204,6 +186,7 @@ private fun EditorTopBar(
     TopAppBar(
         // The card title is right below, in its own field.
         title = {},
+        colors = boardBarColors(barColor),
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.editor_back))
@@ -239,51 +222,4 @@ private fun withTable(source: String, table: String): String {
         else -> "\n\n"
     }
     return source + separator + table
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun StoredMarkdown(
-    stored: String,
-    original: String,
-    visible: Boolean,
-    onToggle: () -> Unit
-) {
-    val identical = stored == original
-    Column(Modifier.navigationBarsPadding()) {
-        HorizontalDivider()
-        // Side by side when they fit, one under the other with large fonts.
-        FlowRow(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            itemVerticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(
-                    if (identical) R.string.editor_identical else R.string.editor_changed
-                ),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            TextButton(onClick = onToggle) { Text(stringResource(R.string.editor_show_markdown)) }
-        }
-    }
-    if (visible) {
-        AlertDialog(
-            onDismissRequest = onToggle,
-            confirmButton = {
-                TextButton(onClick = onToggle) {
-                    Text(stringResource(R.string.editor_hide_markdown))
-                }
-            },
-            text = {
-                Text(
-                    text = stored,
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                )
-            }
-        )
-    }
 }

@@ -21,26 +21,26 @@ class ColorSchemeForTest {
         val system = AppSettings(dynamicColor = true)
 
         assertEquals(
-            wallpaperDark,
-            colorSchemeFor(system, systemDark = true, wallpaperLight, wallpaperDark)
+            wallpaperDark.primary,
+            colorSchemeFor(system, systemDark = true, wallpaperLight, wallpaperDark).primary
         )
         assertEquals(
-            wallpaperLight,
+            wallpaperLight.primary,
             colorSchemeFor(
                 system.copy(theme = ThemeMode.LIGHT),
                 systemDark = true,
                 wallpaperLight,
                 wallpaperDark
-            )
+            ).primary
         )
         assertEquals(
-            wallpaperDark,
+            wallpaperDark.primary,
             colorSchemeFor(
                 system.copy(theme = ThemeMode.DARK),
                 systemDark = false,
                 wallpaperLight,
                 wallpaperDark
-            )
+            ).primary
         )
     }
 
@@ -51,7 +51,8 @@ class ColorSchemeForTest {
         val unsupported = colorSchemeFor(AppSettings(), false, null, null)
 
         assertNotEquals(Color.Red, scheme.primary)
-        assertEquals(scheme, unsupported)
+        // ColorScheme has no equality of its own, so its colors are compared.
+        assertEquals(scheme.primary, unsupported.primary)
     }
 
     @Test
@@ -71,6 +72,24 @@ class ColorSchemeForTest {
         assertEquals(Color.Black, dark.surface)
         assertEquals(Color.Green, dark.primary)
         assertNotEquals(dark.surfaceContainer, dark.surfaceContainerHigh)
-        assertEquals(wallpaperLight, light)
+        assertEquals(wallpaperLight.primary, light.primary)
+        assertNotEquals(Color.Black, light.background)
+    }
+
+    @Test
+    fun `surfaces stay neutral whatever the wallpaper`() {
+        listOf(false, true).forEach { systemDark ->
+            val dynamic =
+                colorSchemeFor(AppSettings(), systemDark, wallpaperLight, wallpaperDark)
+            val own = colorSchemeFor(
+                AppSettings(dynamicColor = false),
+                systemDark,
+                wallpaperLight,
+                wallpaperDark
+            )
+
+            assertEquals(own.background, dynamic.background)
+            assertEquals(own.surfaceContainer, dynamic.surfaceContainer)
+        }
     }
 }

@@ -33,10 +33,6 @@
     <string name="editor_italic_short">C</string>
     <string name="editor_bullet_list">Lista con viñetas</string>
     <string name="editor_task_list">Lista de tareas</string>
-    <string name="editor_identical">El Markdown guardado es idéntico al original</string>
-    <string name="editor_changed">El Markdown guardado es distinto del original</string>
-    <string name="editor_show_markdown">Ver Markdown guardado</string>
-    <string name="editor_hide_markdown">Ocultar Markdown guardado</string>
     <string name="editor_edit">Editar descripción</string>
     <string name="editor_done">Listo</string>
     <string name="editor_heading">Título</string>
@@ -125,7 +121,7 @@
     <string name="settings_amoled">Negro puro (AMOLED)</string>
     <string name="settings_amoled_hint">Fondo negro en el tema oscuro, ahorra batería en pantallas OLED.</string>
     <string name="settings_dynamic_color">Colores dinámicos</string>
-    <string name="settings_dynamic_color_hint">Colores tomados de tu fondo de pantalla.</string>
+    <string name="settings_dynamic_color_hint">Botones y acentos con los colores de tu fondo de pantalla.</string>
     <string name="settings_language">Idioma</string>
     <string name="settings_language_system">Según el sistema</string>
     <string name="settings_language_english">English</string>
@@ -240,4 +236,9 @@
     <string name="local_network_allow">Permitir</string>
     <string name="local_network_open_settings">Abrir Ajustes</string>
     <string name="local_network_not_now">Ahora no</string>
+    <string name="due_overdue">Vencida: %1$s</string>
+    <string name="due_today">Hoy: %1$s</string>
+    <string name="due_tomorrow">Mañana: %1$s</string>
+    <string name="attachments_add">Añadir</string>
+    <string name="column_more">Opciones de la columna: %1$s</string>
 </resources>

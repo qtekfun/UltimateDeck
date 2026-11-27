@@ -204,3 +204,9 @@ Medido en el móvil de pruebas (gama alta, pantalla de 120 Hz) con la **build de
     - **HTML:** tal cual.
   - **Pendiente para T14:** autoguardado, diálogo de conflictos, edición de enlaces e imágenes.
 - **Modo robusto (T26, 2026-10-05):** servicio en primer plano de tipo `specialUse` porque ninguno de los tipos con nombre encaja (no reproduce, no sincroniza datos, no usa ubicación); la justificación va en `PROPERTY_SPECIAL_USE_FGS_SUBTYPE`. F-Droid no tiene la revisión de tipos de Play. Límite conocido: si la ROM fuerza la detención de la app (`stopped=true`), Android borra todas sus alarmas y el servicio; ahí ayuda reabrir la app, que reprograma todo. En Android 12+ el servicio no puede arrancar desde segundo plano, salvo tras el arranque o la actualización, y si falla arranca al abrir la app.
+- **Rediseño visual (T27, 2026-11-27):** estilo «colorido», elegido con maquetas frente a uno sobrio y otro Material 3 expresivo, porque el color ayuda a identificar las tarjetas.
+  - El color informa: etiquetas rellenas, un color fijo por persona, estados de vencimiento y checklist, y el color del tablero en la cabecera. El estado se indica además con texto o icono, nunca solo con color.
+  - Fondos grises neutros en claro y oscuro; AMOLED se mantiene. Los colores dinámicos solo cambian botones y acentos.
+  - Los colores vienen del servidor: el texto sobre ellos es negro o blanco según cuál tenga más contraste.
+  - No cambian los gestos ni la navegación: columna y media, arrastre con pulsación larga y edición en el sitio.
+

@@ -9,6 +9,12 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Changed
+- A new look: neutral grey backgrounds, board colors in the header, labels filled with their color, a fixed color for each person and bolder titles. Dynamic colors now only change buttons and accents.
+
+### Removed
+- The card screen no longer shows the "stored Markdown" check at the foot, a leftover from the editor prototype.
+
 ## [1.0.0-rc.7] - 2026-10-20
 
 Sync right away once the local network is allowed.

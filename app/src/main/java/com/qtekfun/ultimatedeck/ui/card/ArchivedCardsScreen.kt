@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.board.ArchivedCard
+import com.qtekfun.ultimatedeck.ui.components.Panel
 
 /** The archived cards of a board, each with a button to restore it (T15b). */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,8 +74,9 @@ fun ArchivedCardsScreen(
                     item { Text(stringResource(R.string.archived_empty), Modifier.padding(24.dp)) }
                 }
                 items(state.cards, key = { it.id }) { card ->
-                    ArchivedRow(card, onRestore = { viewModel.restore(card) })
-                    HorizontalDivider()
+                    Panel(Modifier.padding(horizontal = 16.dp, vertical = 5.dp)) {
+                        ArchivedRow(card, onRestore = { viewModel.restore(card) })
+                    }
                 }
             }
         }
