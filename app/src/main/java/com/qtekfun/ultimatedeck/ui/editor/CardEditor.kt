@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -27,9 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,12 +39,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
@@ -60,7 +53,7 @@ private val TwoPaneMinWidth = 600.dp
 
 /**
  * Card description editor (T03, T14): the Markdown shown rendered, Jira style. Tapping it (or
- * the edit button) switches to the block editor; the stored Markdown can be checked at the foot.
+ * the edit button) switches to the block editor.
  */
 @Composable
 fun CardEditor(
@@ -73,15 +66,11 @@ fun CardEditor(
 ) {
     var source by rememberSaveable { mutableStateOf(original) }
     var editing by rememberSaveable { mutableStateOf(false) }
-    var showMarkdown by rememberSaveable { mutableStateOf(false) }
     var activeText by remember { mutableStateOf<TextCommandTarget?>(null) }
     val tableTemplate = stringResource(R.string.editor_table_template)
     BackHandler { if (editing) editing = false else onBack() }
     LaunchedEffect(source) { onSourceChange(source) }
 
-    val storedMarkdown: @Composable () -> Unit = {
-        StoredMarkdown(source, original, showMarkdown) { showMarkdown = !showMarkdown }
-    }
     val description: @Composable () -> Unit = {
         val callbacks = MarkdownBlocksCallbacks(
             onSourceChange = { source = it },
@@ -101,16 +90,11 @@ fun CardEditor(
             modifier = Modifier.fillMaxSize().imePadding(),
             topBar = {
                 EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
-            },
-            // Saved Markdown at the foot of the screen, out of the way of the text.
-            bottomBar = { if (!twoPane) storedMarkdown() }
+            }
         ) { padding ->
             if (twoPane) {
                 Row(Modifier.padding(padding).fillMaxSize()) {
-                    EditorPane(Modifier.weight(1f)) {
-                        header()
-                        storedMarkdown()
-                    }
+                    EditorPane(Modifier.weight(1f)) { header() }
                     EditorPane(Modifier.weight(1f)) { description() }
                 }
             } else {
@@ -239,51 +223,4 @@ private fun withTable(source: String, table: String): String {
         else -> "\n\n"
     }
     return source + separator + table
-}
-
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun StoredMarkdown(
-    stored: String,
-    original: String,
-    visible: Boolean,
-    onToggle: () -> Unit
-) {
-    val identical = stored == original
-    Column(Modifier.navigationBarsPadding()) {
-        HorizontalDivider()
-        // Side by side when they fit, one under the other with large fonts.
-        FlowRow(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            itemVerticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(
-                    if (identical) R.string.editor_identical else R.string.editor_changed
-                ),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            TextButton(onClick = onToggle) { Text(stringResource(R.string.editor_show_markdown)) }
-        }
-    }
-    if (visible) {
-        AlertDialog(
-            onDismissRequest = onToggle,
-            confirmButton = {
-                TextButton(onClick = onToggle) {
-                    Text(stringResource(R.string.editor_hide_markdown))
-                }
-            },
-            text = {
-                Text(
-                    text = stored,
-                    fontFamily = FontFamily.Monospace,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                )
-            }
-        )
-    }
 }

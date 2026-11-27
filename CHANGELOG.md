@@ -9,6 +9,9 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+### Removed
+- The card screen no longer shows the "stored Markdown" check at the foot, a leftover from the editor prototype.
+
 ## [1.0.0-rc.7] - 2026-10-20
 
 Sync right away once the local network is allowed.
