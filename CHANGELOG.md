@@ -9,6 +9,10 @@ All notable changes are listed here. The format follows [Keep a Changelog](https
 
 ## [Unreleased]
 
+## [1.0.0-rc.8] - 2026-11-27
+
+A new, more colorful look that is easier on the eyes.
+
 ### Changed
 - A new look: neutral grey backgrounds, board colors in the header, labels filled with their color, a fixed color for each person and bolder titles. Dynamic colors now only change buttons and accents.
 
