@@ -4,7 +4,7 @@
 package com.qtekfun.ultimatedeck.ui.editor
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -47,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownEdits
 import com.qtekfun.ultimatedeck.domain.editor.MarkdownListEdits
+import com.qtekfun.ultimatedeck.ui.components.Panel
+import com.qtekfun.ultimatedeck.ui.components.boardBarColors
 
 /** From this width the editor shows its fields and the description in two panes. */
 private val TwoPaneMinWidth = 600.dp
@@ -60,9 +63,11 @@ fun CardEditor(
     original: String,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    barColor: Color = Color.Unspecified,
     cardActions: @Composable RowScope.() -> Unit = {},
     onSourceChange: (String) -> Unit = {},
-    header: @Composable () -> Unit = {}
+    header: @Composable () -> Unit = {},
+    footer: @Composable () -> Unit = {}
 ) {
     var source by rememberSaveable { mutableStateOf(original) }
     var editing by rememberSaveable { mutableStateOf(false) }
@@ -89,18 +94,22 @@ fun CardEditor(
             // content left a bar-sized gap, because Scaffold reserves the bar's height itself.
             modifier = Modifier.fillMaxSize().imePadding(),
             topBar = {
-                EditorTopBar(editing, onBack, { editing = !editing }, cardActions)
+                EditorTopBar(barColor, editing, onBack, { editing = !editing }, cardActions)
             }
         ) { padding ->
             if (twoPane) {
                 Row(Modifier.padding(padding).fillMaxSize()) {
-                    EditorPane(Modifier.weight(1f)) { header() }
+                    EditorPane(Modifier.weight(1f)) {
+                        header()
+                        footer()
+                    }
                     EditorPane(Modifier.weight(1f)) { description() }
                 }
             } else {
                 EditorPane(Modifier.padding(padding)) {
                     header()
                     description()
+                    footer()
                 }
             }
         }
@@ -149,37 +158,26 @@ private fun EditorPane(modifier: Modifier = Modifier, content: @Composable Colum
     )
 }
 
-/** Framed like the title field, so it is clear where the description starts and ends. */
+/** A panel of its own, outlined while editing, so it is clear where the description is. */
 @Composable
 private fun DescriptionFrame(editing: Boolean, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            stringResource(R.string.editor_description_label),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics { heading() }
-        )
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .heightIn(min = 120.dp)
-                .border(
-                    width = if (editing) 2.dp else 1.dp,
-                    color = if (editing) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.outline
-                    },
-                    shape = MaterialTheme.shapes.extraSmall
-                )
-                .padding(12.dp)
-        ) { content() }
+    val border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary).takeIf { editing }
+    Panel(border = border) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.editor_description_label),
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.semantics { heading() }
+            )
+            Box(Modifier.fillMaxWidth().heightIn(min = 96.dp)) { content() }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditorTopBar(
+    barColor: Color,
     editing: Boolean,
     onBack: () -> Unit,
     onToggleEditing: () -> Unit,
@@ -188,6 +186,7 @@ private fun EditorTopBar(
     TopAppBar(
         // The card title is right below, in its own field.
         title = {},
+        colors = boardBarColors(barColor),
         navigationIcon = {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.editor_back))

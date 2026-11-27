@@ -236,4 +236,9 @@
     <string name="local_network_allow">Permitir</string>
     <string name="local_network_open_settings">Abrir Ajustes</string>
     <string name="local_network_not_now">Ahora no</string>
+    <string name="due_overdue">Vencida: %1$s</string>
+    <string name="due_today">Hoy: %1$s</string>
+    <string name="due_tomorrow">Mañana: %1$s</string>
+    <string name="attachments_add">Añadir</string>
+    <string name="column_more">Opciones de la columna: %1$s</string>
 </resources>

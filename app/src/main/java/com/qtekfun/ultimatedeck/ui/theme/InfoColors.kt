@@ -38,5 +38,8 @@ internal val PersonColors = listOf(
     Color(0xFF475569)
 )
 
+/** Finished work, such as a complete checklist. Used for shapes, never for text. */
+val SuccessColor = Color(0xFF22A565)
+
 /** The color of a person: the same one on every card and in every session. */
 fun personColor(name: String): Color = PersonColors[name.hashCode().mod(PersonColors.size)]

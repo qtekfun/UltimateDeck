@@ -58,11 +58,11 @@ Móviles que matan las apps en segundo plano (ColorOS, MIUI, OriginOS, MagicOS).
 ## Fase 6 — Rediseño visual (para la 1.1)
 Estilo «colorido» (SPEC.md, sección 9). Sin dependencias nuevas ni funciones que Deck no pueda guardar.
 - [x] **T27 Maquetas**: tres estilos en claro y oscuro para elegir.
-- [ ] **T28 Sistema de diseño**: superficies neutras, tipografía, contraste automático, etiquetas y avatares.
-- [ ] **T29 Detalle de tarjeta**: título y descripción sin cajas, propiedades, adjuntos al final y acciones en un menú.
-- [ ] **T30 Tablero**: cabecera con el color del tablero, superficies de columna y tarjeta, vencimiento, checklist, posición entre columnas y estados vacíos.
-- [ ] **T31 Menú, lista de tableros y archivadas.**
-- [ ] **T32 Ajustes y login.**
+- [x] **T28 Sistema de diseño**: superficies neutras, tipografía, contraste automático, etiquetas y avatares.
+- [x] **T29 Detalle de tarjeta**: título y descripción sin cajas, propiedades, adjuntos al final y acciones en un menú.
+- [x] **T30 Tablero**: cabecera con el color del tablero, superficies de columna y tarjeta, vencimiento, checklist, posición entre columnas y estados vacíos.
+- [x] **T31 Menú, lista de tableros y archivadas.**
+- [x] **T32 Ajustes y login.**
 - [ ] **T33 Acabado**: transiciones, accesibilidad, rendimiento y capturas nuevas.
 
 ## Después del MVP (backlog, no implementar aún)

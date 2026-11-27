@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -115,15 +121,30 @@ fun BoardColumn(
     }
 }
 
-/** The column header, with a delete button when deleting is turned on in Settings. */
+/** The column header, with a menu to delete it when deleting is turned on in Settings. */
 @Composable
 private fun ColumnTop(column: ColumnUi, onDelete: ((columnId: Long) -> Unit)?) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.weight(1f)) { ColumnHeader(column.title, column.cards.size) }
-        onDelete?.let { delete ->
-            IconButton(onClick = { delete(column.id) }) {
-                Icon(Icons.Outlined.Delete, stringResource(R.string.column_delete, column.title))
-            }
+        onDelete?.let { delete -> ColumnMenu(column, delete) }
+    }
+}
+
+@Composable
+private fun ColumnMenu(column: ColumnUi, onDelete: (columnId: Long) -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }) {
+            Icon(Icons.Filled.MoreVert, stringResource(R.string.column_more, column.title))
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.column_delete, column.title)) },
+                onClick = {
+                    open = false
+                    onDelete(column.id)
+                }
+            )
         }
     }
 }

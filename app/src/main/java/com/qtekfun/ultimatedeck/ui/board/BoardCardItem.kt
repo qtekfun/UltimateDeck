@@ -6,6 +6,7 @@ package com.qtekfun.ultimatedeck.ui.board
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -22,7 +23,9 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,8 +46,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qtekfun.ultimatedeck.R
+import com.qtekfun.ultimatedeck.domain.card.DueState
+import com.qtekfun.ultimatedeck.domain.card.dueState
 import com.qtekfun.ultimatedeck.ui.components.LabelPill
+import com.qtekfun.ultimatedeck.ui.components.panelColor
 import com.qtekfun.ultimatedeck.ui.theme.LabelBlue
+import com.qtekfun.ultimatedeck.ui.theme.SuccessColor
 import com.qtekfun.ultimatedeck.ui.theme.UltimateDeckTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -71,6 +78,7 @@ fun BoardCardItem(
         Modifier
     }
     ElevatedCard(
+        colors = CardDefaults.elevatedCardColors(containerColor = panelColor()),
         modifier = modifier
             .fillMaxWidth()
             .clip(CardDefaults.elevatedShape)
@@ -90,6 +98,7 @@ fun BoardCardItem(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
+            if (card.checklistTotal > 0) ChecklistBar(card.checklistDone, card.checklistTotal)
             CardFooter(card, today)
         }
     }
@@ -119,22 +128,14 @@ private fun CardFooter(card: CardUi, today: LocalDate) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            card.dueDate?.let { due ->
-                val color = if (due.isBefore(today)) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                }
-                FooterItem(
-                    rememberVectorPainter(Icons.Outlined.DateRange),
-                    formatDate(due),
-                    color
-                )
-            }
+            card.dueDate?.let { DueBadge(it, today) }
+            // The words are in the card's description for screen readers.
             if (card.pendingSync) {
-                FooterItem(
-                    rememberVectorPainter(Icons.Outlined.Refresh),
-                    stringResource(R.string.card_pending_sync)
+                Icon(
+                    Icons.Outlined.Refresh,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(16.dp)
                 )
             }
             if (card.attachments > 0) {
@@ -153,6 +154,46 @@ private fun CardFooter(card: CardUi, today: LocalDate) {
         if (card.assignees.isNotEmpty()) {
             Spacer(Modifier.width(8.dp))
             CardAvatars(card.assignees)
+        }
+    }
+}
+
+@Composable
+private fun ChecklistBar(done: Int, total: Int) {
+    LinearProgressIndicator(
+        progress = { done.toFloat() / total },
+        color = if (done == total) SuccessColor else MaterialTheme.colorScheme.primary,
+        trackColor = MaterialTheme.colorScheme.outlineVariant,
+        drawStopIndicator = {},
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+/** The due date, filled and spelled out when it is close or past, never told by color alone. */
+@Composable
+private fun DueBadge(due: LocalDate, today: LocalDate) {
+    val colors = MaterialTheme.colorScheme
+    val icon = rememberVectorPainter(Icons.Outlined.DateRange)
+    val date = formatDate(due)
+    val (text, fill) = when (dueState(due, today)) {
+        DueState.OVERDUE -> stringResource(R.string.due_overdue, date) to
+            (colors.error to colors.onError)
+
+        DueState.TODAY -> stringResource(R.string.due_today, date) to
+            (colors.tertiaryContainer to colors.onTertiaryContainer)
+
+        DueState.TOMORROW -> stringResource(R.string.due_tomorrow, date) to
+            (colors.tertiaryContainer to colors.onTertiaryContainer)
+
+        DueState.LATER -> date to null
+    }
+    if (fill == null) {
+        FooterItem(icon, text)
+    } else {
+        Surface(color = fill.first, shape = MaterialTheme.shapes.extraSmall) {
+            Box(Modifier.padding(horizontal = 6.dp, vertical = 2.dp)) {
+                FooterItem(icon, text, fill.second)
+            }
         }
     }
 }

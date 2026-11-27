@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +50,7 @@ import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.data.settings.AppSettings
 import com.qtekfun.ultimatedeck.data.settings.SettingFlag
 import com.qtekfun.ultimatedeck.data.settings.ThemeMode
-import com.qtekfun.ultimatedeck.ui.session.LogoutAction
+import com.qtekfun.ultimatedeck.ui.components.Panel
 
 /** Settings (T18): appearance, language and account. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,36 +85,22 @@ fun SettingsScreen(
                     .widthIn(max = SettingsMaxWidth)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                AppearanceSection(settings, viewModel)
-                if (AppLanguages.supported) LanguageSection()
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                RemindersSection(settings, viewModel)
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                Section(R.string.settings_management)
-                Toggle(
-                    stringResource(R.string.settings_allow_deleting),
-                    stringResource(R.string.settings_allow_deleting_hint),
-                    settings.allowDeleting,
-                    onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
-                )
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                BackupSection()
-                HorizontalDivider(Modifier.padding(vertical = 8.dp))
-                Section(R.string.settings_account)
-                Text(
-                    accountName,
-                    Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Text(
-                    server,
-                    Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Row(Modifier.padding(horizontal = 8.dp)) { LogoutAction(accountName, onLogOut) }
+                SettingsPanel { AppearanceSection(settings, viewModel) }
+                if (AppLanguages.supported) SettingsPanel { LanguageSection() }
+                SettingsPanel { RemindersSection(settings, viewModel) }
+                SettingsPanel {
+                    Section(R.string.settings_management)
+                    Toggle(
+                        stringResource(R.string.settings_allow_deleting),
+                        stringResource(R.string.settings_allow_deleting_hint),
+                        settings.allowDeleting,
+                        onChange = { viewModel.setFlag(SettingFlag.ALLOW_DELETING, it) }
+                    )
+                }
+                SettingsPanel { BackupSection() }
+                SettingsPanel { AccountSection(accountName, server, onLogOut) }
                 AppVersion()
             }
         }
@@ -122,6 +108,14 @@ fun SettingsScreen(
 }
 
 private val SettingsMaxWidth = 640.dp
+
+/** A group of related settings. */
+@Composable
+private fun SettingsPanel(content: @Composable ColumnScope.() -> Unit) {
+    Panel(Modifier.padding(horizontal = 12.dp)) {
+        Column(Modifier.padding(bottom = 8.dp), content = content)
+    }
+}
 
 /** Which version is installed, at the foot of Settings. */
 @Composable
@@ -166,7 +160,6 @@ private fun LanguageSection() {
     val context = LocalContext.current
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
     var language by remember { mutableStateOf(AppLanguages.current(context)) }
-    HorizontalDivider(Modifier.padding(vertical = 8.dp))
     Section(R.string.settings_language)
     AppLanguage.entries.forEach { option ->
         Choice(stringResource(languageLabel(option)), language == option) {
