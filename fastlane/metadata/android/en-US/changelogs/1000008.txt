@@ -1,0 +1,1 @@
+New look: grey backgrounds that are easier on the eyes, board colors in the header, solid labels, a color for each person, and clearer card, board and settings screens.

@@ -1,0 +1,1 @@
+Nuevo aspecto: fondos grises que cansan menos la vista, el color del tablero en la cabecera, etiquetas rellenas, un color para cada persona y pantallas de tarjeta, tablero y ajustes más claras.
