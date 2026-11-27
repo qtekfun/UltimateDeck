@@ -5,6 +5,7 @@ package com.qtekfun.ultimatedeck.ui.card
 
 import android.text.format.DateFormat
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
@@ -22,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -42,6 +43,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +55,8 @@ import com.qtekfun.ultimatedeck.domain.card.dueDateFor
 import com.qtekfun.ultimatedeck.domain.card.pickerMillisFor
 import com.qtekfun.ultimatedeck.domain.card.withTime
 import com.qtekfun.ultimatedeck.ui.boards.deckColor
+import com.qtekfun.ultimatedeck.ui.components.LabelPill
+import com.qtekfun.ultimatedeck.ui.components.Panel
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -71,34 +76,16 @@ fun CardMetadata(
 ) {
     var open by rememberSaveable { mutableStateOf<MetadataDialog?>(null) }
     val zone = remember { ZoneId.systemDefault() }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        val overdue = card.dueDate?.isBefore(Instant.now()) == true
-        val dueColor = if (overdue) {
-            MaterialTheme.colorScheme.error
-        } else {
-            MaterialTheme.colorScheme.onSurface
+    Panel {
+        PropertyRow(rememberVectorPainter(Icons.Outlined.DateRange), {
+            open = MetadataDialog.DATE
+        }) { DueValue(card.dueDate, zone) }
+        PropertyRow(painterResource(R.drawable.ic_label), { open = MetadataDialog.LABELS }) {
+            LabelsValue(card)
         }
-        AssistChip(
-            onClick = { open = MetadataDialog.DATE },
-            label = {
-                Text(
-                    card.dueDate?.let { formatDue(it, zone) }
-                        ?: stringResource(R.string.card_due_add),
-                    color = dueColor
-                )
-            },
-            leadingIcon = { Icon(Icons.Outlined.DateRange, contentDescription = null) }
-        )
-        AssistChip(
-            onClick = { open = MetadataDialog.LABELS },
-            label = { Text(labelSummary(card)) },
-            leadingIcon = { Icon(painterResource(R.drawable.ic_label), contentDescription = null) }
-        )
-        AssistChip(
-            onClick = { open = MetadataDialog.MEMBERS },
-            label = { Text(memberSummary(card)) },
-            leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) }
-        )
+        PropertyRow(rememberVectorPainter(Icons.Outlined.Person), {
+            open = MetadataDialog.MEMBERS
+        }) { Text(memberSummary(card)) }
     }
     when (open) {
         MetadataDialog.DATE -> DueDateDialog(card.dueDate, zone, onDueDate) { open = null }
@@ -121,14 +108,49 @@ fun CardMetadata(
     }
 }
 
+/** One property of the card; tapping the row changes it. */
 @Composable
-private fun labelSummary(card: CardDetail): String {
+private fun PropertyRow(icon: Painter, onClick: () -> Unit, value: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 52.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        value()
+    }
+}
+
+@Composable
+private fun DueValue(dueDate: Instant?, zone: ZoneId) {
+    when {
+        dueDate == null -> Text(stringResource(R.string.card_due_add))
+
+        dueDate.isBefore(Instant.now()) -> Text(
+            stringResource(R.string.due_overdue, formatDue(dueDate, zone)),
+            color = MaterialTheme.colorScheme.error
+        )
+
+        else -> Text(formatDue(dueDate, zone))
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LabelsValue(card: CardDetail) {
     val chosen = card.labels.filter { it.selected }
-    return if (chosen.isEmpty()) {
-        stringResource(R.string.card_labels)
+    if (chosen.isEmpty()) {
+        Text(stringResource(R.string.card_labels))
     } else {
-        chosen.joinToString {
-            it.title
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            chosen.forEach { LabelPill(it.title, deckColor(it.color)) }
         }
     }
 }

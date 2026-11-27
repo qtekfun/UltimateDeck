@@ -162,6 +162,8 @@ class UiTests {
         )
 
         compose.waitUntil(TIMEOUT) { card().stackId == DONE }
+        // The operation is queued right after the position is saved.
+        compose.waitUntil(TIMEOUT) { queued().isNotEmpty() }
         assertEquals(setOf(CardField.POSITION), CardField.fromMask(card().dirtyFields))
         assertEquals(listOf(5L to QueuedOperation.MoveCard(BOARD, TODO, DONE, 0)), queued())
     }
@@ -187,6 +189,7 @@ class UiTests {
 
         compose.waitUntil(TIMEOUT) { card().title == "Write UI tests" }
         compose.waitUntil(TIMEOUT) { card().description.isNotEmpty() }
+        compose.waitUntil(TIMEOUT) { queued().isNotEmpty() }
         assertEquals("Login, move and edit", card().description.trim())
         assertEquals(
             setOf(CardField.TITLE, CardField.DESCRIPTION),

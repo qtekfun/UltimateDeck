@@ -192,6 +192,9 @@ private fun SignedInContent(
     onMenu: () -> Unit
 ) {
     val boardViewModel: BoardViewModel = viewModel()
+    val boardsViewModel: BoardListViewModel = viewModel()
+    val boards by boardsViewModel.state.collectAsStateWithLifecycle()
+    val color = boards.boards.firstOrNull { it.id == place.boardId }?.color ?: Color.Unspecified
     val board = place.boardId
     val card = place.cardId
     when {
@@ -218,6 +221,7 @@ private fun SignedInContent(
             BoardScreen(
                 title = place.boardTitle,
                 viewModel = boardViewModel,
+                color = color,
                 actions = BoardActions(
                     onMenu = onMenu,
                     onOpenCard = { place.cardId = it },
@@ -231,6 +235,7 @@ private fun SignedInContent(
 
         else -> CardDetailScreen(
             cardId = card,
+            boardColor = color,
             onBack = { place.cardId = null },
             onArchive = {
                 boardViewModel.archive(card)

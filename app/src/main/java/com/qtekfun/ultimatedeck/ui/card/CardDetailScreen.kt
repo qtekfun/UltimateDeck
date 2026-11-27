@@ -9,22 +9,27 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +45,7 @@ fun CardDetailScreen(
     onBack: () -> Unit,
     onArchive: () -> Unit,
     onDelete: () -> Unit,
+    boardColor: Color = Color.Unspecified,
     viewModel: CardDetailViewModel = viewModel()
 ) {
     LaunchedEffect(cardId) { viewModel.open(cardId) }
@@ -67,12 +73,8 @@ fun CardDetailScreen(
                 viewModel.saveNow(title, description)
                 onBack()
             },
-            cardActions = {
-                TextButton(onClick = onArchive) { Text(stringResource(R.string.card_archive)) }
-                IconButton(onClick = { confirmDelete = true }) {
-                    Icon(Icons.Filled.Delete, stringResource(R.string.card_delete))
-                }
-            },
+            barColor = boardColor,
+            cardActions = { CardMenu(onArchive, onDelete = { confirmDelete = true }) },
             onSourceChange = {
                 description = it
                 viewModel.onDescriptionChange(it)
@@ -93,8 +95,8 @@ fun CardDetailScreen(
                     onLabels = viewModel::setLabels,
                     onAssignees = viewModel::setAssignees
                 )
-                AttachmentsSection(cardId = current.id)
-            }
+            },
+            footer = { AttachmentsSection(cardId = current.id) }
         )
     }
 }
@@ -125,12 +127,17 @@ private fun CardHeader(
                 }
             }
         }
-        OutlinedTextField(
+        TextField(
             value = title,
             onValueChange = onTitleChange,
-            label = { Text(stringResource(R.string.card_title_label)) },
-            textStyle = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            placeholder = { Text(stringResource(R.string.card_title_label)) },
+            textStyle = MaterialTheme.typography.headlineSmall,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            modifier = Modifier.fillMaxWidth()
         )
         if (card.pendingSync) {
             Text(
@@ -140,5 +147,30 @@ private fun CardHeader(
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
+    }
+}
+
+/** Archiving and deleting live in a menu, away from accidental taps. */
+@Composable
+private fun CardMenu(onArchive: () -> Unit, onDelete: () -> Unit) {
+    var open by remember { mutableStateOf(false) }
+    IconButton(onClick = { open = true }) {
+        Icon(Icons.Filled.MoreVert, stringResource(R.string.board_more))
+    }
+    DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.card_archive)) },
+            onClick = {
+                open = false
+                onArchive()
+            }
+        )
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.card_delete)) },
+            onClick = {
+                open = false
+                onDelete()
+            }
+        )
     }
 }

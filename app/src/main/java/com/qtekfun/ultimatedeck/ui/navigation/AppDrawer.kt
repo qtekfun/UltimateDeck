@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -94,7 +93,9 @@ private fun BoardItem(
     }
     NavigationDrawerItem(
         label = { Text(board.title) },
-        icon = { Box(Modifier.size(12.dp).background(board.color, CircleShape)) },
+        icon = {
+            Box(Modifier.size(20.dp).background(board.color, MaterialTheme.shapes.extraSmall))
+        },
         badge = {
             IconButton(onClick = { callbacks.onFavorite(if (favorite) null else board.id) }) {
                 Icon(

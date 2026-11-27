@@ -3,6 +3,7 @@
 
 package com.qtekfun.ultimatedeck.ui.board
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitLongPressOrCancellation
@@ -14,14 +15,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,6 +37,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -46,6 +51,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +63,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -75,6 +82,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.qtekfun.ultimatedeck.R
 import com.qtekfun.ultimatedeck.domain.board.CardPosition
 import com.qtekfun.ultimatedeck.ui.boards.SyncProblemBanner
+import com.qtekfun.ultimatedeck.ui.components.boardBarColors
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -99,7 +107,8 @@ fun BoardScreen(
     title: String,
     viewModel: BoardViewModel,
     actions: BoardActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = Color.Unspecified
 ) {
     val onOpenCard = actions.onOpenCard
     val onAddColumn = actions.onAddColumn
@@ -119,7 +128,7 @@ fun BoardScreen(
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = { SnackbarHost(snackbar) },
-        topBar = { BoardTopBar(title, actions) }
+        topBar = { BoardTopBar(title, color, actions) }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = state.syncing,
@@ -161,9 +170,10 @@ fun BoardScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BoardTopBar(title: String, actions: BoardActions) {
+private fun BoardTopBar(title: String, color: Color, actions: BoardActions) {
     var menu by remember { mutableStateOf(false) }
     TopAppBar(
+        colors = boardBarColors(color),
         // One line: with a large font a long title would otherwise wrap letter by letter.
         title = { Text(title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         navigationIcon = {
@@ -223,7 +233,6 @@ private fun Board(
     val currentColumns = rememberUpdatedState(columns)
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
-    val columnTitles = columns.map { it.title }
 
     BoxWithConstraints(
         modifier = modifier
@@ -249,11 +258,12 @@ private fun Board(
     ) {
         val columnWidth = minOf(maxWidth * COLUMN_WIDTH_FRACTION, ColumnMaxWidth)
         AutoScroll(dragState, rowState, currentColumns, maxWidth)
+        ColumnDots(columns.size, rowState)
         LazyRow(
             state = rowState,
             flingBehavior = rememberSnapFlingBehavior(rowState, SnapPosition.Start),
             userScrollEnabled = !dragState.isDragging,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(16.dp, 20.dp, 16.dp, 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             itemsIndexed(dragState.preview(columns), key = { _, column ->
@@ -262,7 +272,7 @@ private fun Board(
                 BoardColumn(
                     column = column,
                     columnIndex = index,
-                    columnTitles = columnTitles,
+                    columnTitles = columns.map { it.title },
                     dragState = dragState,
                     callbacks = callbacks,
                     modifier = Modifier.width(columnWidth)
@@ -300,6 +310,29 @@ private fun FloatingCard(dragState: BoardDragState, dpPx: Float) {
 private const val FLOATING_CARD_TILT = 2f
 private const val FLOATING_CARD_SCALE = 1.04f
 private const val FLOATING_CARD_ELEVATION_DP = 12f
+
+/** Which column is in view, as a row of marks above the board. */
+@Composable
+private fun ColumnDots(count: Int, rowState: LazyListState) {
+    if (count < 2) return
+    // The row ends with the "add column" item, which is not a column.
+    val current by remember(rowState, count) {
+        derivedStateOf { rowState.firstVisibleItemIndex.coerceAtMost(count - 1) }
+    }
+    Row(
+        Modifier.padding(start = 16.dp, top = 6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        repeat(count) { index ->
+            val color = if (index == current) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            }
+            Box(Modifier.size(width = 20.dp, height = 4.dp).background(color, CircleShape))
+        }
+    }
+}
 
 /** Scrolls the board and the target column while the dragged card is near an edge. */
 @Composable

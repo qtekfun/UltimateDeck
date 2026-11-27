@@ -4,6 +4,7 @@
 package com.qtekfun.ultimatedeck.ui.login
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -20,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,6 +31,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -60,6 +65,7 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            AppMark()
             Text(
                 stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineSmall
@@ -87,6 +93,21 @@ fun LoginScreen(modifier: Modifier = Modifier, viewModel: LoginViewModel = viewM
                 onCancel = viewModel::cancel
             )
         }
+    }
+}
+
+/** The app icon: its foreground on its background color. */
+@Composable
+private fun AppMark() {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = colorResource(R.color.ic_launcher_background)
+    ) {
+        Image(
+            painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier.size(96.dp)
+        )
     }
 }
 
