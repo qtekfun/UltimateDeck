@@ -79,6 +79,9 @@ jobs:
         run: |
           tools="$ANDROID_HOME/cmdline-tools/latest/bin"
           adb="$ANDROID_HOME/platform-tools/adb"
+          # avdmanager and the emulator do not agree on the default folder.
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/avd"
+          mkdir -p "$ANDROID_AVD_HOME"
           "$tools/sdkmanager" --install emulator platform-tools "$SYSTEM_IMAGE" > /dev/null
           echo no | "$tools/avdmanager" create avd --force --name ci --package "$SYSTEM_IMAGE"
           nohup "$ANDROID_HOME/emulator/emulator" -avd ci -no-window -no-audio \
