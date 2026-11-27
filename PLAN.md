@@ -57,6 +57,7 @@ Móviles que matan las apps en segundo plano (ColorOS, MIUI, OriginOS, MagicOS).
 
 ## Después del MVP (backlog, no implementar aún)
 - Multicuenta completo en la UI.
+- Migrar el editor y los campos de contraseña a `TextFieldState` (la API anterior quedó obsoleta en Compose 1.13; hoy se suprime el aviso en esos archivos).
 - Tablet y apaisado.
 - Comentarios, notificaciones, widgets.
 - Crear/renombrar/reordenar columnas y gestión avanzada de tableros.
