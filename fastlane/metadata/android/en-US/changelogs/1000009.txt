@@ -1,0 +1,1 @@
+Going back from a card no longer shows the refresh indicator, and the board stays where you left it.
